@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Read(//tmp/**)",
+      "Bash(chmod +x install-v6.sh)",
+      "Bash(./install-v6.sh)",
+      "Bash(USER=\"rafael.giovannini\" ./install-v6.sh)",
+      "Read(//c/Users/rafael.giovannini/.claude/skills/bmad/**)",
+      "Bash(npm install ralph-loop@claude-plugins-official)",
+      "Bash(git clone https://github.com/frankbria/ralph-claude-code.git /tmp/ralph-claude-code)",
+      "Bash(bash install.sh)",
+      "Bash(winget install --id stedolan.jq --accept-package-agreements --accept-source-agreements)",
+      "Bash(curl -sL -o /usr/local/bin/jq.exe https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-windows-amd64.exe)",
+      "Bash(chmod +x /usr/local/bin/jq.exe)",
+      "Bash(jq --version)",
+      "WebFetch(domain:claude.com)",
+      "Bash(npm view ralph-loop)",
+      "Read(//c/Users/rafael.giovannini/bin/**)",
+      "Bash(export PATH=\"/c/Users/rafael.giovannini/bin:$PATH\")",
+      "Bash(source ~/.bashrc)",
+      "Bash(ralph --help)",
+      "Bash(export PATH=\"$HOME/.local/bin:$HOME/bin:$PATH\")",
+      "Bash(ralph-enable-ci)",
+      "Bash(bash install-v6.sh)",
+      "WebFetch(domain:kiro.dev)",
+      "Bash(npm install -g @kiro/context-engine)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\rafael.giovannini",
+      "C:\\Users\\rafael.giovannini\\Documents\\GitHub\\bmad-skills-temp"
+    ]
+  }
+}
