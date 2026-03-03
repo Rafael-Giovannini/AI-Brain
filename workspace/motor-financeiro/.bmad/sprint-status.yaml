@@ -1,0 +1,197 @@
+version: "6.0.0"
+project_name: "motor-financeiro"
+project_level: 2
+current_sprint: 1
+sprint_plan_path: "docs/sprint-plan-motor-financeiro-2026-03-03.md"
+
+sprints:
+  - sprint_number: 1
+    name: "Foundation"
+    capacity_points: 15
+    committed_points: 13
+    completed_points: 0
+    status: "not_started"
+    goal: "Projeto scaffoldado com infraestrutura completa, bancos configurados e camada Core operacional"
+    stories:
+      - story_id: "STORY-INF-001"
+        title: "Project Scaffolding"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-INF-002"
+        title: "Database Schema & Migrations"
+        points: 5
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-INF-003"
+        title: "Core/Shared Infrastructure"
+        points: 5
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+
+  - sprint_number: 2
+    name: "Autenticação Completa"
+    capacity_points: 15
+    committed_points: 16
+    completed_points: 0
+    status: "not_started"
+    goal: "Sistema de autenticação completo com registro, login seguro, recuperação de senha e gestão de perfil"
+    stories:
+      - story_id: "STORY-001"
+        title: "Cadastro de Usuário"
+        points: 5
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-002"
+        title: "Login/Logout com Sessão Segura"
+        points: 5
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-003"
+        title: "Recuperação de Senha"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-004"
+        title: "Visualização de Perfil e Dados da Conta"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+
+  - sprint_number: 3
+    name: "Open Finance Core"
+    capacity_points: 15
+    committed_points: 16
+    completed_points: 0
+    status: "not_started"
+    goal: "Integração com Pluggy funcional: conectar banco, ver contas e sincronizar transações"
+    stories:
+      - story_id: "STORY-005"
+        title: "Conexão via Open Finance (Pluggy)"
+        points: 8
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-006"
+        title: "Listagem de Contas Bancárias"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-007"
+        title: "Sincronização Automática de Movimentações"
+        points: 5
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+
+  - sprint_number: 4
+    name: "Categorização IA + Consentimentos"
+    capacity_points: 15
+    committed_points: 14
+    completed_points: 0
+    status: "not_started"
+    goal: "Motor de categorização IA operacional e gestão completa de consentimentos"
+    stories:
+      - story_id: "STORY-008"
+        title: "Gestão de Consentimentos"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-010"
+        title: "Gestão de Categorias Customizáveis"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-011"
+        title: "Categorização Automática (GPT-4o-mini)"
+        points: 5
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-012"
+        title: "Correção Manual de Categoria"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+
+  - sprint_number: 5
+    name: "Dashboard Core"
+    capacity_points: 15
+    committed_points: 15
+    completed_points: 0
+    status: "not_started"
+    goal: "Dashboard funcional com saldos, transações, gráficos e detalhamento — MVP funcional"
+    stories:
+      - story_id: "STORY-014"
+        title: "Visão Consolidada de Saldos"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-015"
+        title: "Transações com Filtro por Período"
+        points: 5
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-016"
+        title: "Gastos por Categoria (Gráficos)"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-017"
+        title: "Filtro por Conta Bancária"
+        points: 2
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-018"
+        title: "Detalhamento de Transação"
+        points: 2
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+
+  - sprint_number: 6
+    name: "Polish & Should Have"
+    capacity_points: 15
+    committed_points: 16
+    completed_points: 0
+    status: "not_started"
+    goal: "Features complementares: import manual, feedback loop, tendências, busca e preferências"
+    stories:
+      - story_id: "STORY-009"
+        title: "Importação Manual OFX/CSV"
+        points: 5
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-013"
+        title: "Feedback Loop / Aprendizado"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-019"
+        title: "Tendências e Comparativo Mensal"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-020"
+        title: "Busca em Transações"
+        points: 3
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+      - story_id: "STORY-021"
+        title: "Configuração de Preferências"
+        points: 2
+        status: "not_started"
+        assigned_to: "rafael.giovannini"
+
+velocity:
+  sprint_1: null
+  sprint_2: null
+  sprint_3: null
+  sprint_4: null
+  sprint_5: null
+  sprint_6: null
+  rolling_average: null
+
+team:
+  size: 1
+  sprint_length_weeks: 2
+  capacity_per_sprint: 15
+  experience_level: "pleno"
+  productive_hours_per_day: 5
+  point_to_hours_ratio: 3

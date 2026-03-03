@@ -31,26 +31,26 @@ function Get-CurrentBranch {
         # Git command failed
     }
     
-    # For non-git repos, try to find the latest feature directory
+    # For non-git repos, try to find the latest project in workspace/
     $repoRoot = Get-RepoRoot
-    $specsDir = Join-Path $repoRoot "specs"
-    
-    if (Test-Path $specsDir) {
-        $latestFeature = ""
-        $highest = 0
-        
-        Get-ChildItem -Path $specsDir -Directory | ForEach-Object {
-            if ($_.Name -match '^(\d{3})-') {
-                $num = [int]$matches[1]
-                if ($num -gt $highest) {
-                    $highest = $num
-                    $latestFeature = $_.Name
+    $workspaceDir = Join-Path $repoRoot "workspace"
+
+    if (Test-Path $workspaceDir) {
+        $latestProject = ""
+        $latestTime = [datetime]::MinValue
+
+        Get-ChildItem -Path $workspaceDir -Directory | ForEach-Object {
+            $specsDir = Join-Path $_.FullName "specs"
+            if (Test-Path $specsDir) {
+                if ($_.LastWriteTime -gt $latestTime) {
+                    $latestTime = $_.LastWriteTime
+                    $latestProject = $_.Name
                 }
             }
         }
-        
-        if ($latestFeature) {
-            return $latestFeature
+
+        if ($latestProject) {
+            return $latestProject
         }
     }
     
@@ -87,9 +87,20 @@ function Test-FeatureBranch {
     return $true
 }
 
+function Get-ProjectName {
+    param([string]$Branch)
+    # Strip the ###- prefix from branch name to get project name
+    # e.g., "001-motor-financeiro" -> "motor-financeiro"
+    if ($Branch -match '^\d{3}-(.+)$') {
+        return $matches[1]
+    }
+    return $Branch
+}
+
 function Get-FeatureDir {
     param([string]$RepoRoot, [string]$Branch)
-    Join-Path $RepoRoot "specs/$Branch"
+    $projectName = Get-ProjectName -Branch $Branch
+    Join-Path $RepoRoot "workspace/$projectName/specs"
 }
 
 function Get-FeaturePathsEnv {

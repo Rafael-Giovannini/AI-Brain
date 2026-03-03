@@ -1,0 +1,74 @@
+# BMAD Method Workflow Status
+# Generated: 2026-03-03
+# Project: motor-financeiro
+
+project_name: "motor-financeiro"
+project_type: "SaaS Web App"
+project_level: 2
+communication_language: "Portuguese"
+output_language: "Portuguese"
+last_updated: "2026-03-03T00:00:00Z"
+
+# Workflow Status Tracking
+# Status values:
+#   - "required" - Must be completed
+#   - "optional" - Can be skipped
+#   - "recommended" - Strongly suggested
+#   - "conditional" - Required based on project level
+#   - "{file-path}" - Completed (path to output file)
+#   - "skipped" - Explicitly skipped
+
+workflow_status:
+  # Phase 1: Analysis (Optional but recommended)
+  - name: product-brief
+    phase: 1
+    status: "docs/product-brief-motor-financeiro-2026-03-03.md"
+    description: "Create comprehensive product brief"
+
+  - name: brainstorm-project
+    phase: 1
+    status: "optional"
+    description: "Structured brainstorming session"
+
+  - name: research
+    phase: 1
+    status: "optional"
+    description: "Market and competitive research"
+
+  # Phase 2: Planning (Required - choose one based on project level)
+  - name: prd
+    phase: 2
+    status: "docs/prd-motor-financeiro-2026-03-03.md"
+    description: "Product Requirements Document"
+
+  - name: tech-spec
+    phase: 2
+    status: "optional"
+    description: "Technical Specification"
+
+  - name: create-ux-design
+    phase: 2
+    status: "optional"
+    description: "UX/UI design workflow"
+
+  # Phase 3: Solutioning (Conditional on project level)
+  - name: architecture
+    phase: 3
+    status: "docs/architecture-motor-financeiro-2026-03-03.md"
+    description: "System architecture design"
+
+  - name: solutioning-gate-check
+    phase: 3
+    status: "optional"
+    description: "Validate architecture against requirements"
+
+  # Phase 4: Implementation (Required)
+  - name: sprint-planning
+    phase: 4
+    status: "docs/sprint-plan-motor-financeiro-2026-03-03.md"
+    description: "Sprint plan with 24 stories across 6 phases (90 points)"
+
+  # Note: Implementation tracked in .bmad/sprint-status.yaml
+
+current_phase: "implementation"
+next_recommended: "/bmad:dev-story STORY-INF-001"
