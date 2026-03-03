@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MotorFinanceiro.Api/MotorFinanceiro.Api.csproj" />
+    <Project Path="src/MotorFinanceiro.Application/MotorFinanceiro.Application.csproj" />
+    <Project Path="src/MotorFinanceiro.Domain/MotorFinanceiro.Domain.csproj" />
+    <Project Path="src/MotorFinanceiro.Infrastructure/MotorFinanceiro.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MotorFinanceiro.Api.Tests/MotorFinanceiro.Api.Tests.csproj" />
+    <Project Path="tests/MotorFinanceiro.Application.Tests/MotorFinanceiro.Application.Tests.csproj" />
+    <Project Path="tests/MotorFinanceiro.Domain.Tests/MotorFinanceiro.Domain.Tests.csproj" />
+    <Project Path="tests/MotorFinanceiro.Infrastructure.Tests/MotorFinanceiro.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>

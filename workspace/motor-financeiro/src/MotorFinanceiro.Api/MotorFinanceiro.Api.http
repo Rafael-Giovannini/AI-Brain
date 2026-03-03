@@ -1,0 +1,6 @@
+@MotorFinanceiro.Api_HostAddress = http://localhost:5014
+
+GET {{MotorFinanceiro.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

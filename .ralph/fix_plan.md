@@ -1,12 +1,12 @@
 # Ralph Fix Plan — Motor Financeiro
 
-## Phase 0: Project Scaffolding (P0 — Prerequisite)
-- [ ] Criar solution .NET e projetos (Domain, Application, Infrastructure, Api)
-- [ ] Configurar Docker Compose dev (PostgreSQL 17 + MongoDB 8 + Redis 7)
-- [ ] Configurar EF Core + DbContext + primeira migration
-- [ ] Configurar MediatR, FluentValidation, Serilog
-- [ ] Configurar Angular 19 SPA com proxy para API
-- [ ] Configurar estrutura de testes (xUnit + FluentAssertions + Testcontainers)
+## Phase 0: Project Scaffolding (P0 — Prerequisite) ✅
+- [x] Criar solution .NET e projetos (Domain, Application, Infrastructure, Api)
+- [x] Configurar Docker Compose dev (PostgreSQL 17 + MongoDB 8 + Redis 7)
+- [x] Configurar EF Core + DbContext + primeira migration
+- [x] Configurar MediatR, FluentValidation, Serilog
+- [x] Configurar Angular 19 SPA com proxy para API
+- [x] Configurar estrutura de testes (xUnit + FluentAssertions + Testcontainers)
 
 ## Phase 1: Story 1 — Cadastro e Autenticação Segura (P1 — Critical)
 - [ ] Entidades Domain: User, RefreshToken, UserPreference
