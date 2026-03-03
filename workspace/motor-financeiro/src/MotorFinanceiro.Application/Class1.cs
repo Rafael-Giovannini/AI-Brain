@@ -1,6 +1,1 @@
-﻿namespace MotorFinanceiro.Application;
-
-public class Class1
-{
-
-}
+// placeholder removed — see Auth/, Common/

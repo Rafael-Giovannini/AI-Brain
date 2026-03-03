@@ -1,6 +1,1 @@
-﻿namespace MotorFinanceiro.Domain;
-
-public class Class1
-{
-
-}
+// placeholder removed — see Entities/, Interfaces/, ValueObjects/

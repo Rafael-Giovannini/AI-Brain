@@ -1,6 +1,1 @@
-﻿namespace MotorFinanceiro.Infrastructure;
-
-public class Class1
-{
-
-}
+// placeholder removed — see Persistence/, Services/
