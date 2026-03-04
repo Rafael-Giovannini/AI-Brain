@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GhostFit</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_title">GhostFit</string>
+    <string name="welcome_subtitle">Seu provador virtual de bolso</string>
+    <string name="welcome_feature_1">👗 Veja como a roupa fica em você antes de comprar</string>
+    <string name="welcome_feature_2">📱 Funciona sobre Shopee, Shein e outros apps</string>
+    <string name="welcome_feature_3">🔒 Suas fotos nunca saem do seu celular</string>
+    <string name="welcome_get_started">Começar</string>
 </resources>

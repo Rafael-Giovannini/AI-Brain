@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import app.ghostfit.ui.onboarding.WelcomeScreen
 import app.ghostfit.ui.theme.GhostFitTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GhostFitTheme {
-                // TODO: Wire onboarding navigation
+                // TODO: Replace with NavHost when onboarding navigation is wired
+                WelcomeScreen(
+                    onGetStarted = {
+                        // TODO: Navigate to PermissionScreen
+                    }
+                )
             }
         }
     }
