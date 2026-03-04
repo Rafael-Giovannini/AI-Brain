@@ -1,0 +1,165 @@
+version: "6.0.0"
+project_name: "GhostFit"
+project_level: 2
+current_phase: 1
+sprint_plan_path: "docs/sprint-plan-ghostfit-2026-03-04.md"
+
+phases:
+  - phase_number: 1
+    name: "Fundação"
+    estimated_weeks: 3.4
+    total_points: 27
+    completed_points: 0
+    status: "not_started"
+    goal: "App funcional com onboarding completo — cadastro, permissões e fotos de referência"
+    stories:
+      - story_id: "STORY-001"
+        title: "Setup do Projeto Android"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-001"
+      - story_id: "STORY-002"
+        title: "Consentimento LGPD"
+        points: 3
+        status: "not_started"
+        epic: "EPIC-001"
+      - story_id: "STORY-003"
+        title: "Permissão SYSTEM_ALERT_WINDOW com Onboarding"
+        points: 3
+        status: "not_started"
+        epic: "EPIC-001"
+      - story_id: "STORY-004"
+        title: "Cadastro de Fotos via Google Fotos"
+        points: 8
+        status: "not_started"
+        epic: "EPIC-001"
+      - story_id: "STORY-005"
+        title: "Overlay Flutuante (Fantasminha)"
+        points: 8
+        status: "not_started"
+        epic: "EPIC-002"
+
+  - phase_number: 2
+    name: "Core Experience"
+    estimated_weeks: 4.1
+    total_points: 33
+    completed_points: 0
+    status: "not_started"
+    goal: "Fluxo completo de try-on — toque no fantasminha até resultado com imagem gerada"
+    stories:
+      - story_id: "STORY-006"
+        title: "Overlay Reposicionável (Drag)"
+        points: 3
+        status: "not_started"
+        epic: "EPIC-002"
+      - story_id: "STORY-007"
+        title: "Captura de Tela ao Tocar no Overlay"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-002"
+      - story_id: "STORY-008"
+        title: "Provider Abstraction Layer (PAL)"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-003"
+      - story_id: "STORY-009"
+        title: "Detecção de Roupa via IA de Visão"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-003"
+      - story_id: "STORY-010"
+        title: "Aviso Nenhuma Roupa Detectada"
+        points: 2
+        status: "not_started"
+        epic: "EPIC-003"
+      - story_id: "STORY-011"
+        title: "Geração de Imagem Virtual Try-On"
+        points: 8
+        status: "not_started"
+        epic: "EPIC-003"
+      - story_id: "STORY-012"
+        title: "Tela de Resultado do Try-On"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-003"
+
+  - phase_number: 3
+    name: "Monetização e Social"
+    estimated_weeks: 2.8
+    total_points: 22
+    completed_points: 0
+    status: "not_started"
+    goal: "App monetizável — ads, compartilhamento e feedback funcionando"
+    stories:
+      - story_id: "STORY-013"
+        title: "AI Pipeline Orquestrador"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-003"
+      - story_id: "STORY-014"
+        title: "Compartilhar Resultado com Branding"
+        points: 3
+        status: "not_started"
+        epic: "EPIC-004"
+      - story_id: "STORY-015"
+        title: "Feedback Thumbs Up/Down"
+        points: 3
+        status: "not_started"
+        epic: "EPIC-004"
+      - story_id: "STORY-016"
+        title: "Backend Firebase — Feedback API + Remote Config"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-004"
+      - story_id: "STORY-017"
+        title: "Limite de 3 Tentativas Grátis/Dia"
+        points: 3
+        status: "not_started"
+        epic: "EPIC-005"
+      - story_id: "STORY-020"
+        title: "Tela de Upgrade/Planos"
+        points: 3
+        status: "not_started"
+        epic: "EPIC-005"
+
+  - phase_number: 4
+    name: "Inteligência e Billing"
+    estimated_weeks: 2.6
+    total_points: 21
+    completed_points: 0
+    status: "not_started"
+    goal: "Motor de aprendizado ativo + billing completo — app pronto para Play Store"
+    stories:
+      - story_id: "STORY-018"
+        title: "Exibição de Anúncios (AdMob)"
+        points: 3
+        status: "not_started"
+        epic: "EPIC-005"
+      - story_id: "STORY-019"
+        title: "Google Play Billing (Compras e Assinaturas)"
+        points: 8
+        status: "not_started"
+        epic: "EPIC-005"
+      - story_id: "STORY-021"
+        title: "Coleta de Dados para Dataset de Treinamento"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-003"
+      - story_id: "STORY-022"
+        title: "Roteamento Inteligente entre Modelos"
+        points: 5
+        status: "not_started"
+        epic: "EPIC-003"
+
+velocity:
+  phase_1: null
+  phase_2: null
+  phase_3: null
+  phase_4: null
+
+team:
+  size: 1
+  experience: "mid-level"
+  productive_hours_per_day: 5
+  points_per_hour: 0.33
+  estimated_points_per_week: 8
