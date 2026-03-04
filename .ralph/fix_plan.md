@@ -20,15 +20,15 @@
 
 ## Phase 1: Story 1 — Setup Inicial e Onboarding (P1)
 
-- [ ] Create UserProfile Room entity + DAO
-- [ ] Implement PhotoStorage with Tink AES-256-GCM encryption
+- [x] Create UserProfile Room entity + DAO
+- [x] Implement PhotoStorage with Tink AES-256-GCM encryption
 - [ ] Create WelcomeScreen.kt (onboarding intro)
 - [ ] Create PermissionScreen.kt (overlay + photos permissions with explanations)
 - [ ] Create LgpdConsentScreen.kt (explicit consent checkbox, not pre-checked)
 - [ ] Create PhotoSelectScreen.kt (gallery picker + body validation)
 - [ ] Wire onboarding navigation (Welcome → Permissions → LGPD → PhotoSelect)
 - [ ] Unit tests for UserProfile DAO
-- [ ] Unit tests for PhotoStorage encryption/decryption
+- [x] Unit tests for PhotoStorage encryption/decryption
 
 ---
 
@@ -86,6 +86,9 @@
 
 ## Completed
 - Phase 0: Project Scaffolding (all 7 tasks — Loop 1)
+- Phase 1 Task 1: UserProfile entity + DAO (done in Phase 0)
+- Phase 1 Task 2: PhotoStorage with Tink AES-256-GCM encryption (Loop 2)
+- Phase 1 Task 9: PhotoStorage unit tests (Loop 2)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
