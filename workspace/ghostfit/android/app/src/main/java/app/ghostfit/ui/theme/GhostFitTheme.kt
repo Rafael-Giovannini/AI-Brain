@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val GhostPurple = Color(0xFF7C4DFF)
-private val GhostPurpleLight = Color(0xFFB47CFF)
-private val GhostPurpleDark = Color(0xFF3F1DCB)
+private val GhostPurple = Color(0xFF7C3AED)
+private val GhostPurpleLight = Color(0xFFA78BFA)
+private val GhostPurpleDark = Color(0xFF4C1D95)
 
 private val LightColorScheme = lightColorScheme(
     primary = GhostPurple,

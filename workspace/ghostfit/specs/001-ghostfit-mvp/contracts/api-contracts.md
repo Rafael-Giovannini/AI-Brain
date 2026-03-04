@@ -194,13 +194,54 @@ Response 200 (dados insuficientes):
 
 **Regra**: Só retorna roteamento baseado em score quando há ≥ 50 feedbacks para a combinação (modelo × categoria). Caso contrário, retorna FASHN como default.
 
-### 2.3 GET /health — Health Check
+### 2.3 GET /v1/config — Configuração Remota
+
+```
+GET /v1/config
+
+Response 200:
+{
+  "primaryGenModel": "fashn",
+  "fallbackGenModel": "vertex",
+  "maxFreeTrials": 3,
+  "visionTimeout": 5000,
+  "genTimeout": 20000,
+  "minConfidence": 0.6,
+  "subscriptionPrices": {
+    "monthly": 9.90,
+    "pack10": 4.90
+  }
+}
+```
+
+### 2.4 GET /v1/health — Health Check
 
 ```
 GET /v1/health
 
 Response 200:
 { "status": "ok", "timestamp": 1709568000000 }
+```
+
+### 2.5 POST /v1/dataset — Entrada de Dataset Anonimizado
+
+Envia dados anonimizados para dataset de treinamento (apenas quando thumbs up).
+
+```
+POST /v1/dataset
+
+Request:
+{
+  "clothingType": "dress",
+  "clothingDescription": "Red floral summer dress",
+  "modelUsed": "fashn",
+  "generationTimeMs": 8500,
+  "approved": true,
+  "timestamp": 1709568000000
+}
+
+Response 201:
+{ "id": "ds_abc123" }
 ```
 
 ---

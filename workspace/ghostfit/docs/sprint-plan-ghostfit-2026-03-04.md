@@ -322,11 +322,11 @@ Para decidir se compro ou não.
 - [ ] Caimento realista para o biotipo da usuária
 - [ ] Resolução mínima 512x512
 - [ ] Geração completa em < 15 segundos (90% em 4G)
-- [ ] Implementação NanoBanana/Imagen como primary
-- [ ] Implementação Grok como fallback
+- [ ] Implementação FASHN.ai como primary
+- [ ] Implementação Vertex AI VTON como fallback
 
 **Notas Técnicas:**
-Implementar `NanoBananaProvider` e `GrokProvider`. Enviar foto de referência (decriptada em memória) + roupa detectada. Imagem gerada mantida apenas em memória.
+Implementar `FashnProvider` e `VertexAiProvider`. Enviar foto de referência (decriptada em memória) + roupa detectada. Imagem gerada mantida apenas em memória.
 
 **Dependências:** STORY-008 (PAL), STORY-009 (detecção), STORY-004 (fotos de referência)
 
@@ -786,11 +786,11 @@ Implementar `ProviderRouter` com lógica de scoring. Buscar scores do Firestore 
 
 ## Dependências Externas
 
-- **Google Photos API** — Acesso às fotos da usuária
-- **Gemini Flash** — Detecção de roupa (Vision API)
-- **Gemini NanoBanana / Imagen** — Geração de imagem try-on
-- **Grok Image Gen** — Fallback para geração
-- **OpenAI GPT-4o Vision** — Fallback para detecção
+- **Android Photo Picker** — Seleção nativa de fotos (sem OAuth)
+- **ML Kit Object Detection** — Detecção de roupa on-device (< 100ms)
+- **GPT-4o Vision** — Classificação remota de tipo/cor de roupa
+- **FASHN.ai v1.5** — Geração de imagem try-on (primário)
+- **Google Vertex AI VTON** — Fallback para geração
 - **Google Play Billing Library v6+** — Compras e assinaturas
 - **Google AdMob** — Anúncios
 - **Firebase** — Functions, Firestore, Remote Config, Analytics, Crashlytics, Cloud Storage

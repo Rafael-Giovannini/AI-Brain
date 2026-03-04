@@ -25,7 +25,7 @@ Comprar roupas online é um tiro no escuro. As fotos dos produtos nos marketplac
 ### Why Now?
 
 O momento é ideal por dois fatores convergentes:
-1. **Maturidade tecnológica:** Modelos de geração de imagem como o Gemini NanoBanana e o Grok atingiram consistência suficiente para editar roupas em fotos sem alterar a fisionomia das pessoas. Isso não era possível 1-2 anos atrás.
+1. **Maturidade tecnológica:** Modelos de virtual try-on como o FASHN.ai e o Google Vertex AI VTON atingiram consistência suficiente para editar roupas em fotos sem alterar a fisionomia das pessoas. Isso não era possível 1-2 anos atrás.
 2. **Gap de mercado:** Nenhum marketplace (Shopee, Shein, Renner, C&A, Zara, AliExpress) oferece virtual try-on hoje. O primeiro a resolver isso tem vantagem competitiva massiva.
 
 ### Impact if Unsolved
@@ -66,11 +66,11 @@ O momento é ideal por dois fatores convergentes:
 
 Aplicativo Android com overlay flutuante (ícone de fantasma) que funciona sobre qualquer app de e-commerce. O fluxo é:
 
-1. **Setup (uma vez):** Usuária instala o GhostFit e seleciona fotos de corpo inteiro do Google Fotos
+1. **Setup (uma vez):** Usuária instala o GhostFit e seleciona fotos de corpo inteiro via Photo Picker nativo
 2. **Uso diário:** Abre Shopee/Shein normalmente, navega pelos produtos
 3. **Try-on (um toque):** Encontra roupa → toca no fantasminha → app captura tela automaticamente
-4. **IA em ação:** Modelo de visão barato (OpenAI/Gemini Flash/YOLO) detecta a roupa na imagem. Se não encontrar roupa, exibe aviso "Nenhuma roupa detectada"
-5. **Geração:** NanoBanana/Grok gera imagem da usuária vestindo a roupa
+4. **IA em ação:** ML Kit detecta a roupa on-device (< 100ms), GPT-4o Vision classifica tipo/cor. Se não encontrar roupa, exibe aviso "Nenhuma roupa detectada"
+5. **Geração:** FASHN.ai (primário) ou Vertex AI (fallback) gera imagem da usuária vestindo a roupa
 6. **Resultado:** Exibe a imagem. Opções: "Tentar novamente", "Trocar foto", "Compartilhar"
 
 ### Key Features
@@ -78,8 +78,8 @@ Aplicativo Android com overlay flutuante (ícone de fantasma) que funciona sobre
 - Overlay flutuante persistente (fantasminha) sobre qualquer app
 - Captura de tela automática com um toque
 - Detecção de roupa via IA de visão (modelo econômico)
-- Geração de imagem virtual try-on via NanoBanana/Grok (modelo de qualidade)
-- Seleção de fotos pessoais via integração Google Fotos
+- Geração de imagem virtual try-on via FASHN.ai/Vertex AI (modelos especializados em VTON)
+- Seleção de fotos pessoais via Android Photo Picker nativo
 - Compartilhamento do resultado com branding GhostFit (marketing viral)
 - Monetização: 3 tentativas grátis/dia com anúncios + pacotes pagos/assinatura mensal
 - Imagens efêmeras — não armazenadas no servidor (privacy by design)
@@ -120,10 +120,10 @@ Duplo: **B2C** como app independente gerando receita via freemium + ads, e **B2B
 
 - App Android nativo (Kotlin)
 - Overlay flutuante (fantasminha) sobre outros apps
-- Cadastro de fotos via Google Fotos
+- Cadastro de fotos via Android Photo Picker nativo
 - Screenshot automático ao tocar no overlay
-- Detecção de roupa via modelo de visão econômico (OpenAI Vision, Gemini Flash, ou similar)
-- Geração de imagem via NanoBanana (Gemini) ou Grok
+- Detecção de roupa via ML Kit (on-device) + GPT-4o Vision (classificação remota)
+- Geração de imagem via FASHN.ai (primário) ou Vertex AI VTON (fallback)
 - Aviso "nenhuma roupa detectada" quando aplicável
 - Opções: "Tentar novamente" e "Trocar foto do usuário"
 - Compartilhamento do resultado com branding GhostFit
@@ -166,13 +166,13 @@ Duplo: **B2C** como app independente gerando receita via freemium + ads, e **B2B
 - **Budget:** Mínimo viável — custo deve ser o suficiente para ter algo entregável. Receita de ads precisa cobrir custo de tokens
 - **Plataforma:** Apenas Android (sem acesso a Mac para build iOS)
 - **Equipe:** Desenvolvedor solo (Rafael), 4-6h/dia
-- **Tecnológica:** Dependência de APIs externas (Gemini NanoBanana, OpenAI, Grok) para funcionalidade core
+- **Tecnológica:** Dependência de APIs externas (FASHN.ai, GPT-4o Vision, Vertex AI) para funcionalidade core
 - **Regulatória:** LGPD — fotos pessoais exigem consentimento explícito, criptografia e política de privacidade robusta
 - **Play Store:** Políticas restritivas para apps com overlay — requer compliance rigoroso
 
 ### Assumptions
 
-- Gemini NanoBanana e/ou Grok mantêm consistência na geração de imagens sem alterar fisionomia
+- FASHN.ai e/ou Vertex AI VTON mantêm consistência na geração de imagens sem alterar fisionomia
 - Custo por geração de imagem será viável economicamente com modelo freemium + ads
 - Usuárias possuem smartphones Android com capacidade suficiente para o app
 - Google Fotos API permite acesso às fotos do usuário com as permissões adequadas
@@ -213,7 +213,7 @@ MVP na Play Store em **4-6 meses** (meta: Julho-Setembro 2026)
 
 - **Risk:** Qualidade inconsistente das imagens geradas pela IA
   - **Likelihood:** Medium-High
-  - **Mitigation:** Testar múltiplos modelos (NanoBanana, Grok, Stable Diffusion), implementar fallback entre modelos, e permitir "tentar novamente" para a usuária
+  - **Mitigation:** Testar múltiplos modelos (FASHN.ai, Vertex AI), implementar fallback entre modelos, e permitir "tentar novamente" para a usuária
 
 - **Risk:** Políticas da Play Store rejeitarem o app por uso de overlay
   - **Likelihood:** Medium
@@ -231,7 +231,7 @@ MVP na Play Store em **4-6 meses** (meta: Julho-Setembro 2026)
   - **Likelihood:** Medium
   - **Mitigation:** Onboarding claro explicando por que cada permissão é necessária, transparência total sobre uso de dados
 
-- **Risk:** Dependência de APIs externas (Gemini, OpenAI, Grok)
+- **Risk:** Dependência de APIs externas (FASHN.ai, GPT-4o Vision, Vertex AI)
   - **Likelihood:** Low-Medium
   - **Mitigation:** Abstrair camada de IA para trocar providers facilmente, ter fallback entre modelos
 

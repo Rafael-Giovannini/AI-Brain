@@ -64,9 +64,9 @@ Os drivers arquiteturais foram priorizados com **Privacy-First** como princípio
          │               │               │
          ▼               ▼               ▼
   ┌────────────┐  ┌────────────┐  ┌────────────┐
-  │  Gemini     │  │ NanoBanana │  │   Grok     │
-  │  Flash      │  │ / Imagen   │  │  Image Gen │
-  │ (Vision)    │  │ (Gen AI)   │  │ (Fallback) │
+  │  ML Kit     │  │  FASHN.ai  │  │ Vertex AI  │
+  │ (On-Device) │  │   (VTON)   │  │   (VTON    │
+  │ + GPT-4o    │  │ (Primary)  │  │ Fallback)  │
   └────────────┘  └────────────┘  └────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
@@ -101,23 +101,23 @@ O app se comunica com o backend através de uma interface `BackendService`. No M
 
 | Category | Technology | Rationale | Trade-offs |
 |----------|-----------|-----------|------------|
-| **Language** | Kotlin 2.0+ | Linguagem oficial Android, null safety, coroutines | — |
+| **Language** | Kotlin 1.9+ | Linguagem oficial Android, null safety, coroutines | — |
 | **UI** | Jetpack Compose | Declarativo, moderno, menos boilerplate | Curva de aprendizado vs XML |
 | **DI** | Hilt (Dagger) | Compile-time safety, oficial Google | Mais setup inicial que Koin |
 | **Networking** | Retrofit + OkHttp | Padrão de mercado, interceptors, logging | — |
 | **Image Loading** | Coil | Kotlin-first, Compose-native, leve | Menos features que Glide |
 | **Local DB** | Room | ORM oficial Android, compile-time queries | — |
-| **Encryption** | Android Keystore + EncryptedSharedPreferences | Hardware-backed crypto, padrão Google | API 23+ (ok, temos API 26) |
+| **Encryption** | Tink AES-256-GCM (StreamingAead) | Crypto moderna, EncryptedFile deprecado Abr/2025 | Tink 1.12+ |
 | **Coroutines** | Kotlin Coroutines + Flow | Async nativo Kotlin, compose-friendly | — |
 | **Navigation** | Compose Navigation | Navegação declarativa, type-safe args | — |
-| **Serialization** | Kotlinx Serialization | Kotlin-native, performante | — |
+| **Serialization** | Moshi 1.15 | Integração nativa com Retrofit, JSON adapters | — |
 
 ### 3.2 AI Services
 
 | Category | Primary | Fallback | Rationale |
 |----------|---------|----------|-----------|
-| **Vision (detecção)** | Gemini Flash | OpenAI GPT-4o Vision | Flash é rápido e barato. GPT-4o como fallback de alta qualidade |
-| **Generation (try-on)** | Gemini NanoBanana / Imagen | Grok Image Gen | NanoBanana otimizado para edição de roupa. Grok como alternativa |
+| **Vision (detecção)** | ML Kit Object Detection (on-device) | GPT-4o Vision (classificação remota) | ML Kit < 100ms local. GPT-4o para metadados (tipo, cor, descrição) |
+| **Generation (try-on)** | FASHN.ai v1.5 | Google Vertex AI VTON | FASHN.ai $0.075/img, maskless pixel-space. Vertex AI como fallback GCP |
 
 ### 3.3 Backend (Firebase)
 
@@ -143,7 +143,7 @@ O app se comunica com o backend através de uma interface `BackendService`. No M
 |----------|-----------|-----------|
 | **Version Control** | Git (GitHub) | Padrão de mercado |
 | **CI/CD** | GitHub Actions | Integrado ao repo, free tier generoso |
-| **Testing** | JUnit 5 + MockK + Compose Testing | Stack moderna Kotlin testing |
+| **Testing** | JUnit 4 + MockK + Compose UI Test | Stack padrão Android testing |
 | **Code Quality** | Ktlint + Detekt | Linting + static analysis |
 | **Build** | Gradle (Kotlin DSL) | Padrão Android, version catalogs |
 | **Min SDK** | API 26 (Android 8.0) | Cobre 95%+ dispositivos Brasil |
@@ -249,10 +249,10 @@ interface ProviderRouter {
 ```
 
 **Dependencies:**
-- Gemini Flash SDK (vision)
-- OpenAI SDK (vision fallback)
-- Gemini NanoBanana / Imagen SDK (generation)
-- Grok SDK (generation fallback)
+- ML Kit Object Detection (vision on-device)
+- OpenAI GPT-4o Vision SDK (classificação remota)
+- FASHN.ai API (VTON generation primary)
+- Vertex AI VTON API (VTON generation fallback)
 - Model Score Repository (roteamento)
 
 **FRs Addressed:** FR-007, FR-009, FR-012, FR-020
@@ -264,16 +264,16 @@ interface ProviderRouter {
 **Purpose:** Gerenciar fotos pessoais da usuária com criptografia.
 
 **Responsibilities:**
-- Integrar com Google Photos API para seleção de fotos
+- Integrar com Android Photo Picker nativo para seleção de fotos
 - Validar que foto contém pessoa de corpo inteiro
-- Criptografar fotos localmente com Android Keystore
+- Criptografar fotos localmente com Tink AES-256-GCM
 - Gerenciar CRUD de fotos de referência
 - Nunca enviar fotos para storage externo (privacy-first)
 
 **Interfaces:**
 ```kotlin
 interface PhotoManager {
-    suspend fun selectFromGooglePhotos(): List<UserPhoto>
+    suspend fun selectFromPhotoPicker(): List<ReferencePhoto>
     suspend fun validateFullBody(photo: Bitmap): Boolean
     fun getEncryptedPhotos(): Flow<List<EncryptedPhoto>>
     suspend fun deletePhoto(id: String)
@@ -282,10 +282,9 @@ interface PhotoManager {
 ```
 
 **Dependencies:**
-- Google Photos API
-- Android Keystore
+- Android Photo Picker
+- Tink StreamingAead
 - Room Database (metadata)
-- EncryptedFile API
 
 **FRs Addressed:** FR-001, FR-003
 
@@ -422,61 +421,62 @@ class FirebaseBackendService @Inject constructor(
 
 ```
 ┌─────────────────────────────────┐
-│         UserConsent             │
+│         UserProfile             │
 │ ─────────────────────────────── │
-│ id: String (UUID)               │
-│ consentGiven: Boolean           │
-│ consentTimestamp: Instant       │
-│ privacyPolicyVersion: String    │
+│ id: Long (PK, autoGenerate)     │
+│ displayName: String             │
+│ lgpdConsentGiven: Boolean       │
+│ lgpdConsentTimestamp: Long?     │
+│ overlayPositionX: Float         │
+│ overlayPositionY: Float         │
+│ createdAt: Long                 │
+│ updatedAt: Long                 │
 │ ─────────────────────────────── │
-│ Has many: UserPhoto             │
+│ Has many: ReferencePhoto        │
 └─────────────────────────────────┘
          │
-         │ 1:N
+         │ 1:N (max 3)
          ▼
 ┌─────────────────────────────────┐
-│          UserPhoto              │
+│       ReferencePhoto            │
 │ ─────────────────────────────── │
-│ id: String (UUID)               │
+│ id: Long (PK, autoGenerate)     │
+│ userProfileId: Long (FK)        │
 │ encryptedPath: String           │
-│ thumbnailPath: String           │
 │ isFullBody: Boolean             │
-│ createdAt: Instant              │
-│ sourceUri: String (Google Photos)│
+│ isActive: Boolean               │
+│ createdAt: Long                 │
+│ ─────────────────────────────── │
+│ Encrypted via Tink AES-256-GCM  │
 └─────────────────────────────────┘
 
 ┌─────────────────────────────────┐
-│        TrialCounter             │
+│     SubscriptionState           │
 │ ─────────────────────────────── │
-│ date: LocalDate (PK)            │
-│ usedCount: Int                  │
-│ maxAllowed: Int (default: 3)    │
+│ plan: "free" | "monthly" |      │
+│       "pack_10" | "pack_50"     │
+│ dailyTryOnsUsed: Int            │
+│ dailyResetDate: String          │
+│ purchaseToken: String?          │
+│ expiresAt: Long?                │
 └─────────────────────────────────┘
 
 ┌─────────────────────────────────┐
-│       OverlayPosition           │
+│       FeedbackRecord            │  ← Enviado ao backend (anonimizado)
 │ ─────────────────────────────── │
-│ x: Float                        │
-│ y: Float                        │
-│ updatedAt: Instant              │
-└─────────────────────────────────┘
-
-┌─────────────────────────────────┐
-│       TryOnFeedback             │  ← Enviado ao Firebase (anonimizado)
-│ ─────────────────────────────── │
-│ id: String (UUID)               │
-│ modelUsed: String               │
+│ sessionId: String (UUID)        │
+│ modelUsed: "fashn" | "vertex"   │
 │ clothingType: String            │
-│ generationParams: JsonObject    │
-│ thumbsUp: Boolean?              │
-│ timestamp: Instant              │
-│ deviceId: String (anon hash)    │
+│ thumbsUp: Boolean               │
+│ generationTimeMs: Long          │
+│ timestamp: Long                 │
+│ deviceHash: String (anon)       │
 └─────────────────────────────────┘
 
 ┌─────────────────────────────────┐
 │     ModelScore (Remote)         │  ← Firestore
 │ ─────────────────────────────── │
-│ modelName: String               │
+│ modelId: "fashn" | "vertex"     │
 │ clothingType: String            │
 │ approvalRate: Float             │
 │ totalFeedbacks: Int             │
@@ -488,9 +488,9 @@ class FirebaseBackendService @Inject constructor(
 
 | Data | Storage | Encryption | Rationale |
 |------|---------|------------|-----------|
-| Fotos pessoais | Android Internal Storage | AES-256 (Android Keystore) | Nunca saem do device |
-| Consent records | Room (SQLite) | EncryptedSharedPrefs | Auditoria LGPD |
-| Trial counter | Room (SQLite) | EncryptedSharedPrefs | Anti-tampering |
+| Fotos pessoais | Android Internal Storage | Tink AES-256-GCM (StreamingAead) | Nunca saem do device |
+| UserProfile + consent | Room (SQLite) | — (dados não sensíveis) | Auditoria LGPD via timestamps |
+| SubscriptionState | Room (SQLite) | — | Validação server-side via Play Billing |
 | Overlay position | SharedPreferences | Não (dado não sensível) | Persistência simples |
 | Screenshots | Memória (Bitmap) | N/A — efêmero | Deletado após processamento |
 | Imagens geradas | Memória (Bitmap) | N/A — efêmero | Nunca persistido em disco |
@@ -507,7 +507,7 @@ class FirebaseBackendService @Inject constructor(
 [MediaProjection captura tela] → Bitmap in memory (EFÊMERO)
         │
         ▼
-[Gemini Flash: detecta roupa] → ClothingDetection object
+[ML Kit: detecta objeto roupa] → bounding box + crop
         │                         (tipo, bounding box, confiança)
         │
         ├── confiança < 60% → "Nenhuma roupa detectada" → FIM
@@ -516,7 +516,10 @@ class FirebaseBackendService @Inject constructor(
 [Foto da usuária descriptografada] → Bitmap in memory (EFÊMERO)
         │
         ▼
-[NanoBanana/Grok: gera try-on] → Bitmap resultado in memory (EFÊMERO)
+[GPT-4o Vision: classifica tipo/cor] → GarmentInfo
+        │
+        ▼
+[FASHN.ai/Vertex AI: gera try-on] → Bitmap resultado in memory (EFÊMERO)
         │
         ▼
 [Result Screen exibe imagem]
@@ -535,77 +538,86 @@ class FirebaseBackendService @Inject constructor(
 
 ### 6.1 APIs Consumidas pelo App (Externas)
 
-#### Google Photos API
+#### Android Photo Picker (On-Device)
 ```
-GET /v1/mediaItems?pageSize=50&filters={contentFilter:{includedContentCategories:["PEOPLE"]}}
-Authorization: Bearer {oauth_token}
-→ Lista fotos da usuária com filtro de pessoas
+Usa ActivityResultContracts.PickMultipleVisualMedia() — nativo Android, sem OAuth.
+→ Lista de URIs de fotos selecionadas pela usuária
 ```
 
-#### Gemini Flash (Vision — Detecção)
+#### ML Kit Object Detection (On-Device — Detecção)
+```kotlin
+val options = ObjectDetectorOptions.Builder()
+    .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
+    .enableMultipleObjects()
+    .enableClassification()
+    .build()
+val detector = ObjectDetection.getClient(options)
+→ List<DetectedObject> com bounding boxes (< 100ms, sem internet)
 ```
-POST /v1/models/gemini-2.0-flash:generateContent
+
+#### GPT-4o Vision (Classificação Remota)
+```
+POST https://api.openai.com/v1/chat/completions
 {
-  "contents": [{
-    "parts": [
-      {"inline_data": {"mime_type": "image/jpeg", "data": "{base64_screenshot}"}},
-      {"text": "Detect the main clothing item in this e-commerce product screenshot. Return JSON: {detected: bool, confidence: float, clothing_type: string, description: string}"}
-    ]
+  "model": "gpt-4o",
+  "messages": [{"role": "user", "content": [
+    {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,{cropped_garment}"}},
+    {"type": "text", "text": "Classify: type (top/bottom/dress/outerwear), color, description. JSON only."}
+  ]}],
+  "max_tokens": 150
+}
+→ GarmentInfo { type, color, description }
+```
+
+#### FASHN.ai v1.5 (VTON — Primary)
+```
+POST https://api.fashn.ai/v1/run
+{
+  "model_image": "{base64_user_photo}",
+  "garment_image": "{base64_clothing_crop}",
+  "category": "tops" | "bottoms" | "one-pieces"
+}
+→ Generated try-on image (URL), timeout: 10s
+```
+
+#### Google Vertex AI VTON (Fallback)
+```
+POST https://{region}-aiplatform.googleapis.com/v1/projects/{project}/locations/{region}/publishers/google/models/virtual-try-on-001:predict
+{
+  "instances": [{
+    "person_image": {"bytesBase64Encoded": "{base64_user_photo}"},
+    "garment_image": {"bytesBase64Encoded": "{base64_clothing_crop}"},
+    "garment_type": "TOP" | "BOTTOM" | "FULL"
   }]
 }
-→ ClothingDetection response
-```
-
-#### NanoBanana / Imagen (Generation — Try-On)
-```
-POST /v1/images/edit
-{
-  "prompt": "Realistic photo of person wearing {clothing_description}",
-  "image": "{base64_user_photo}",
-  "reference_image": "{base64_clothing_crop}",
-  "seed": {random_or_specified},
-  "style": "photorealistic"
-}
-→ Generated image (base64)
-```
-
-#### Grok Image Gen (Fallback)
-```
-POST /v1/images/generations
-{
-  "prompt": "Virtual try-on: {clothing_description} on person",
-  "image": "{base64_user_photo}",
-  "reference": "{base64_clothing_crop}"
-}
-→ Generated image (base64)
+→ Generated try-on image (base64), timeout: 15s
 ```
 
 ### 6.2 Backend API (Firebase Functions)
 
-#### POST /feedback
+#### POST /v1/feedback
 Envia feedback de try-on (anonimizado).
 ```json
 Request:
 {
-  "modelUsed": "nanoBanana",
+  "modelUsed": "fashn",
   "clothingType": "dress",
   "thumbsUp": true,
-  "generationParams": {"seed": 12345, "temperature": 0.7},
+  "generationTimeMs": 8500,
   "deviceHash": "sha256_anon_id",
-  "timestamp": "2026-03-04T14:30:00Z"
+  "timestamp": 1709568000000
 }
 
 Response: 200 OK
 ```
 
-#### GET /config
+#### GET /v1/config
 Busca configuração remota.
 ```json
 Response:
 {
-  "primaryVisionModel": "geminiFlash",
-  "primaryGenModel": "nanoBanana",
-  "fallbackGenModel": "grok",
+  "primaryGenModel": "fashn",
+  "fallbackGenModel": "vertex",
   "maxFreeTrials": 3,
   "visionTimeout": 5000,
   "genTimeout": 20000,
@@ -617,31 +629,40 @@ Response:
 }
 ```
 
-#### GET /model-scores
-Busca scores de aprovação por modelo.
+#### GET /v1/models/route
+Busca recomendação de modelo por tipo de roupa (roteamento inteligente).
 ```json
+GET /v1/models/route?clothingType=dress
+
 Response:
 {
-  "scores": [
-    {"model": "nanoBanana", "clothingType": "dress", "approvalRate": 0.78, "count": 234},
-    {"model": "grok", "clothingType": "dress", "approvalRate": 0.65, "count": 189},
-    {"model": "nanoBanana", "clothingType": "blouse", "approvalRate": 0.72, "count": 156},
-    {"model": "grok", "clothingType": "blouse", "approvalRate": 0.81, "count": 143}
-  ]
+  "recommendedModel": "fashn",
+  "fallbackModel": "vertex",
+  "scores": {
+    "fashn": {"approvalRate": 0.78, "count": 234},
+    "vertex": {"approvalRate": 0.65, "count": 189}
+  }
 }
 ```
 
-#### POST /dataset
+#### GET /v1/health
+Health check do backend.
+```json
+Response:
+{ "status": "ok", "timestamp": 1709568000000 }
+```
+
+#### POST /v1/dataset
 Envia entrada anonimizada para dataset de treinamento.
 ```json
 Request:
 {
   "clothingType": "dress",
   "clothingDescription": "Red floral summer dress",
-  "modelUsed": "nanoBanana",
-  "generationParams": {"seed": 12345, "temperature": 0.7},
+  "modelUsed": "fashn",
+  "generationTimeMs": 8500,
   "approved": true,
-  "timestamp": "2026-03-04T14:30:00Z"
+  "timestamp": 1709568000000
 }
 
 Response: 200 OK
@@ -649,7 +670,7 @@ Response: 200 OK
 
 ### 6.3 Authentication
 
-- **Google Photos API:** OAuth 2.0 (Google Sign-In) — escopo `photoslibrary.readonly`
+- **Photo Picker:** Nativo Android — sem OAuth necessário
 - **AI APIs:** API Keys armazenadas em:
   - **MVP:** Compiladas no app (obfuscação via ProGuard + BuildConfig)
   - **v2:** Migrar para backend proxy que adiciona API key server-side
@@ -1144,21 +1165,21 @@ Push to branch
 
 | FR ID | FR Name | Components | Notes |
 |-------|---------|------------|-------|
-| FR-001 | Cadastro fotos Google Fotos | Photo Manager, Consent Manager | Requer OAuth Google Sign-In |
+| FR-001 | Cadastro fotos Photo Picker | Photo Manager, Consent Manager | Photo Picker nativo, sem OAuth |
 | FR-002 | Permissão SYSTEM_ALERT_WINDOW | Consent Manager, Overlay Service | Onboarding explicativo |
 | FR-003 | Consentimento LGPD | Consent Manager | Opt-in explícito antes de fotos |
 | FR-004 | Overlay flutuante | Overlay Service | Foreground Service + WindowManager |
 | FR-005 | Captura de tela | Overlay Service | MediaProjection API |
 | FR-006 | Overlay reposicionável | Overlay Service | Touch listener + position persistence |
-| FR-007 | Detecção roupa IA | AI Pipeline, PAL | Gemini Flash primary |
+| FR-007 | Detecção roupa IA | AI Pipeline, PAL | ML Kit on-device + GPT-4o Vision |
 | FR-008 | Aviso nenhuma roupa | AI Pipeline, Result Screen | Threshold confiança < 60% |
-| FR-009 | Geração try-on | AI Pipeline, PAL | NanoBanana primary |
+| FR-009 | Geração try-on | AI Pipeline, PAL | FASHN.ai primary |
 | FR-010 | Tentar novamente | Result Screen, AI Pipeline | Seed diferente, conta como trial |
 | FR-011 | Trocar foto | Result Screen, Photo Manager | Seletor de fotos cadastradas |
 | FR-012 | Fallback modelos IA | PAL | Chain-of-responsibility |
 | FR-013 | Compartilhar com branding | Result Screen | Share Intent + bitmap overlay |
 | FR-014 | Feedback thumbs up/down | Result Screen, Backend Service | Async, não bloqueia UX |
-| FR-015 | Limite 3 grátis/dia | Billing Manager | EncryptedSharedPrefs counter |
+| FR-015 | Limite 3 grátis/dia | Billing Manager | SubscriptionState in Room |
 | FR-016 | Exibição de ads | Billing Manager, Result Screen | AdMob integration |
 | FR-017 | Pacotes/assinatura | Billing Manager | Play Billing v6+ |
 | FR-018 | In-app purchase | Billing Manager | Google Play Billing Library |
@@ -1170,10 +1191,10 @@ Push to branch
 
 | NFR ID | NFR Name | Solution | Validation |
 |--------|----------|----------|------------|
-| NFR-001 | Detecção < 3s | Gemini Flash, image compression | p95 latency monitoring |
+| NFR-001 | Detecção < 3s | ML Kit (< 100ms) + GPT-4o Vision | p95 latency monitoring |
 | NFR-002 | Geração < 15s | Timeout + fallback chain | p90 latency monitoring |
 | NFR-003 | Overlay < 50MB | Lightweight service, bitmap recycling | Android Profiler |
-| NFR-004 | Criptografia | Keystore + TLS 1.2+ + EncryptedFile | Security audit |
+| NFR-004 | Criptografia | Tink AES-256-GCM + TLS 1.2+ | Security audit |
 | NFR-005 | Imagens efêmeras | In-memory only, no persistence | Code audit |
 | NFR-006 | LGPD | ConsentManager, opt-in, delete data | Legal review |
 | NFR-007 | Dados terceiros | Data minimization, no PII to APIs | ToS review |
@@ -1271,7 +1292,7 @@ Push to branch
 |--------|-------|
 | **Pattern** | Client-Heavy + Firebase Serverless |
 | **Components** | 8 major components |
-| **Tech Stack** | Kotlin, Compose, Hilt, Gemini Flash, NanoBanana/Grok, Firebase |
+| **Tech Stack** | Kotlin 1.9+, Compose, Hilt, ML Kit, FASHN.ai/Vertex AI, Firebase |
 | **FRs Addressed** | 21/21 |
 | **NFRs Addressed** | 15/15 |
 | **Primary Driver** | Privacy-First (LGPD, imagens efêmeras, criptografia) |

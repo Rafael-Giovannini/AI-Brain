@@ -118,7 +118,7 @@ O fantasminha GhostFit aparece como overlay flutuante persistente sobre qualquer
 
 - Q: O que acontece se a usuária tocar no overlay enquanto uma geração anterior está em andamento? → A: Ignorar toque e mostrar toast "Geração em andamento..."
 - Q: A usuária pode salvar e visualizar histórico de try-ons anteriores? → A: Não — cada resultado é descartado ao fechar a tela, em conformidade com LGPD (sem persistência de imagens geradas).
-- Q: Qual a ordem de prioridade dos modelos de IA e timeout antes de fallback? → A: NanoBanana primário (10s timeout), Grok fallback (15s timeout).
+- Q: Qual a ordem de prioridade dos modelos de IA e timeout antes de fallback? → A: FASHN.ai primário (10s timeout), Vertex AI fallback (15s timeout).
 - Q: Quantas fotos de referência a usuária pode cadastrar? → A: Até 3 fotos, selecionável no momento do try-on.
 - Q: Qual o nível de disponibilidade esperado para o backend? → A: 99% uptime (~7h downtime/mês) — adequado para MVP.
 
@@ -137,7 +137,7 @@ O fantasminha GhostFit aparece como overlay flutuante persistente sobre qualquer
 - **FR-009**: Sistema DEVE gerar imagem realista da usuária vestindo a roupa detectada, preservando fisionomia, tom de pele e proporções, em menos de 15 segundos
 - **FR-010**: Sistema DEVE permitir regeneração do try-on (variação diferente) com mesmos inputs, contando como tentativa adicional
 - **FR-011**: Sistema DEVE permitir troca da foto de referência e regeneração do try-on com a mesma roupa
-- **FR-012**: Sistema DEVE implementar fallback automático entre modelos de IA: NanoBanana primário (timeout 10s) → Grok fallback (timeout 15s), com retry até 2x por provider antes de acionar fallback
+- **FR-012**: Sistema DEVE implementar fallback automático entre modelos de IA: FASHN.ai primário (timeout 10s) → Vertex AI fallback (timeout 15s), com retry até 2x por provider antes de acionar fallback
 - **FR-013**: Sistema DEVE permitir compartilhamento do resultado via share sheet nativa com branding sutil GhostFit
 - **FR-014**: Sistema DEVE coletar feedback thumbs up/down com metadados (modelo usado, tipo de roupa, timestamp) enviados ao backend de forma assíncrona
 - **FR-015**: Usuárias free DEVEM ter limite de 3 gerações por dia, com contador visível, reset à meia-noite (horário local), sem cobrar tentativas com detecção falha ou erro de API
@@ -175,7 +175,7 @@ O fantasminha GhostFit aparece como overlay flutuante persistente sobre qualquer
 ## Assumptions
 
 - Google Fotos API ou picker nativo do Android permite seleção de fotos com as permissões adequadas
-- Modelos de IA generativa (NanoBanana, Grok) mantêm consistência na preservação de fisionomia ao trocar roupas
+- Modelos de IA generativa (FASHN.ai, Vertex AI) mantêm consistência na preservação de fisionomia ao trocar roupas
 - Custo por geração de imagem é viável economicamente com modelo freemium + ads
 - Usuárias possuem smartphones Android com capacidade suficiente (4GB+ RAM, Android 8.0+)
 - Políticas da Play Store permitem overlay com SYSTEM_ALERT_WINDOW quando devidamente justificado

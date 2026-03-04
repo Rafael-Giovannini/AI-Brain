@@ -205,7 +205,7 @@ Quando o modelo de visão não encontra roupa na screenshot (ex: usuária tocou 
 **Priority:** Must Have
 
 **Description:**
-Modelo generativo (NanoBanana/Grok) cria imagem realista da usuária vestindo a roupa detectada, mantendo fisionomia, tom de pele e proporções corporais da foto de referência.
+Modelo generativo (FASHN.ai/Vertex AI) cria imagem realista da usuária vestindo a roupa detectada, mantendo fisionomia, tom de pele e proporções corporais da foto de referência.
 
 **Acceptance Criteria:**
 - [ ] Imagem gerada mostra a usuária vestindo a roupa detectada
@@ -260,8 +260,8 @@ Na tela de resultado, botão permite trocar a foto de referência da usuária e 
 Sistema abstrai a camada de IA com providers intercambiáveis. Se o modelo primário falhar (timeout, erro, indisponibilidade), automaticamente tenta o modelo secundário.
 
 **Acceptance Criteria:**
-- [ ] Cadeia de fallback configurável (ex: NanoBanana → Grok → Stable Diffusion)
-- [ ] Timeout por provider (ex: 20s antes de fallback)
+- [ ] Cadeia de fallback configurável (FASHN.ai primário → Vertex AI fallback)
+- [ ] Timeout por provider (FASHN.ai: 10s, Vertex AI: 15s)
 - [ ] Usuária não percebe a troca — experiência transparente
 - [ ] Log de qual modelo foi usado para cada geração
 - [ ] Retry automático até 2x antes de fallback
@@ -402,7 +402,7 @@ Cada geração aprovada (thumbs up) é coletada como par de treinamento anonimiz
 **Priority:** Must Have
 
 **Description:**
-Sistema analisa score de aprovação acumulado por modelo e tipo de roupa. Automaticamente prioriza o modelo com melhor taxa de aprovação para cada categoria (ex: Grok melhor para vestidos, NanoBanana melhor para blusas).
+Sistema analisa score de aprovação acumulado por modelo e tipo de roupa. Automaticamente prioriza o modelo com melhor taxa de aprovação para cada categoria (ex: Vertex AI melhor para vestidos, FASHN.ai melhor para blusas).
 
 **Acceptance Criteria:**
 - [ ] Score de aprovação calculado por (modelo × tipo de roupa)
@@ -883,9 +883,9 @@ Google Play Billing checkout → Tentativas liberadas → Sem ads
 
 ### External Dependencies
 
-- **Google Photos API** — Acesso às fotos da usuária para seleção de referência
-- **APIs de IA (Detecção):** OpenAI Vision, Gemini Flash, ou YOLO — para detectar roupa na screenshot
-- **APIs de IA (Geração):** Gemini NanoBanana, Grok — para gerar imagem virtual try-on
+- **Android Photo Picker** — Seleção nativa de fotos da galeria (sem OAuth)
+- **APIs de IA (Detecção):** ML Kit Object Detection (on-device) + GPT-4o Vision (classificação remota)
+- **APIs de IA (Geração):** FASHN.ai v1.5 (primário), Google Vertex AI VTON (fallback)
 - **Google Play Billing Library v6+** — Para processar compras e assinaturas
 - **AdMob** — Para exibição de anúncios no plano free
 - **Android SYSTEM_ALERT_WINDOW API** — Para overlay flutuante
@@ -895,7 +895,7 @@ Google Play Billing checkout → Tentativas liberadas → Sem ads
 
 ## Assumptions
 
-1. Gemini NanoBanana e/ou Grok mantêm consistência na geração de imagens sem alterar fisionomia
+1. FASHN.ai e/ou Vertex AI VTON mantêm consistência na geração de imagens sem alterar fisionomia
 2. Custo por geração de imagem será viável economicamente com modelo freemium + ads
 3. Usuárias possuem smartphones Android com capacidade suficiente para o app (4GB+ RAM)
 4. Google Fotos API permite acesso às fotos do usuário com as permissões adequadas
@@ -925,8 +925,8 @@ Os seguintes itens **não** fazem parte do MVP (v1):
 
 ## Open Questions
 
-1. **Qual modelo de IA priorizar para geração?** NanoBanana vs Grok — precisa de benchmark de qualidade e custo
-2. **Google Fotos API é suficiente?** Alternativa: picker nativo de imagens do Android (sem API externa)
+1. **Qual modelo de IA priorizar para geração?** Decidido: FASHN.ai primário ($0.075/img), Vertex AI fallback (ver research.md)
+2. **Google Fotos API é suficiente?** Decidido: usar Android Photo Picker nativo (sem API externa, sem OAuth)
 3. **Política da Play Store:** Confirmar que o uso de overlay + screenshot não viola termos atuais
 4. **Custo real por geração:** Precisa de spike técnico para estimar custo com volume
 5. **Backend próprio ou serverless?** Firebase Functions vs backend Kotlin/Node para receber feedback e servir config

@@ -16,7 +16,7 @@ CLAUDE_OUTPUT_FORMAT="json"
 
 # Tool permissions
 # Android/Kotlin project: gradle, adb, git (safe subcommands only)
-ALLOWED_TOOLS="Write,Read,Edit,Bash(git add *),Bash(git commit *),Bash(git diff *),Bash(git log *),Bash(git status),Bash(git status *),Bash(git push *),Bash(git pull *),Bash(git fetch *),Bash(git checkout *),Bash(git branch *),Bash(git stash *),Bash(git merge *),Bash(git tag *),Bash(./gradlew *),Bash(gradle *),Bash(mkdir *),Bash(ls *),Bash(cat *)"
+ALLOWED_TOOLS="Write,Read,Edit,Bash(git add *),Bash(git commit *),Bash(git diff *),Bash(git log *),Bash(git status),Bash(git status *),Bash(git push *),Bash(git pull *),Bash(git fetch *),Bash(git checkout *),Bash(git branch *),Bash(git stash *),Bash(git merge *),Bash(git tag *),Bash(./gradlew *),Bash(gradle *),Bash(mkdir *),Bash(ls *),"
 
 # Session management
 SESSION_CONTINUITY=true
