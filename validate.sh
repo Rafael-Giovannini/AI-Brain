@@ -209,6 +209,7 @@ REPORT_PATH="$FEATURE_DIR/validation-report.md"
 
 # ─── Build prompt ────────────────────────────────────────────────────────────
 PROMPT="You are a validation engine for the AI-Brain monorepo.
+IMPORTANT: All output (report, findings, recommendations, summaries) MUST be written in Brazilian Portuguese (PT-BR). Technical terms (file names, code identifiers, severity levels) may remain in English.
 
 ## Context
 - Workspace: $WORKSPACE_NAME

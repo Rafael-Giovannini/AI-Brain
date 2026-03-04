@@ -382,6 +382,11 @@ After writing the report:
 - If only MEDIUM/LOW: user may proceed
 - Suggest: "Run `/validate <workspace>` again after fixing issues to verify"
 
+## Language
+
+- **ALL output MUST be in Brazilian Portuguese (PT-BR)**: report text, findings, recommendations, summaries, and conversation with the user.
+- Technical terms (file names, code identifiers, severity levels like CRITICAL/HIGH/MEDIUM/LOW) may remain in English.
+
 ## Operating Principles
 
 - **NEVER modify source code files** (report-only)
