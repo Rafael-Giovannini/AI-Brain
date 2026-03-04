@@ -8,13 +8,13 @@
 
 ## Phase 0: Project Scaffolding
 
-- [ ] Create Android project structure (build.gradle.kts, settings.gradle.kts, AndroidManifest.xml)
-- [ ] Configure dependencies (Compose, Room, Retrofit, ML Kit, Tink, Billing, AdMob, Coil, Moshi)
-- [ ] Setup package structure: data/{local,remote,model}, domain, overlay, ui/{onboarding,tryon,subscription,theme}
-- [ ] Configure BuildConfig for API keys (local.properties)
-- [ ] Create GhostFitApp.kt (Application class with Tink init)
-- [ ] Create GhostFitTheme.kt (Material3 theme)
-- [ ] Create Room database (AppDatabase.kt) with UserProfileDao
+- [x] Create Android project structure (build.gradle.kts, settings.gradle.kts, AndroidManifest.xml)
+- [x] Configure dependencies (Compose, Room, Retrofit, ML Kit, Tink, Billing, AdMob, Coil, Moshi)
+- [x] Setup package structure: data/{local,remote,model}, domain, overlay, ui/{onboarding,tryon,subscription,theme}
+- [x] Configure BuildConfig for API keys (local.properties)
+- [x] Create GhostFitApp.kt (Application class with Tink init)
+- [x] Create GhostFitTheme.kt (Material3 theme)
+- [x] Create Room database (AppDatabase.kt) with UserProfileDao
 
 ---
 
@@ -85,7 +85,7 @@
 ---
 
 ## Completed
-- (none yet)
+- Phase 0: Project Scaffolding (all 7 tasks — Loop 1)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
