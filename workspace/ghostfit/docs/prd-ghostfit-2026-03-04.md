@@ -170,7 +170,7 @@ Usuária pode arrastar o overlay para qualquer posição na tela, evitando que e
 **Priority:** Must Have
 
 **Description:**
-Modelo de visão econômico (OpenAI Vision, Gemini Flash, ou YOLO) analisa o screenshot e detecta/segmenta a roupa principal exibida no produto.
+Pipeline de 2 camadas: ML Kit Object Detection (on-device) localiza a roupa no screenshot via bounding box, seguido de GPT-4o Vision (cloud) para classificação de metadados (tipo, cor, descrição, confiança). Decisão técnica documentada em `specs/001-ghostfit-mvp/research.md`.
 
 **Acceptance Criteria:**
 - [ ] Detecta roupa principal na imagem do produto

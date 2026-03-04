@@ -8,27 +8,27 @@
 
 ## Phase 0: Project Scaffolding
 
-- [ ] Create Android project structure (build.gradle.kts, settings.gradle.kts, AndroidManifest.xml)
-- [ ] Configure dependencies (Compose, Room, Retrofit, ML Kit, Tink, Billing, AdMob, Coil, Moshi)
-- [ ] Setup package structure: data/{local,remote,model}, domain, overlay, ui/{onboarding,tryon,subscription,theme}
-- [ ] Configure BuildConfig for API keys (local.properties)
-- [ ] Create GhostFitApp.kt (Application class with Tink init)
-- [ ] Create GhostFitTheme.kt (Material3 theme)
-- [ ] Create Room database (AppDatabase.kt) with UserProfileDao
+- [x] Create Android project structure (build.gradle.kts, settings.gradle.kts, AndroidManifest.xml)
+- [x] Configure dependencies (Compose, Room, Retrofit, ML Kit, Tink, Billing, AdMob, Coil, Moshi)
+- [x] Setup package structure: data/{local,remote,model}, domain, overlay, ui/{onboarding,tryon,subscription,theme}
+- [x] Configure BuildConfig for API keys (local.properties)
+- [x] Create GhostFitApp.kt (Application class with Tink init)
+- [x] Create GhostFitTheme.kt (Material3 theme)
+- [x] Create Room database (AppDatabase.kt) with UserProfileDao
 
 ---
 
 ## Phase 1: Story 1 — Setup Inicial e Onboarding (P1)
 
-- [ ] Create UserProfile Room entity + DAO
-- [ ] Implement PhotoStorage with Tink AES-256-GCM encryption
+- [x] Create UserProfile Room entity + DAO (inclui ReferencePhoto entity + DAO, Converters, GarmentInfo, FeedbackRecord)
+- [x] Implement PhotoStorage with Tink AES-256-GCM encryption
 - [ ] Create WelcomeScreen.kt (onboarding intro)
 - [ ] Create PermissionScreen.kt (overlay + photos permissions with explanations)
 - [ ] Create LgpdConsentScreen.kt (explicit consent checkbox, not pre-checked)
 - [ ] Create PhotoSelectScreen.kt (gallery picker + body validation)
 - [ ] Wire onboarding navigation (Welcome → Permissions → LGPD → PhotoSelect)
 - [ ] Unit tests for UserProfile DAO
-- [ ] Unit tests for PhotoStorage encryption/decryption
+- [x] Unit tests for PhotoStorage encryption/decryption
 
 ---
 
@@ -85,7 +85,8 @@
 ---
 
 ## Completed
-- (none yet)
+- Phase 0: Project scaffolding completo (estrutura, dependencies, AppDatabase, entities, theme)
+- Phase 1 parcial: UserProfile + ReferencePhoto entities e DAOs implementados
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)

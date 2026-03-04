@@ -4,10 +4,10 @@
 **Scrum Master:** rafael.giovannini
 **Nível do Projeto:** 2
 **Total de Stories:** 22
-**Total de Pontos:** 96 pontos
+**Total de Pontos:** 103 pontos
 **Fases Planejadas:** 4
 **Capacidade:** 1 dev mid-level (~8 pontos/semana)
-**Previsão de Conclusão:** ~12 semanas
+**Previsão de Conclusão:** ~13 semanas
 
 ---
 
@@ -17,10 +17,10 @@ Plano de implementação do GhostFit organizado em 4 fases lógicas que seguem a
 
 **Métricas:**
 - Total Stories: 22
-- Total Pontos: 96
+- Total Pontos: 103
 - Fases: 4
 - Capacidade: ~8 pontos/semana (1 dev, 5h/dia, 1pt = 3h)
-- Previsão: ~12 semanas
+- Previsão: ~13 semanas
 
 ---
 
@@ -74,13 +74,13 @@ Para ter controle sobre minha privacidade conforme a LGPD.
 **Acceptance Criteria:**
 - [ ] Tela de termos de uso e política de privacidade em PT-BR
 - [ ] Checkbox de consentimento explícito (não pré-marcado)
-- [ ] Consentimento registrado com timestamp no Room (criptografado)
+- [ ] Consentimento registrado com timestamp no Room (`UserProfile`)
 - [ ] Opção de revogar consentimento em Configurações
 - [ ] Sem consentimento, app não acessa fotos pessoais
 - [ ] ConsentManager implementado conforme interface da arquitetura
 
 **Notas Técnicas:**
-Implementar `ConsentManager` interface. Usar EncryptedSharedPreferences para persistência.
+Implementar `ConsentManager` interface. Persistir consentimento via Room (`UserProfile.lgpdConsentGranted` + `lgpdConsentTimestamp`).
 
 **Dependências:** STORY-001 (projeto configurado)
 
@@ -133,7 +133,7 @@ Para que o app tenha minha referência visual para o try-on.
 - [ ] Opção de deletar fotos cadastradas
 
 **Notas Técnicas:**
-Implementar `PhotoManager` interface. Validação de corpo inteiro pode usar ML Kit Pose Detection (local). Criptografia via EncryptedFile API.
+Implementar `PhotoManager` interface. Validação de corpo inteiro pode usar ML Kit Pose Detection (local). Criptografia via Tink `StreamingAead` (AES-256-GCM) + `filesDir` conforme research.md.
 
 **Dependências:** STORY-002 (consentimento LGPD obrigatório antes)
 
@@ -269,11 +269,11 @@ Para não precisar recortar nada manualmente.
 - [ ] Identifica tipo de roupa (vestido, blusa, calça, etc.)
 - [ ] Processamento em < 3 segundos (95% dos casos em 4G)
 - [ ] Funciona com layouts típicos de Shopee e Shein
-- [ ] Implementação Gemini Flash como primary
-- [ ] Implementação OpenAI Vision como fallback
+- [ ] Implementação ML Kit Object Detection como detecção on-device (bounding box + crop)
+- [ ] Implementação GPT-4o Vision como classificação remota (categoria, cor, descrição, confiança)
 
 **Notas Técnicas:**
-Implementar `GeminiVisionProvider` e `OpenAiVisionProvider`. Prompt engineering para detecção de roupa em screenshots de e-commerce.
+Pipeline de 2 camadas conforme research.md: ML Kit (on-device, < 100ms) para localizar roupa na screenshot via bounding box, seguido de GPT-4o Vision para extrair metadados estruturados (tipo, cor, descrição, confiança) da imagem recortada. Implementar `MlKitObjectDetector` e `GptVisionClassifier`.
 
 **Dependências:** STORY-008 (PAL)
 
@@ -489,10 +489,10 @@ Para experimentar o app sem pagar.
 - [ ] Contador reseta à meia-noite horário local
 - [ ] Tentativas com "nenhuma roupa detectada" NÃO contam
 - [ ] Tentativas com falha de API NÃO contam
-- [ ] Persistência segura do contador (EncryptedSharedPrefs)
+- [ ] Persistência segura do contador via Room (`UserProfile.dailyTriesUsed` + `dailyTriesResetDate`)
 
 **Notas Técnicas:**
-Implementar `BillingManager.consumeTrial()`. TrialCounter entity conforme data model.
+Implementar `BillingManager.consumeTrial()`. Usar `UserProfile.dailyTriesUsed` + `dailyTriesResetDate` (Room) conforme data-model.md.
 
 **Dependências:** STORY-013 (pipeline integrado)
 
@@ -682,7 +682,7 @@ Implementar `ProviderRouter` com lógica de scoring. Buscar scores do Firestore 
 
 ---
 
-### Fase 3: Monetização e Social (Semanas 8-10) — 20 pontos
+### Fase 3: Monetização e Social (Semanas 8-10) — 22 pontos
 
 **Objetivo:** App monetizável — ads, compras, compartilhamento e feedback funcionando.
 
@@ -704,7 +704,7 @@ Implementar `ProviderRouter` com lógica de scoring. Buscar scores do Firestore 
 
 ---
 
-### Fase 4: Inteligência e Billing (Semanas 11-12) — 16 pontos
+### Fase 4: Inteligência e Billing (Semanas 11-13) — 21 pontos
 
 **Objetivo:** Motor de aprendizado ativo + billing completo — app pronto para Play Store.
 
@@ -716,6 +716,8 @@ Implementar `ProviderRouter` com lógica de scoring. Buscar scores do Firestore 
 | STORY-022 | Roteamento Inteligente | 5 | FR-020 |
 
 **Total:** 21 pontos (~2.6 semanas)
+
+**Nota:** Header anterior dizia 16 pts — corrigido para 21 pts conforme soma real (3+8+5+5).
 
 **Riscos:**
 - Google Play Billing tem complexidade alta (fluxo de compra, verificação, restauração)
@@ -732,7 +734,7 @@ Implementar `ProviderRouter` com lógica de scoring. Buscar scores do Firestore 
 | EPIC-003 | Motor de IA | STORY-008, 009, 010, 011, 012, 013, 021, 022 | 40 | 2-4 |
 | EPIC-004 | Compartilhamento e Feedback | STORY-014, 015, 016 | 11 | 3 |
 | EPIC-005 | Monetização | STORY-017, 018, 019, 020 | 17 | 3-4 |
-| **TOTAL** | **5 Epics** | **22 Stories** | **96 pts** | **4 fases** |
+| **TOTAL** | **5 Epics** | **22 Stories** | **103 pts** | **4 fases** |
 
 ---
 
