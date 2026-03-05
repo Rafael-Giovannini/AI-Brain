@@ -27,6 +27,16 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 /**
+ * Represents the outcome of a purchase attempt.
+ * Observed by UpgradeScreen to react to purchase completion.
+ */
+sealed class PurchaseEvent {
+    data class Success(val productId: String, val purchaseType: PurchaseType) : PurchaseEvent()
+    data class Error(val message: String) : PurchaseEvent()
+    object Cancelled : PurchaseEvent()
+}
+
+/**
  * Wraps Google Play Billing Library 8.3.0.
  * Manages subscriptions (monthly) and one-time packs for GhostFit.
  * Keeps SubscriptionState and UserProfile.planType in sync with Play Billing.
@@ -45,6 +55,9 @@ class BillingManager(
 
     private val _connectionState = MutableStateFlow(false)
     val isConnected: StateFlow<Boolean> = _connectionState.asStateFlow()
+
+    private val _purchaseEvent = MutableStateFlow<PurchaseEvent?>(null)
+    val purchaseEvent: StateFlow<PurchaseEvent?> = _purchaseEvent.asStateFlow()
 
     /**
      * Connect to Google Play Billing and query available products.
@@ -148,15 +161,35 @@ class BillingManager(
 
     /**
      * Called by Play Billing when a purchase is updated.
+     * Emits PurchaseEvent so the UI can react to purchase outcomes.
      */
     override fun onPurchasesUpdated(result: BillingResult, purchases: List<Purchase>?) {
-        if (result.responseCode == BillingResponseCode.OK && purchases != null) {
-            scope.launch {
-                for (purchase in purchases) {
-                    handlePurchase(purchase)
+        when (result.responseCode) {
+            BillingResponseCode.OK -> {
+                if (purchases != null) {
+                    scope.launch {
+                        for (purchase in purchases) {
+                            handlePurchase(purchase)
+                        }
+                    }
                 }
             }
+            BillingResponseCode.USER_CANCELED -> {
+                _purchaseEvent.value = PurchaseEvent.Cancelled
+            }
+            else -> {
+                _purchaseEvent.value = PurchaseEvent.Error(
+                    result.debugMessage ?: "Erro no pagamento (código ${result.responseCode})"
+                )
+            }
         }
+    }
+
+    /**
+     * Reset purchase event after the UI has consumed it.
+     */
+    fun consumePurchaseEvent() {
+        _purchaseEvent.value = null
     }
 
     /**
@@ -198,6 +231,7 @@ class BillingManager(
 
         subscriptionStateDao.upsert(subscriptionState)
         userProfileDao.updatePlanType(PlanType.PREMIUM.name)
+        _purchaseEvent.value = PurchaseEvent.Success(productId, purchaseType)
     }
 
     private suspend fun acknowledgePurchase(

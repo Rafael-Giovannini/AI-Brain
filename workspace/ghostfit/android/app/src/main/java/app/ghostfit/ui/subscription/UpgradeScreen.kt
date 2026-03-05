@@ -35,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.android.billingclient.api.ProductDetails
 import app.ghostfit.domain.BillingManager
+import app.ghostfit.domain.PurchaseEvent
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -64,15 +67,42 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 fun UpgradeScreen(
     productDetailsFlow: StateFlow<Map<String, ProductDetails>>,
+    purchaseEventFlow: StateFlow<PurchaseEvent?> = MutableStateFlow(null),
     onPurchase: (productId: String) -> Unit = {},
+    onPurchaseEventConsumed: () -> Unit = {},
     onClose: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val productDetails by productDetailsFlow.collectAsState()
+    val purchaseEvent by purchaseEventFlow.collectAsState()
     var selectedPlan by remember { mutableStateOf(BillingManager.SKU_MONTHLY) }
+    var purchaseSuccess by remember { mutableStateOf(false) }
 
     val monthlyDetails = productDetails[BillingManager.SKU_MONTHLY]
     val packDetails = productDetails[BillingManager.SKU_PACK_10]
+
+    // React to purchase events
+    LaunchedEffect(purchaseEvent) {
+        when (purchaseEvent) {
+            is PurchaseEvent.Success -> {
+                purchaseSuccess = true
+                onPurchaseEventConsumed()
+            }
+            is PurchaseEvent.Cancelled -> {
+                onPurchaseEventConsumed()
+            }
+            is PurchaseEvent.Error -> {
+                onPurchaseEventConsumed()
+            }
+            null -> { /* no-op */ }
+        }
+    }
+
+    // Auto-close after showing success briefly
+    if (purchaseSuccess) {
+        PurchaseSuccessScreen(onContinue = onClose)
+        return
+    }
 
     Scaffold(
         modifier = modifier,
@@ -305,6 +335,68 @@ private fun PlanCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PurchaseSuccessScreen(onContinue: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(36.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Upgrade realizado!",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Seu plano foi ativado. Aproveite o GhostFit sem limites!",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = onContinue,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = "Continuar",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

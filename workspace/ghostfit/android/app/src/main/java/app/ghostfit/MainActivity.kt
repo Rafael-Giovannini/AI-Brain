@@ -129,9 +129,11 @@ class MainActivity : ComponentActivity() {
                     composable("upgrade") {
                         UpgradeScreen(
                             productDetailsFlow = billingManager.productDetails,
+                            purchaseEventFlow = billingManager.purchaseEvent,
                             onPurchase = { productId ->
                                 billingManager.launchPurchaseFlow(this@MainActivity, productId)
                             },
+                            onPurchaseEventConsumed = { billingManager.consumePurchaseEvent() },
                             onClose = { navController.popBackStack() }
                         )
                     }

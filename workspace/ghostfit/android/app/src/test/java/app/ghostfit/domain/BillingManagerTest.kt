@@ -15,6 +15,7 @@ import app.ghostfit.data.model.PlanType
 import app.ghostfit.data.model.PurchaseType
 import app.ghostfit.data.model.SubscriptionState
 import app.ghostfit.data.model.UserProfile
+import app.ghostfit.domain.PurchaseEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -294,6 +295,97 @@ class BillingManagerTest {
         billingManager.onPurchasesUpdated(cancelledResult, null)
 
         verify(subscriptionStateDao, never()).upsert(any())
+    }
+
+    // --- Purchase Event Tests ---
+
+    @Test
+    fun `handlePurchase emits Success event on successful monthly purchase`() = runTest {
+        whenever(userProfileDao.getProfile()).thenReturn(testProfile)
+        stubAcknowledgeSuccess()
+
+        val purchase = createMockPurchase(
+            productId = BillingManager.SKU_MONTHLY,
+            purchaseState = Purchase.PurchaseState.PURCHASED,
+            isAcknowledged = false,
+            purchaseToken = "token-event-1"
+        )
+
+        billingManager.handlePurchase(purchase)
+
+        val event = billingManager.purchaseEvent.value
+        assertTrue(event is PurchaseEvent.Success)
+        assertEquals(BillingManager.SKU_MONTHLY, (event as PurchaseEvent.Success).productId)
+        assertEquals(PurchaseType.MONTHLY, event.purchaseType)
+    }
+
+    @Test
+    fun `handlePurchase emits Success event on successful pack purchase`() = runTest {
+        whenever(userProfileDao.getProfile()).thenReturn(testProfile)
+        stubAcknowledgeSuccess()
+
+        val purchase = createMockPurchase(
+            productId = BillingManager.SKU_PACK_10,
+            purchaseState = Purchase.PurchaseState.PURCHASED,
+            isAcknowledged = false,
+            purchaseToken = "token-event-2"
+        )
+
+        billingManager.handlePurchase(purchase)
+
+        val event = billingManager.purchaseEvent.value
+        assertTrue(event is PurchaseEvent.Success)
+        assertEquals(BillingManager.SKU_PACK_10, (event as PurchaseEvent.Success).productId)
+        assertEquals(PurchaseType.PACK, event.purchaseType)
+    }
+
+    @Test
+    fun `onPurchasesUpdated emits Cancelled event on user cancel`() {
+        val cancelledResult = BillingResult.newBuilder()
+            .setResponseCode(BillingResponseCode.USER_CANCELED)
+            .build()
+
+        billingManager.onPurchasesUpdated(cancelledResult, null)
+
+        assertTrue(billingManager.purchaseEvent.value is PurchaseEvent.Cancelled)
+    }
+
+    @Test
+    fun `onPurchasesUpdated emits Error event on billing error`() {
+        val errorResult = BillingResult.newBuilder()
+            .setResponseCode(BillingResponseCode.SERVICE_UNAVAILABLE)
+            .setDebugMessage("Service unavailable")
+            .build()
+
+        billingManager.onPurchasesUpdated(errorResult, null)
+
+        val event = billingManager.purchaseEvent.value
+        assertTrue(event is PurchaseEvent.Error)
+        assertEquals("Service unavailable", (event as PurchaseEvent.Error).message)
+    }
+
+    @Test
+    fun `consumePurchaseEvent resets event to null`() = runTest {
+        whenever(userProfileDao.getProfile()).thenReturn(testProfile)
+        stubAcknowledgeSuccess()
+
+        val purchase = createMockPurchase(
+            productId = BillingManager.SKU_MONTHLY,
+            purchaseState = Purchase.PurchaseState.PURCHASED,
+            isAcknowledged = true,
+            purchaseToken = "token-consume"
+        )
+
+        billingManager.handlePurchase(purchase)
+        assertNotNull(billingManager.purchaseEvent.value)
+
+        billingManager.consumePurchaseEvent()
+        assertNull(billingManager.purchaseEvent.value)
+    }
+
+    @Test
+    fun `purchaseEvent starts as null`() {
+        assertNull(billingManager.purchaseEvent.value)
     }
 
     // --- Helpers ---
