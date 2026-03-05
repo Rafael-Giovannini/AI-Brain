@@ -17,7 +17,7 @@ App Android nativo (Kotlin + Jetpack Compose) que funciona como provador virtual
 **Project Type**: mobile-app (Android nativo)
 **Performance Goals**: Captura de tela < 1s, detecção de roupa < 3s, geração VTON < 15s, overlay sem frame drops
 **Constraints**: < 50MB memória do overlay, < 5% bateria/hora adicional, LGPD compliance
-**Scale/Scope**: MVP — 5 telas (onboarding 4 + resultado 1), 1 overlay service, 3 APIs externas + 1 backend próprio
+**Scale/Scope**: MVP — 16+ telas (onboarding 5 + overlay states 4 + resultado 2 + monetização 2 + home/settings 2 + erros 1), 1 overlay service, 3 APIs externas + 1 backend próprio
 
 ## Constitution Check
 

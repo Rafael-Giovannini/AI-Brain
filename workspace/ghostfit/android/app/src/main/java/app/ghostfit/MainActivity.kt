@@ -14,10 +14,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GhostFitTheme {
-                // TODO: Replace with NavHost when onboarding navigation is wired
+                // TODO(Phase-1): Replace with NavHost when onboarding navigation is wired
                 WelcomeScreen(
                     onGetStarted = {
-                        // TODO: Navigate to PermissionScreen
+                        // TODO(Phase-1): Navigate to PermissionScreen
                     }
                 )
             }

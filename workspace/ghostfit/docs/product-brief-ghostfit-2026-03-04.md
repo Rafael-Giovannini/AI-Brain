@@ -175,7 +175,7 @@ Duplo: **B2C** como app independente gerando receita via freemium + ads, e **B2B
 - FASHN.ai e/ou Vertex AI VTON mantêm consistência na geração de imagens sem alterar fisionomia
 - Custo por geração de imagem será viável economicamente com modelo freemium + ads
 - Usuárias possuem smartphones Android com capacidade suficiente para o app
-- Google Fotos API permite acesso às fotos do usuário com as permissões adequadas
+- Android Photo Picker nativo permite seleção de fotos do usuário com as permissões adequadas (sem OAuth)
 - A detecção de roupa via modelo de visão econômico terá acurácia suficiente
 - Políticas da Play Store permitem overlay com as permissões corretas (SYSTEM_ALERT_WINDOW)
 - Usuárias estão dispostas a fornecer fotos pessoais em troca da funcionalidade

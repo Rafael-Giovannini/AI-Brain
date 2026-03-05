@@ -48,7 +48,7 @@ Para que eu possa começar a implementar features com a base correta.
 - [ ] Retrofit + OkHttp configurado
 - [ ] Coil configurado
 - [ ] Ktlint + Detekt configurados
-- [ ] JUnit 5 + MockK configurados
+- [ ] JUnit 4 + MockK + Robolectric configurados
 - [ ] minSdk = 26, targetSdk = 35
 - [ ] Estrutura de pacotes conforme arquitetura
 
