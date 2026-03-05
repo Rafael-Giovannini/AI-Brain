@@ -80,7 +80,7 @@
 - [ ] Integrate AdMob interstitial (between generations only)
 - [ ] Handle subscription state changes (purchase → unlock)
 - [x] Unit tests for BillingManager
-- [ ] Unit tests for daily limit logic
+- [x] Unit tests for daily limit logic
 
 ---
 
@@ -100,6 +100,7 @@
 - Phase 5 Task 3: UpgradeScreen.kt with monthly subscription + pack options, wired into navigation (this loop)
 - Fix: ModelRouter.kt missing Base64 import (prior loop)
 - Fix: GarmentDetectorTest.kt bitmapToBase64 → toBase64Jpeg (prior loop)
+- Phase 5 Task 7: DailyLimitTest.kt — 15 tests covering free limit enforcement, premium bypass, midnight reset, counter increment, regenerate limits (this loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
