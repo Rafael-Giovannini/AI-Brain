@@ -26,6 +26,7 @@ android {
         buildConfigField("String", "FASHN_API_KEY", "\"${props.getProperty("FASHN_API_KEY", "")}\"")
         buildConfigField("String", "OPENAI_API_KEY", "\"${props.getProperty("OPENAI_API_KEY", "")}\"")
         buildConfigField("String", "GCP_PROJECT_ID", "\"${props.getProperty("GCP_PROJECT_ID", "")}\"")
+        buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${props.getProperty("ADMOB_INTERSTITIAL_ID", "ca-app-pub-3940256099942544/1033173712")}\"")
     }
 
     buildTypes {

@@ -77,7 +77,7 @@
 - [x] Create BillingManager.kt (Google Play Billing wrapper)
 - [x] Implement daily try-on counter (3 free/day, reset at midnight local)
 - [x] Create UpgradeScreen.kt (plan options: pacote avulso, assinatura mensal)
-- [ ] Integrate AdMob interstitial (between generations only)
+- [x] Integrate AdMob interstitial (between generations only)
 - [ ] Handle subscription state changes (purchase → unlock)
 - [x] Unit tests for BillingManager
 - [x] Unit tests for daily limit logic
@@ -101,6 +101,7 @@
 - Fix: ModelRouter.kt missing Base64 import (prior loop)
 - Fix: GarmentDetectorTest.kt bitmapToBase64 → toBase64Jpeg (prior loop)
 - Phase 5 Task 7: DailyLimitTest.kt — 15 tests covering free limit enforcement, premium bypass, midnight reset, counter increment, regenerate limits (this loop)
+- Phase 5 Task 4: AdManager.kt — AdMob interstitial integration (FR-016). Shows ads between generations after 2nd try-on, never before result. Premium users exempt. AdManagerTest.kt with 9 tests. BuildConfig.ADMOB_INTERSTITIAL_ID added (this loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
