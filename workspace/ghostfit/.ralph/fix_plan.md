@@ -46,17 +46,18 @@
 
 ## Phase 3: Story 2 — Try-On Virtual (P1)
 
-- [ ] Create GarmentDetector.kt (ML Kit crop + GPT-4o Vision classification)
-- [ ] Create FashnApi.kt (Retrofit interface for FASHN.ai VTON)
-- [ ] Create VertexAiApi.kt (Retrofit interface for Vertex AI VTON fallback)
-- [ ] Create VisionLlmApi.kt (Retrofit interface for GPT-4o Vision)
-- [ ] Create ModelRouter.kt (chain-of-responsibility: FASHN → Vertex AI fallback)
-- [ ] Create TryOnUseCase.kt (orchestrate: capture → detect → generate → display)
-- [ ] Create TryOnResultScreen.kt (display generated image)
-- [ ] Handle "no garment detected" case with user-friendly message
-- [ ] Unit tests for GarmentDetector
-- [ ] Unit tests for ModelRouter fallback logic
-- [ ] Unit tests for TryOnUseCase
+- [x] Create GarmentDetector.kt (ML Kit crop via GarmentCropper interface + GPT-4o Vision classification)
+- [x] Create FashnApi.kt (Retrofit interface for FASHN.ai VTON)
+- [x] Create VertexAiApi.kt (Retrofit interface for Vertex AI VTON fallback)
+- [x] Create VisionLlmApi.kt (Retrofit interface for GPT-4o Vision)
+- [x] Create GhostFitApi.kt (Backend API: feedback, config, routing, dataset)
+- [x] Create ModelRouter.kt (chain-of-responsibility: FASHN → Vertex AI fallback, 2 retries each)
+- [x] Create TryOnUseCase.kt (orchestrate: capture → detect → generate → display, daily limit check)
+- [x] Create TryOnResultScreen.kt (display generated image + loading/error/no-garment states)
+- [x] Handle "no garment detected" case with user-friendly message (no attempt consumed)
+- [x] Unit tests for GarmentDetector (6 tests: classification, fallback, markdown JSON, categories)
+- [x] Unit tests for ModelRouter fallback logic (8 tests: primary, fallback, both-fail, category mapping)
+- [x] Unit tests for TryOnUseCase (6 tests: full pipeline, no-garment, daily limit, no-ref-photo, errors)
 
 ---
 
@@ -97,6 +98,12 @@
 - Phase 2: ScreenCapture.kt (MediaProjection wrapper com capture suspend, imageToBitmap)
 - Phase 2: MainActivity atualizada para lançar OverlayService após onboarding
 - Phase 2: 7 unit tests para overlay (posição padrão, persistência, coordenadas negativas, ScreenCapture.isReady)
+- Phase 3: GarmentDetector (ML Kit crop via GarmentCropper + GPT-4o Vision classification com fallback)
+- Phase 3: FashnApi + VertexAiApi + VisionLlmApi + GhostFitApi (Retrofit interfaces completas)
+- Phase 3: ModelRouter (chain-of-responsibility: FASHN 2x retry → Vertex AI 2x retry)
+- Phase 3: TryOnUseCase (pipeline completo: capture → detect → generate, daily limit, feedback)
+- Phase 3: TryOnResultScreen (Compose UI: loading states, no-garment, error, result com feedback)
+- Phase 3: 20 unit tests (GarmentDetector 6, ModelRouter 8, TryOnUseCase 6)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
