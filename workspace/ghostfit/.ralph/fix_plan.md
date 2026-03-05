@@ -22,8 +22,8 @@
 
 - [x] Create UserProfile Room entity + DAO (inclui ReferencePhoto entity + DAO, Converters, GarmentInfo, FeedbackRecord)
 - [x] Implement PhotoStorage with Tink AES-256-GCM encryption
-- [ ] Create WelcomeScreen.kt (onboarding intro)
-- [ ] Create PermissionScreen.kt (overlay + photos permissions with explanations)
+- [x] Create WelcomeScreen.kt (onboarding intro)
+- [x] Create PermissionScreen.kt (overlay + photos permissions with explanations)
 - [ ] Create LgpdConsentScreen.kt (explicit consent checkbox, not pre-checked)
 - [ ] Create PhotoSelectScreen.kt (gallery picker + body validation)
 - [ ] Wire onboarding navigation (Welcome → Permissions → LGPD → PhotoSelect)
@@ -87,6 +87,7 @@
 ## Completed
 - Phase 0: Project scaffolding completo (estrutura, dependencies, AppDatabase, entities, theme)
 - Phase 1 parcial: UserProfile + ReferencePhoto entities e DAOs implementados
+- Phase 1: WelcomeScreen + PermissionScreen implementados (overlay SYSTEM_ALERT_WINDOW + fotos)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)

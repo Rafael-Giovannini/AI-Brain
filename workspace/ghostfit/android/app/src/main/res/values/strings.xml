@@ -9,4 +9,15 @@
     <string name="welcome_feature_2">📱 Funciona sobre Shopee, Shein e outros apps</string>
     <string name="welcome_feature_3">🔒 Suas fotos nunca saem do seu celular</string>
     <string name="welcome_get_started">Começar</string>
+
+    <!-- Permission Screen -->
+    <string name="permission_title">Permissões necessárias</string>
+    <string name="permission_subtitle">Para funcionar como provador virtual, o GhostFit precisa de duas permissões:</string>
+    <string name="permission_overlay_title">Exibir sobre outros apps</string>
+    <string name="permission_overlay_description">Permite que o fantasminha apareça sobre Shopee, Shein e outros apps enquanto você navega. Sem isso, o provador virtual não funciona.</string>
+    <string name="permission_overlay_button">Permitir overlay</string>
+    <string name="permission_photos_title">Acesso às fotos</string>
+    <string name="permission_photos_description">Para selecionar suas fotos de corpo inteiro como referência para o provador virtual. Suas fotos ficam apenas no seu celular, nunca são enviadas para fora.</string>
+    <string name="permission_photos_button">Permitir acesso</string>
+    <string name="permission_continue">Continuar</string>
 </resources>
