@@ -26,7 +26,7 @@
 - [x] Create PermissionScreen.kt (overlay + photos permissions with explanations)
 - [x] Create LgpdConsentScreen.kt (explicit consent checkbox, not pre-checked)
 - [x] Create PhotoSelectScreen.kt (gallery picker + body validation)
-- [ ] Wire onboarding navigation (Welcome → Permissions → LGPD → PhotoSelect)
+- [x] Wire onboarding navigation (Welcome → Permissions → LGPD → PhotoSelect)
 - [ ] Unit tests for UserProfile DAO
 - [x] Unit tests for PhotoStorage encryption/decryption
 
@@ -90,6 +90,7 @@
 - Phase 1: WelcomeScreen + PermissionScreen implementados (overlay SYSTEM_ALERT_WINDOW + fotos)
 - Phase 1: LgpdConsentScreen implementado (checkbox explícito não pré-marcado, strings PT-BR)
 - Phase 1: PhotoSelectScreen implementado (Photo Picker nativo, máx 3 fotos, thumbnails)
+- Phase 1: Onboarding navigation wired (NavHost: Welcome → Permissions → LGPD → PhotoSelect) com lifecycle-aware overlay permission check, LGPD consent persistence, e encrypted photo storage
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
