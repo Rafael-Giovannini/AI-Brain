@@ -76,7 +76,7 @@
 
 - [x] Create BillingManager.kt (Google Play Billing wrapper)
 - [x] Implement daily try-on counter (3 free/day, reset at midnight local)
-- [ ] Create UpgradeScreen.kt (plan options: pacote avulso, assinatura mensal)
+- [x] Create UpgradeScreen.kt (plan options: pacote avulso, assinatura mensal)
 - [ ] Integrate AdMob interstitial (between generations only)
 - [ ] Handle subscription state changes (purchase → unlock)
 - [x] Unit tests for BillingManager
@@ -97,6 +97,7 @@
 - Phase 4 Task 7: Feedback submission unit tests (this loop)
 - Phase 5 Task 2: Daily try-on counter (implemented in TryOnUseCase — prior loops)
 - Phase 5 Task 1: BillingManager.kt + SubscriptionState entity + DAO + tests (this loop)
+- Phase 5 Task 3: UpgradeScreen.kt with monthly subscription + pack options, wired into navigation (this loop)
 - Fix: ModelRouter.kt missing Base64 import (prior loop)
 - Fix: GarmentDetectorTest.kt bitmapToBase64 → toBase64Jpeg (prior loop)
 

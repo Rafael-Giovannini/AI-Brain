@@ -24,10 +24,15 @@ import app.ghostfit.ui.onboarding.OnboardingViewModel
 import app.ghostfit.ui.onboarding.PermissionScreen
 import app.ghostfit.ui.onboarding.PhotoSelectScreen
 import app.ghostfit.ui.onboarding.WelcomeScreen
+import app.ghostfit.ui.subscription.UpgradeScreen
 import app.ghostfit.ui.theme.GhostFitTheme
+import app.ghostfit.domain.BillingManager
 import app.ghostfit.overlay.OverlayService
+import com.android.billingclient.api.BillingClient
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var billingManager: BillingManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +41,15 @@ class MainActivity : ComponentActivity() {
         val db = AppDatabase.getInstance(this)
         val userProfileDao = db.userProfileDao()
         val referencePhotoDao = db.referencePhotoDao()
+        val subscriptionStateDao = db.subscriptionStateDao()
         val photoStorage = PhotoStorage.getInstance(this)
+
+        val billingClient = BillingClient.newBuilder(this)
+            .setListener { result, purchases -> billingManager.onPurchasesUpdated(result, purchases) }
+            .enablePendingPurchases()
+            .build()
+        billingManager = BillingManager(billingClient, subscriptionStateDao, userProfileDao)
+        billingManager.connect()
 
         setContent {
             GhostFitTheme {
@@ -110,6 +123,16 @@ class MainActivity : ComponentActivity() {
                                     OverlayService.start(this@MainActivity)
                                 }
                             }
+                        )
+                    }
+
+                    composable("upgrade") {
+                        UpgradeScreen(
+                            productDetailsFlow = billingManager.productDetails,
+                            onPurchase = { productId ->
+                                billingManager.launchPurchaseFlow(this@MainActivity, productId)
+                            },
+                            onClose = { navController.popBackStack() }
                         )
                     }
                 }
