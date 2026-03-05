@@ -40,7 +40,15 @@
     <string name="photo_select_invalid">Essa foto não pôde ser carregada. Tente outra.</string>
     <string name="photo_select_max_reached">Você já selecionou o máximo de 3 fotos.</string>
 
+    <!-- Overlay Service -->
+    <string name="overlay_notification_title">GhostFit ativo</string>
+    <string name="overlay_notification_text">Toque para abrir o app</string>
+    <string name="overlay_notification_stop">Parar</string>
+    <string name="overlay_channel_name">GhostFit Overlay</string>
+    <string name="overlay_channel_description">Mantém o fantasminha ativo sobre outros apps</string>
+
     <!-- Accessibility -->
     <string name="cd_photo_reference">Foto de referência de corpo inteiro</string>
     <string name="cd_remove_photo">Remover foto</string>
+    <string name="cd_overlay_button">Botão do provador virtual GhostFit</string>
 </resources>

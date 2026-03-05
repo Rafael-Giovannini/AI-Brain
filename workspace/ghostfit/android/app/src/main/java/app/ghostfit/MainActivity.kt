@@ -25,6 +25,7 @@ import app.ghostfit.ui.onboarding.PermissionScreen
 import app.ghostfit.ui.onboarding.PhotoSelectScreen
 import app.ghostfit.ui.onboarding.WelcomeScreen
 import app.ghostfit.ui.theme.GhostFitTheme
+import app.ghostfit.overlay.OverlayService
 
 class MainActivity : ComponentActivity() {
 
@@ -105,7 +106,8 @@ class MainActivity : ComponentActivity() {
                         PhotoSelectScreen(
                             onPhotosSelected = { bitmaps ->
                                 onboardingViewModel.savePhotosAndCompleteOnboarding(bitmaps) {
-                                    // TODO(Phase-2): Navigate to main app / overlay setup
+                                    // Phase 2: Launch overlay service after onboarding
+                                    OverlayService.start(this@MainActivity)
                                 }
                             }
                         )

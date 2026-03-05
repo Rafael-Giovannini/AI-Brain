@@ -34,13 +34,13 @@
 
 ## Phase 2: Story 5 — Overlay Flutuante (P1)
 
-- [ ] Create OverlayService.kt (Foreground Service + TYPE_APPLICATION_OVERLAY)
-- [ ] Create OverlayComposable.kt (fantasminha FAB via ComposeView in WindowManager)
-- [ ] Implement drag gesture for overlay positioning
-- [ ] Persist overlay position across sessions
-- [ ] Create ScreenCapture.kt (MediaProjection wrapper)
-- [ ] Handle overlay lifecycle (start/stop from app, notification control)
-- [ ] Unit tests for OverlayService state management
+- [x] Create OverlayService.kt (Foreground Service + TYPE_APPLICATION_OVERLAY)
+- [x] Create OverlayComposable.kt (fantasminha FAB via ComposeView in WindowManager)
+- [x] Implement drag gesture for overlay positioning
+- [x] Persist overlay position across sessions
+- [x] Create ScreenCapture.kt (MediaProjection wrapper)
+- [x] Handle overlay lifecycle (start/stop from app, notification control)
+- [x] Unit tests for OverlayService state management
 
 ---
 
@@ -92,6 +92,12 @@
 - Phase 1: PhotoSelectScreen implementado (Photo Picker nativo, máx 3 fotos, thumbnails)
 - Phase 1: Onboarding navigation wired (NavHost: Welcome → Permissions → LGPD → PhotoSelect) com lifecycle-aware overlay permission check, LGPD consent persistence, e encrypted photo storage
 - Phase 1: UserProfileDao unit tests (10 testes: CRUD, LGPD consent flow, overlay position, daily tries, defaults)
+- Phase 2: OverlayService (Foreground Service + TYPE_APPLICATION_OVERLAY, notification channel, start/stop via Intent)
+- Phase 2: OverlayComposable (fantasminha FAB 56dp, ComposeView in WindowManager, GhostPurple #7C3AED)
+- Phase 2: Drag gesture + posição persistida via UserProfileDao.updateOverlayPosition()
+- Phase 2: ScreenCapture.kt (MediaProjection wrapper com capture suspend, imageToBitmap)
+- Phase 2: MainActivity atualizada para lançar OverlayService após onboarding
+- Phase 2: 7 unit tests para overlay (posição padrão, persistência, coordenadas negativas, ScreenCapture.isReady)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
