@@ -2,7 +2,6 @@ package app.ghostfit.domain
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Base64
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.FashnApi
@@ -11,8 +10,6 @@ import app.ghostfit.data.remote.VertexAiApi
 import app.ghostfit.data.remote.VertexImage
 import app.ghostfit.data.remote.VertexInstance
 import app.ghostfit.data.remote.VertexRequest
-import java.io.ByteArrayOutputStream
-
 /**
  * Chain-of-responsibility router: FASHN.ai (primary) → Vertex AI (fallback).
  * Each provider gets 2 retries before falling through.
@@ -44,7 +41,7 @@ class ModelRouter(
         referencePhotoBase64: String,
         garment: GarmentInfo
     ): GenerationResult {
-        val garmentBase64 = garment.croppedImage?.let { bitmapToBase64(it) }
+        val garmentBase64 = garment.croppedImage?.let { it.toBase64Jpeg() }
             ?: throw TryOnGenerationException("No cropped garment image available")
 
         // Try FASHN.ai first
@@ -118,12 +115,6 @@ class ModelRouter(
             }
         }
         return null
-    }
-
-    private fun bitmapToBase64(bitmap: Bitmap): String {
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream)
-        return Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
     }
 
     private fun base64ToBitmap(base64: String): Bitmap? {

@@ -63,7 +63,8 @@ PREMIUM → FREE  (assinatura expirada/cancelada)
 | `detectedGarment` | GarmentInfo? | nullable | Roupa detectada (ou null) |
 | `generatedImage` | Bitmap? | não-persistido | Resultado do try-on |
 | `modelUsed` | String | "fashn" \| "vertex" | Modelo de IA utilizado |
-| `status` | Enum | CAPTURING → DETECTING → GENERATING → DONE → ERROR | Estado atual |
+| `status` | Enum | IDLE → CAPTURING → DETECTING → GENERATING → DONE / ERROR / NO_GARMENT | Estado atual |
+| `errorMessage` | String? | nullable | Mensagem de erro ou "nenhuma roupa detectada" |
 | `startedAt` | Long (epoch ms) | auto | Início da sessão |
 | `durationMs` | Long | calculado | Duração total |
 
@@ -71,9 +72,11 @@ PREMIUM → FREE  (assinatura expirada/cancelada)
 
 **Transições de estado — status**:
 ```
+IDLE → CAPTURING          (pipeline iniciado)
 CAPTURING → DETECTING     (screenshot OK)
 DETECTING → GENERATING    (roupa detectada com confiança ≥ 60%)
-DETECTING → ERROR         (nenhuma roupa detectada — "Nenhuma roupa detectada")
+DETECTING → NO_GARMENT    (nenhuma roupa detectada — "Nenhuma roupa detectada")
+DETECTING → ERROR         (falha na detecção)
 GENERATING → DONE         (imagem gerada com sucesso)
 GENERATING → ERROR        (timeout/falha em ambos os modelos)
 ```

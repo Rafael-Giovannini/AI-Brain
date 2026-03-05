@@ -19,6 +19,7 @@ class MlKitGarmentCropper : GarmentCropper {
             val options = ObjectDetectorOptions.Builder()
                 .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
                 .enableMultipleObjects()
+                .enableClassification()
                 .build()
 
             val detector = ObjectDetection.getClient(options)
@@ -32,7 +33,13 @@ class MlKitGarmentCropper : GarmentCropper {
                         return@addOnSuccessListener
                     }
 
-                    val largest = objects.maxByOrNull {
+                    // Prefer objects classified as "Fashion good" by ML Kit
+                    val fashionObjects = objects.filter { obj ->
+                        obj.labels.any { it.text == "Fashion good" }
+                    }
+                    val candidates = fashionObjects.ifEmpty { objects }
+
+                    val largest = candidates.maxByOrNull {
                         it.boundingBox.width() * it.boundingBox.height()
                     } ?: run {
                         cont.resume(null)

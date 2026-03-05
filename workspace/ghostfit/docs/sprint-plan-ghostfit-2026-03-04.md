@@ -43,11 +43,10 @@ Para que eu possa começar a implementar features com a base correta.
 **Acceptance Criteria:**
 - [ ] Projeto Kotlin com Gradle (Kotlin DSL) e version catalogs
 - [ ] Jetpack Compose configurado
-- [ ] Hilt (DI) configurado com módulos base
+- [ ] Singletons manuais para DI (AppDatabase.getInstance, PhotoStorage.getInstance)
 - [ ] Room database configurado
 - [ ] Retrofit + OkHttp configurado
 - [ ] Coil configurado
-- [ ] Ktlint + Detekt configurados
 - [ ] JUnit 4 + MockK + Robolectric configurados
 - [ ] minSdk = 26, targetSdk = 35
 - [ ] Estrutura de pacotes conforme arquitetura

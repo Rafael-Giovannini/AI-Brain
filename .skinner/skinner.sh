@@ -305,7 +305,8 @@ run_ralph_loop() {
     log "INFO" "Running: $CLAUDE_CODE_CMD --print -p '<prompt>' (${#cmd_args[@]} args)"
 
     local output
-    output=$("$CLAUDE_CODE_CMD" "${cmd_args[@]}" 2>&1) || true
+    # Unset CLAUDECODE to allow nested invocation from within a Claude Code session
+    output=$(unset CLAUDECODE; "$CLAUDE_CODE_CMD" "${cmd_args[@]}" 2>&1) || true
 
     # Save full output to log
     echo "$output" >> "$LOG_FILE"

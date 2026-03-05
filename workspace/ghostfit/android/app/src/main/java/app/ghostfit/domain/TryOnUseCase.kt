@@ -1,18 +1,17 @@
 package app.ghostfit.domain
 
 import android.graphics.Bitmap
-import android.util.Base64
 import app.ghostfit.data.local.PhotoStorage
 import app.ghostfit.data.local.ReferencePhotoDao
 import app.ghostfit.data.local.UserProfileDao
 import app.ghostfit.data.model.FeedbackRecord
 import app.ghostfit.data.model.GarmentInfo
+import app.ghostfit.data.model.PlanType
 import app.ghostfit.data.remote.DatasetEntry
 import app.ghostfit.data.remote.GhostFitApi
 import app.ghostfit.overlay.ScreenCapture
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.util.UUID
 
@@ -90,7 +89,7 @@ class TryOnUseCase(
             val referenceBase64 = if (refPhoto != null) {
                 val bitmap = photoStorage.decrypt(refPhoto.encryptedFilePath)
                     ?: throw IllegalStateException("Falha ao decifrar foto de referência")
-                bitmapToBase64(bitmap)
+                bitmap.toBase64Jpeg()
             } else {
                 throw IllegalStateException("Nenhuma foto de referência encontrada")
             }
@@ -161,7 +160,7 @@ class TryOnUseCase(
 
             val bitmap = photoStorage.decrypt(refPhoto.encryptedFilePath)
                 ?: throw IllegalStateException("Falha ao decifrar foto de referência")
-            val referenceBase64 = bitmapToBase64(bitmap)
+            val referenceBase64 = bitmap.toBase64Jpeg()
 
             session = session.copy(status = TryOnStatus.GENERATING)
             onStatusChange(session)
@@ -223,7 +222,7 @@ class TryOnUseCase(
 
     private suspend fun checkDailyLimit() {
         val profile = userProfileDao.getProfile() ?: return
-        if (profile.planType.name == "PREMIUM") return
+        if (profile.planType == PlanType.PREMIUM) return
 
         val today = LocalDate.now().toString()
         if (profile.dailyTriesResetDate != today) {
@@ -231,24 +230,23 @@ class TryOnUseCase(
             return
         }
 
-        if (profile.dailyTriesUsed >= 3) {
+        if (profile.dailyTriesUsed >= MAX_FREE_DAILY_TRIES) {
             throw DailyLimitExceededException(
-                "Limite diário atingido (3/3). Faça upgrade para continuar!"
+                "Limite diário atingido ($MAX_FREE_DAILY_TRIES/$MAX_FREE_DAILY_TRIES). Faça upgrade para continuar!"
             )
         }
     }
 
     private suspend fun incrementDailyTries() {
         val profile = userProfileDao.getProfile() ?: return
-        if (profile.planType.name == "PREMIUM") return
+        if (profile.planType == PlanType.PREMIUM) return
         val today = LocalDate.now().toString()
         userProfileDao.updateDailyTries(profile.dailyTriesUsed + 1, today)
     }
 
-    private fun bitmapToBase64(bitmap: Bitmap): String {
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream)
-        return Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
+    companion object {
+        /** Maximum free daily try-on attempts. Mirrors RemoteConfig.maxFreeTrials default. */
+        const val MAX_FREE_DAILY_TRIES = 3
     }
 }
 

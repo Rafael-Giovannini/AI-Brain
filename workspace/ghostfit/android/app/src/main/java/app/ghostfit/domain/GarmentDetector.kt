@@ -1,7 +1,6 @@
 package app.ghostfit.domain
 
 import android.graphics.Bitmap
-import android.util.Base64
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.GarmentClassification
@@ -12,7 +11,6 @@ import app.ghostfit.data.remote.VisionMessage
 import app.ghostfit.data.remote.VisionRequest
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import java.io.ByteArrayOutputStream
 
 class GarmentDetector(
     private val visionLlmApi: VisionLlmApi,
@@ -39,7 +37,7 @@ Return ONLY the JSON, no markdown or extra text."""
     }
 
     internal suspend fun classifyWithVisionLlm(croppedImage: Bitmap): GarmentInfo? {
-        val base64 = bitmapToBase64(croppedImage)
+        val base64 = croppedImage.toBase64Jpeg()
 
         return try {
             val request = VisionRequest(
@@ -93,9 +91,4 @@ Return ONLY the JSON, no markdown or extra text."""
         croppedImage = croppedImage
     )
 
-    internal fun bitmapToBase64(bitmap: Bitmap): String {
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream)
-        return Base64.encodeToString(stream.toByteArray(), Base64.NO_WRAP)
-    }
 }

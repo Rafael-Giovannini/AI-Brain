@@ -42,7 +42,12 @@ interface VisionLlmApi {
 data class VisionRequest(
     val model: String = "gpt-4o",
     val messages: List<VisionMessage>,
-    @Json(name = "max_tokens") val maxTokens: Int = 150
+    @Json(name = "max_tokens") val maxTokens: Int = 150,
+    @Json(name = "response_format") val responseFormat: ResponseFormat = ResponseFormat()
+)
+
+data class ResponseFormat(
+    val type: String = "json_object"
 )
 
 data class VisionMessage(

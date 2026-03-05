@@ -5,11 +5,13 @@
 ```bash
 # Verificar ferramentas instaladas
 java --version      # Requer JDK 17+
-kotlin -version     # Kotlin 1.9+
+kotlin -version     # Kotlin 2.2+
 ```
 
 **Nota:** Este projeto Android pode ser buildado via Gradle wrapper (`./gradlew`).
-Não requer Android Studio para builds CLI, mas requer Android SDK instalado.
+Não requer Android Studio para builds CLI, mas requer Android SDK instalado (API 26+ mínimo, target API 35).
+
+**Dependências de teste:** JUnit 4, MockK, Robolectric, kotlinx-coroutines-test, mockito-kotlin.
 
 ## Build Instructions
 
