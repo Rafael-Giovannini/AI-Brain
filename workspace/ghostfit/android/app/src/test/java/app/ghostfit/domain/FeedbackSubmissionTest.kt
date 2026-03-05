@@ -11,7 +11,6 @@ import app.ghostfit.data.model.UserProfile
 import app.ghostfit.data.remote.DatasetEntry
 import app.ghostfit.data.remote.FeedbackResponse
 import app.ghostfit.data.remote.GhostFitApi
-import app.ghostfit.overlay.ScreenCapture
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before

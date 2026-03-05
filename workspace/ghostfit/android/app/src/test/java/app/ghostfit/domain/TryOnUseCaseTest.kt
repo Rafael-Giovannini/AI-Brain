@@ -8,7 +8,6 @@ import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.model.ReferencePhoto
 import app.ghostfit.data.model.UserProfile
-import app.ghostfit.overlay.ScreenCapture
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -24,7 +23,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [33])
 class TryOnUseCaseTest {
 
-    private lateinit var screenCapture: ScreenCapture
+    private lateinit var screenCapture: ScreenCaptureProvider
     private lateinit var garmentDetector: GarmentDetector
     private lateinit var modelRouter: ModelRouter
     private lateinit var userProfileDao: UserProfileDao

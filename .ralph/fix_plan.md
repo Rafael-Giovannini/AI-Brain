@@ -103,6 +103,7 @@
 - Phase 5 Task 7: DailyLimitTest.kt — 15 tests covering free limit enforcement, premium bypass, midnight reset, counter increment, regenerate limits (this loop)
 - Phase 5 Task 4: AdManager.kt — AdMob interstitial integration (FR-016). Shows ads between generations after 2nd try-on, never before result. Premium users exempt. AdManagerTest.kt with 9 tests. BuildConfig.ADMOB_INTERSTITIAL_ID added (this loop)
 - Phase 5 Task 5: Handle subscription state changes (purchase → unlock). Added PurchaseEvent sealed class (Success/Error/Cancelled) + purchaseEvent StateFlow to BillingManager. UpgradeScreen observes events and shows PurchaseSuccessScreen on successful purchase. MainActivity wired. 6 new tests in BillingManagerTest (this loop)
+- Fix: TryOnUseCaseTest + DailyLimitTest — changed ScreenCapture (final class) → ScreenCaptureProvider (fun interface) to fix Mockito mocking failure. Removed unused imports in FeedbackSubmissionTest and TryOnResultScreen (this loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
