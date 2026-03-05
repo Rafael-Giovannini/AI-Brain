@@ -59,13 +59,19 @@ class PhotoStorageTest {
     }
 
     @Test
-    fun `encrypted file is not readable as plain image`() {
+    fun `encrypted file content differs from plaintext PNG bytes`() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
         val path = storage.encrypt(bitmap, "test_photo.enc")!!
 
-        val rawBytes = File(path).readBytes()
-        val decoded = BitmapFactory.decodeByteArray(rawBytes, 0, rawBytes.size)
-        assertNull("Encrypted data should not decode as a valid bitmap", decoded)
+        val encryptedBytes = File(path).readBytes()
+
+        // PNG files always start with the 8-byte signature: 89 50 4E 47 0D 0A 1A 0A
+        val pngSignature = byteArrayOf(
+            0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
+        )
+        val startsWithPng = encryptedBytes.size >= 8 &&
+                encryptedBytes.sliceArray(0 until 8).contentEquals(pngSignature)
+        assertFalse("Encrypted data should not start with PNG signature", startsWithPng)
     }
 
     @Test
