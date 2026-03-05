@@ -24,7 +24,7 @@
 - [x] Implement PhotoStorage with Tink AES-256-GCM encryption
 - [x] Create WelcomeScreen.kt (onboarding intro)
 - [x] Create PermissionScreen.kt (overlay + photos permissions with explanations)
-- [ ] Create LgpdConsentScreen.kt (explicit consent checkbox, not pre-checked)
+- [x] Create LgpdConsentScreen.kt (explicit consent checkbox, not pre-checked)
 - [ ] Create PhotoSelectScreen.kt (gallery picker + body validation)
 - [ ] Wire onboarding navigation (Welcome → Permissions → LGPD → PhotoSelect)
 - [ ] Unit tests for UserProfile DAO
@@ -88,6 +88,7 @@
 - Phase 0: Project scaffolding completo (estrutura, dependencies, AppDatabase, entities, theme)
 - Phase 1 parcial: UserProfile + ReferencePhoto entities e DAOs implementados
 - Phase 1: WelcomeScreen + PermissionScreen implementados (overlay SYSTEM_ALERT_WINDOW + fotos)
+- Phase 1: LgpdConsentScreen implementado (checkbox explícito não pré-marcado, strings PT-BR)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)

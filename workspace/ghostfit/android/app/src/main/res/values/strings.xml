@@ -20,4 +20,14 @@
     <string name="permission_photos_description">Para selecionar suas fotos de corpo inteiro como referência para o provador virtual. Suas fotos ficam apenas no seu celular, nunca são enviadas para fora.</string>
     <string name="permission_photos_button">Permitir acesso</string>
     <string name="permission_continue">Continuar</string>
+
+    <!-- LGPD Consent Screen -->
+    <string name="lgpd_title">Privacidade e seus dados</string>
+    <string name="lgpd_subtitle">O GhostFit respeita sua privacidade. Antes de continuar, leia como tratamos seus dados:</string>
+    <string name="lgpd_point_1">📸 Suas fotos ficam apenas no seu celular, criptografadas. Nunca são enviadas para servidores.</string>
+    <string name="lgpd_point_2">🔒 As imagens geradas pelo provador são temporárias e descartadas ao fechar a tela.</string>
+    <string name="lgpd_point_3">📊 Se você avaliar um resultado com "gostei", coletamos apenas dados anônimos (tipo de roupa e modelo usado) para melhorar o serviço. Sem fotos pessoais.</string>
+    <string name="lgpd_point_4">🗑️ Você pode revogar seu consentimento a qualquer momento nas configurações. Todos os seus dados serão apagados.</string>
+    <string name="lgpd_consent_label">Li e concordo com a política de privacidade e o tratamento dos meus dados conforme descrito acima.</string>
+    <string name="lgpd_continue">Aceitar e continuar</string>
 </resources>
