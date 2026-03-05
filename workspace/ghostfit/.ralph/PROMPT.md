@@ -16,15 +16,16 @@ GhostFit é um provador virtual com overlay flutuante sobre apps de e-commerce (
 - Monetização freemium: 3 tentativas/dia grátis, ads, assinatura premium via Google Play Billing
 
 ## Tech Stack
-- **Language:** Kotlin 1.9+ / JDK 17
+- **Language:** Kotlin 2.2.0 / JDK 17
 - **UI:** Jetpack Compose 1.7+ (telas) + View + WindowManager (overlay)
-- **Storage:** Room 2.6 (perfil/assinatura) + Tink AES-256-GCM (fotos criptografadas)
+- **Storage:** Room 2.7.1 (perfil/assinatura) + Tink AES-256-GCM (fotos criptografadas)
 - **Networking:** Retrofit 2.11 + OkHttp 4.12 + Moshi 1.15
 - **AI/ML:** ML Kit Object Detection 17.x, GPT-4o Vision, FASHN.ai VTON, Vertex AI VTON
 - **Billing:** Google Play Billing Library 8.3.0
 - **Ads:** AdMob 23.6.0
 - **Image Loading:** Coil 2.7
-- **Testing:** JUnit 4, Compose UI Test, Coroutines Test
+- **DI:** Singletons manuais no MVP (Hilt planejado para refactor futuro)
+- **Testing:** JUnit 4, Compose UI Test, Coroutines Test, Robolectric
 - **Target:** Android 8.0+ (API 26), target API 35
 
 ## Architecture

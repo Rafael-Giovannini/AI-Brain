@@ -126,7 +126,7 @@ O fantasminha GhostFit aparece como overlay flutuante persistente sobre qualquer
 
 ### Functional Requirements
 
-- **FR-001**: Sistema DEVE permitir cadastro de até 3 fotos de corpo inteiro via Google Fotos ou galeria do dispositivo, com validação automática de corpo inteiro visível e seleção da foto ativa no momento do try-on
+- **FR-001**: Sistema DEVE permitir cadastro de até 3 fotos de corpo inteiro via Photo Picker nativo do Android (inclui Google Fotos e galeria do dispositivo), com validação automática de corpo inteiro visível e seleção da foto ativa no momento do try-on
 - **FR-002**: Sistema DEVE solicitar permissão SYSTEM_ALERT_WINDOW com tela de onboarding explicativa em linguagem simples antes de redirecionar para configurações do Android
 - **FR-003**: Sistema DEVE exigir consentimento LGPD explícito (opt-in, checkbox não pré-marcado) antes de acessar qualquer foto pessoal, com registro de timestamp
 - **FR-004**: Sistema DEVE exibir overlay flutuante (fantasminha) persistente sobre qualquer app, sem bloquear interação com o app hospedeiro

@@ -47,11 +47,13 @@ class OnboardingViewModel(
                 val fileName = "ref_${System.currentTimeMillis()}.enc"
                 val path = photoStorage.encrypt(bitmap, fileName)
                 if (path != null) {
+                    // TODO: FR-001/US1-6 — substituir por validação real de corpo inteiro
+                    // (ML Kit Pose Detection ou similar) na Phase 3
                     referencePhotoDao.insert(
                         ReferencePhoto(
                             userId = profile.id,
                             encryptedFilePath = path,
-                            isBodyFullVisible = true
+                            isBodyFullVisible = true // placeholder até validação real
                         )
                     )
                 }

@@ -12,12 +12,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-private val GhostPurple = Color(0xFF7C3AED)
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun OverlayComposable(
@@ -30,7 +28,7 @@ fun OverlayComposable(
             .size(56.dp)
             .shadow(8.dp, CircleShape)
             .clip(CircleShape)
-            .background(GhostPurple)
+            .background(MaterialTheme.colorScheme.primary)
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDrag = { change, dragAmount ->

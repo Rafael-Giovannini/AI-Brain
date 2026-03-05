@@ -66,7 +66,6 @@
 - [ ] Implement "Trocar foto" (switch reference photo, regenerate)
 - [ ] Implement thumbs up/down feedback
 - [ ] Create GhostFitApi.kt (backend API for feedback)
-- [ ] Create FeedbackRecord DTO
 - [ ] Implement share via Android share sheet (with GhostFit branding)
 - [ ] Unit tests for feedback submission
 

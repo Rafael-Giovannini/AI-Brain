@@ -9,8 +9,9 @@ App Android nativo (Kotlin + Jetpack Compose) que funciona como provador virtual
 
 ## Technical Context
 
-**Language/Version**: Kotlin 1.9+ / JDK 17
-**Primary Dependencies**: Jetpack Compose 1.7+, Room 2.6, Retrofit 2.11, ML Kit 17.x, Tink 1.12, Coil 2.7, AdMob
+**Language/Version**: Kotlin 2.2.0 / JDK 17
+**Primary Dependencies**: Jetpack Compose 1.7+, Room 2.7.1, Retrofit 2.11, ML Kit 17.x, Tink 1.12, Coil 2.7, AdMob
+**DI**: Singletons manuais no MVP (Hilt planejado para refactor futuro)
 **Storage**: Room DB (perfil/assinatura) + filesDir criptografado com Tink AES-256-GCM (fotos de referência)
 **Testing**: JUnit 4, Compose UI Test, Coroutines Test
 **Target Platform**: Android 8.0+ (API 26+), target API 35
