@@ -210,7 +210,7 @@ private fun PhotoThumbnail(
     Box(modifier = modifier.size(100.dp)) {
         Image(
             bitmap = bitmap.asImageBitmap(),
-            contentDescription = null,
+            contentDescription = stringResource(R.string.cd_photo_reference),
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
@@ -228,7 +228,7 @@ private fun PhotoThumbnail(
         ) {
             Icon(
                 imageVector = Icons.Filled.Close,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.cd_remove_photo),
                 modifier = Modifier.size(14.dp),
                 tint = MaterialTheme.colorScheme.onError
             )

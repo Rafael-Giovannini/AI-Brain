@@ -183,12 +183,12 @@ Para que ele não atrapalhe minha navegação.
 
 **Acceptance Criteria:**
 - [ ] Overlay responde a gesture de drag/long-press
-- [ ] Posição salva entre sessões (SharedPreferences)
+- [ ] Posição salva entre sessões (Room — `UserProfile.overlayPositionX/Y`)
 - [ ] Overlay não pode ser arrastado para fora da tela
 - [ ] Animação suave durante reposicionamento
 
 **Notas Técnicas:**
-Touch listener no overlay view. Usar `WindowManager.LayoutParams` para atualizar posição. Persistir posição no SharedPreferences.
+Touch listener no overlay view. Usar `WindowManager.LayoutParams` para atualizar posição. Persistir posição via Room (`UserProfile.overlayPositionX/Y`) conforme data-model.
 
 **Dependências:** STORY-005
 

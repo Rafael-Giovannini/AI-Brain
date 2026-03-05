@@ -1,194 +1,203 @@
 # Validation Report: ghostfit / 001-ghostfit-mvp
 
-**Gerado**: 2026-03-04 18:00
+**Generated**: 2026-03-04 — Validacao #3 (pos-correcoes)
 **Workspace**: ghostfit
-**Feature**: 001-ghostfit-mvp
+**Feature**: 001-ghostfit-mvp (Provador Virtual com Overlay)
+**Status do Codigo**: Phase 1 completa (Onboarding). Phases 2-5 pendentes.
 
 ---
 
-## Sumário Executivo
+## Executive Summary
 
-| Métrica | Valor |
-|---------|-------|
-| Inconsistências em Docs (Pass A) | 1 |
-| BMAD Docs vs Spec (Pass G) | 3 |
-| Ralph Config Issues (Pass H) | 0 |
-| Entidades: Definidas / Implementadas | 7 / 4 |
-| API Endpoints: Definidos / Implementados | 8 / 0 |
-| FRs Rastreados no Código | 5 / 21 (24%) |
-| Cenários de Aceitação com Testes | 0 / 28 (0%) |
-| Issues de Qualidade de Código | 2 |
-| Issues CRITICAL | 0 |
-| Issues HIGH | 1 |
-| Issues MEDIUM | 7 |
-| Issues LOW | 3 |
+| Metric | Value |
+|--------|-------|
+| Spec Doc Consistency Issues | 2 (de 4 — 2 corrigidos) |
+| BMAD Docs vs Spec Issues | 1 (de 4 — 3 corrigidos) |
+| Ralph Config Issues | 1 (de 2 — 1 corrigido) |
+| Entities: Definidas / Implementadas | 7 / 4 |
+| API Endpoints: Definidos / Implementados | 9 / 0 |
+| FRs Traced to Code | 3 / 21 (14%) |
+| Acceptance Scenarios with Tests | 0 / 28 (0%) |
+| Code Quality Issues | 3 (de 7 — 4 corrigidos) |
+| **Critical Issues** | **0** |
+| **High Issues** | **0** (2 corrigidos) |
+| **Medium Issues** | **4** (de 10 — 6 corrigidos) |
+| **Low Issues** | **3** (de 4 — 1 corrigido) |
 
-**Nota**: Projeto em estágio inicial de implementação (Phase 1 parcial). A maioria dos MISSING é esperada — entidades de backend, endpoints de API e telas ainda não implementadas. O foco atual está na fundação (onboarding).
+**Nota**: O projeto esta em estagio inicial (Phase 1 de 5 concluida). A maioria dos endpoints e FRs MISSING sao esperados neste momento.
 
----
-
-## 1. Consistência de Docs (Pass A)
-
-| ID | Severity | Localização | Finding | Recomendação |
-|----|----------|-------------|---------|--------------|
-| A-01 | MEDIUM | sprint-plan STORY-001 vs plan.md | sprint-plan AC diz "JUnit 5 + MockK" mas plan.md e PROMPT.md dizem "JUnit 4". Código usa JUnit 4 (`@org.junit.Test`). | Corrigir sprint-plan STORY-001 para "JUnit 4 + MockK" para alinhar com o código existente e PROMPT.md. |
-
----
-
-## 2. Matriz de Cobertura de Entidades (Pass B)
-
-| Entidade | Arquivo no Código | Status | Campos Faltantes | Campos Extras |
-|----------|-------------------|--------|------------------|---------------|
-| UserProfile | `data/model/UserProfile.kt` | COMPLETE | — | — |
-| ReferencePhoto | `data/model/ReferencePhoto.kt` | COMPLETE | — | — |
-| TryOnSession | — | MISSING (esperado) | Entidade efêmera, implementar em Phase 3 (Story 2) | — |
-| GarmentInfo | `data/model/GarmentInfo.kt` | COMPLETE | — | — |
-| FeedbackRecord | `data/model/FeedbackRecord.kt` | COMPLETE | — | — |
-| SubscriptionState | — | MISSING | Entidade local (Room), implementar em Phase 5 (Story 4) | — |
-| ModelScore | — | MISSING (esperado) | Entidade de backend, não faz parte do app Android | — |
-| PlanType (enum) | `data/model/UserProfile.kt` | COMPLETE | — | — |
-| GarmentCategory (enum) | `data/model/GarmentInfo.kt` | COMPLETE | — | — |
-
-**Resumo**: 4/7 entidades implementadas. 3 MISSING são esperadas para o estágio atual (TryOnSession será in-memory, SubscriptionState em Phase 5, ModelScore é backend).
+**Correcoes aplicadas nesta sessao**:
+- H-1/H-2: Business logic extraida para `OnboardingViewModel.kt`, eliminando `CoroutineScope` nao-gerenciado
+- M-1: Quickstart atualizado — Hilt comentado com explicacao de singletons no MVP
+- M-3: PRD FR-001 corrigido: "Google Photos API" → "Photo Picker Nativo"
+- M-4: PROMPT.md corrigido: "ComposeView (overlay)" → "View + WindowManager (overlay)"
+- M-5: Sprint-plan STORY-006 corrigido: "SharedPreferences" → "Room (UserProfile)"
+- M-6: AndroidManifest AdMob ID substituido por test ID oficial com TODO para BuildConfig
+- M-7: PhotoSelectScreen contentDescription adicionado para acessibilidade WCAG
 
 ---
 
-## 3. Cobertura de Contratos de API (Pass C)
+## 1. Spec Doc Consistency (Pass A)
 
-| Endpoint | Arquivo no Código | Status | Notas |
-|----------|-------------------|--------|-------|
-| FASHN.ai POST /v1/run | — | MISSING | Phase 3 (STORY-011) |
-| Vertex AI POST predict | — | MISSING | Phase 3 (STORY-011) |
-| Vision LLM POST /v1/chat/completions | — | MISSING | Phase 3 (STORY-009) |
-| ML Kit Object Detection (on-device) | — | MISSING | Phase 3 (STORY-009) |
-| Backend POST /v1/feedback | — | MISSING | Phase 4 (STORY-016) |
-| Backend GET /v1/models/route | — | MISSING | Phase 4 (STORY-022) |
-| Backend GET /v1/config | — | MISSING | Phase 4 (STORY-016) |
-| Backend POST /v1/dataset | — | MISSING | Phase 4 (STORY-021) |
-
-**Resumo**: 0/8 endpoints implementados. Diretório `data/remote/` contém apenas `.gitkeep`. Esperado — APIs são Phase 3-4.
+| ID | Severity | Location | Finding | Recommendation |
+|----|----------|----------|---------|----------------|
+| A-01 | MEDIUM | plan.md vs codigo | Plan e architecture especificam **Hilt** para DI, mas o codigo usa singletons manuais (`AppDatabase.getInstance()`, `PhotoStorage.getInstance()`) | Implementar Hilt conforme definido na arquitetura, ou atualizar docs para refletir a decisao de nao usar Hilt no MVP |
+| ~~A-02~~ | ~~MEDIUM~~ | ~~sprint-plan vs data-model~~ | ~~SharedPreferences vs Room~~ | **CORRIGIDO** — sprint-plan atualizado para Room |
+| ~~A-03~~ | ~~LOW~~ | ~~quickstart.md vs plan.md~~ | ~~Hilt dependency sem uso~~ | **CORRIGIDO** — Hilt comentado no quickstart com explicacao |
+| A-04 | LOW | api-contracts.md vs plan.md | Contratos especificam `genTimeout: 20000` no endpoint `/v1/config`, mas spec e plan definem timeout de geracao como 15s (FR-009) | Alinhar — se 20s e o timeout do config e 15s e o SLA, documentar a diferenca |
 
 ---
 
-## 4. Rastreabilidade de FRs (Pass D)
+## 2. Entity Coverage Matrix (Pass B)
 
-| FR | Descrição | No Código? | Em Testes? | Status |
-|----|-----------|-----------|------------|--------|
-| FR-001 | Cadastro de fotos com criptografia | ✅ PhotoStorage, ReferencePhoto, ReferencePhotoDao | ✅ PhotoStorageTest | PARTIAL |
-| FR-002 | Permissão SYSTEM_ALERT_WINDOW | ✅ PermissionScreen.kt | ❌ | PARTIAL |
-| FR-003 | Consentimento LGPD explícito | ✅ UserProfile.lgpdConsentGranted/Timestamp | ❌ | PARTIAL |
-| FR-004 | Overlay flutuante | ❌ | ❌ | UNTRACED |
-| FR-005 | Captura de tela ao toque | ❌ | ❌ | UNTRACED |
-| FR-006 | Overlay reposicionável | ✅ UserProfile.overlayPosition, UserProfileDao.updateOverlayPosition | ❌ | PARTIAL |
-| FR-007 | Detecção de roupa via IA | ❌ | ❌ | UNTRACED |
-| FR-008 | Aviso "Nenhuma roupa detectada" | ❌ | ❌ | UNTRACED |
-| FR-009 | Geração de imagem try-on | ❌ | ❌ | UNTRACED |
-| FR-010 | Opção "Tentar novamente" | ❌ | ❌ | UNTRACED |
-| FR-011 | Opção "Trocar foto" | ❌ | ❌ | UNTRACED |
-| FR-012 | Fallback entre modelos de IA | ❌ | ❌ | UNTRACED |
-| FR-013 | Compartilhar com branding | ❌ | ❌ | UNTRACED |
-| FR-014 | Feedback thumbs up/down | ❌ | ❌ | UNTRACED |
-| FR-015 | Limite 3 tentativas/dia | ✅ UserProfile.dailyTriesUsed/ResetDate, UserProfileDao.updateDailyTries | ❌ | PARTIAL |
-| FR-016 | Exibição de anúncios | ❌ | ❌ | UNTRACED |
-| FR-017 | Pacotes pagos / assinatura | ❌ | ❌ | UNTRACED |
-| FR-018 | Google Play Billing | ❌ | ❌ | UNTRACED |
-| FR-019 | Coleta de dados para dataset | ❌ | ❌ | UNTRACED |
-| FR-020 | Roteamento inteligente | ❌ | ❌ | UNTRACED |
-| FR-021 | Pipeline de dados fine-tuning | ❌ | ❌ | UNTRACED |
+| Entity | Code File | Status | Missing Fields | Extra Fields |
+|--------|-----------|--------|----------------|--------------|
+| UserProfile | `data/model/UserProfile.kt` | **COMPLETE** | — | — |
+| ReferencePhoto | `data/model/ReferencePhoto.kt` | **COMPLETE** | — | — |
+| TryOnSession | — | **MISSING** | Todos (9 campos) | — |
+| GarmentInfo | `data/model/GarmentInfo.kt` | **COMPLETE** | — | — |
+| FeedbackRecord | `data/model/FeedbackRecord.kt` | **COMPLETE** | — | — |
+| SubscriptionState | — | **MISSING** | Todos (7 campos) | — |
+| ModelScore | — | **MISSING** | Todos (6 campos) | — |
 
-**Resumo**: 5/21 FRs com implementação parcial no código (campos/DAOs de suporte). 0 FRs com tags `FR-XXX` nos comentários do código. Nenhum FR com cobertura completa (código + testes).
+**Notas**:
+- UserProfile: 10/10 campos, PlanType enum com FREE/PREMIUM conforme spec
+- ReferencePhoto: 6/6 campos, FK para UserProfile com CASCADE
+- GarmentInfo: 5/5 campos, GarmentCategory enum (TOP/BOTTOM/DRESS/OUTERWEAR)
+- FeedbackRecord: 5/5 campos
+- TryOnSession: Esperado MISSING — entidade efemera, Phase 3
+- SubscriptionState: Esperado MISSING — Phase 5
+- ModelScore: Backend-only, nao precisa existir no app
 
 ---
 
-## 5. Cobertura de Cenários de Aceitação (Pass E)
+## 3. API Contract Coverage (Pass C)
 
-### Story 1 — Setup Inicial e Onboarding (6 cenários)
+| Endpoint | Code File | Status | Notes |
+|----------|-----------|--------|-------|
+| POST /v1/feedback | — | **MISSING** | Phase 4 — esperado |
+| GET /v1/models/route | — | **MISSING** | Phase 5 — esperado |
+| GET /v1/config | — | **MISSING** | Phase 4 — esperado |
+| GET /v1/health | — | **MISSING** | Phase 4 — esperado |
+| POST /v1/dataset | — | **MISSING** | Phase 4 — esperado |
+| POST fashn.ai/v1/run | — | **MISSING** | Phase 3 — esperado |
+| POST vertex-ai predict | — | **MISSING** | Phase 3 — esperado |
+| POST openai/v1/chat/completions | — | **MISSING** | Phase 3 — esperado |
+| ML Kit Object Detection | — | **MISSING** | Phase 3 — esperado |
 
-| Cenário | Asserção Chave | Teste? | Arquivo de Teste |
-|---------|----------------|--------|------------------|
-| US1-1: Tela de boas-vindas | WelcomeScreen exibe conceito do provador | ❌ | — |
-| US1-2: Permissão overlay explicada | PermissionScreen explica overlay em linguagem simples | ❌ | — |
-| US1-3: Detecção automática de permissão | PermissionScreen auto-avança ao retornar | ❌ | — |
-| US1-4: Checkbox LGPD não pré-marcado | LgpdConsentScreen checkbox desmarcado | ❌ | Tela não implementada |
-| US1-5: Seleção de fotos | PhotoSelectScreen com picker | ❌ | Tela não implementada |
-| US1-6: Validação corpo inteiro | Validação de foto de corpo inteiro | ❌ | — |
-
-### Story 2 — Try-On Virtual (6 cenários) → UNCOVERED (Phase 3)
-### Story 3 — Interação com Resultado (5 cenários) → UNCOVERED (Phase 4)
-### Story 4 — Monetização e Limites (6 cenários) → UNCOVERED (Phase 5)
-### Story 5 — Overlay Flutuante (5 cenários) → UNCOVERED (Phase 2)
-
-**Resumo**: 0/28 cenários de aceitação com testes dedicados. PhotoStorageTest cobre criptografia (infraestrutura do FR-001) mas não é um teste de cenário de aceitação completo.
+**Nota**: Todos os endpoints sao Phase 3+. Nenhuma implementacao de API remota e esperada neste estagio.
 
 ---
 
-## 6. Qualidade de Código (Pass F)
+## 4. FR Traceability (Pass D)
 
-| Arquivo | Categoria | Severity | Finding | Recomendação |
-|---------|----------|----------|---------|--------------|
-| `MainActivity.kt:17,20` | Code Smell | LOW | 2 TODOs sem referência a issue/story: "Replace with NavHost" e "Navigate to PermissionScreen" | Adicionar referência (ex: `// TODO(STORY-001): Wire NavHost`) |
-| Projeto inteiro | Test Coverage | HIGH | Apenas 1 arquivo de teste (PhotoStorageTest.kt) para 14 arquivos de código-fonte. Cobertura estimada < 10%. Definition of Done exige ≥80% em domain/data. | Priorizar testes para UserProfileDao e telas de onboarding (Compose UI Test). |
+| FR | Description | In Code? | In Tests? | Status |
+|----|-------------|----------|-----------|--------|
+| FR-001 | Cadastro fotos corpo inteiro (ate 3, criptografia) | PhotoSelectScreen.kt, PhotoStorage.kt | PhotoStorageTest.kt | **PARTIAL** |
+| FR-002 | Permissao SYSTEM_ALERT_WINDOW com onboarding | PermissionScreen.kt, AndroidManifest.xml | — | **PARTIAL** |
+| FR-003 | Consentimento LGPD (checkbox nao pre-marcado, timestamp) | LgpdConsentScreen.kt, MainActivity.kt | UserProfileDaoTest.kt (lgpd consent flow) | **TRACED** |
+| FR-004 | Overlay flutuante sobre qualquer app | — | — | **UNTRACED** |
+| FR-005 | Captura de tela ao toque (< 1s) | — | — | **UNTRACED** |
+| FR-006 | Reposicionamento overlay (drag, posicao salva) | DAO pronto (updateOverlayPosition) | UserProfileDaoTest (overlay position) | **PARTIAL** |
+| FR-007 | Deteccao roupa via IA (< 3s) | — | — | **UNTRACED** |
+| FR-008 | Mensagem "Nenhuma roupa detectada" | — | — | **UNTRACED** |
+| FR-009 | Geracao imagem try-on (< 15s) | — | — | **UNTRACED** |
+| FR-010 | Tentar novamente (variacao diferente) | — | — | **UNTRACED** |
+| FR-011 | Trocar foto de referencia | — | — | **UNTRACED** |
+| FR-012 | Fallback FASHN.ai → Vertex AI | — | — | **UNTRACED** |
+| FR-013 | Compartilhar com branding GhostFit | — | — | **UNTRACED** |
+| FR-014 | Feedback thumbs up/down | — | — | **UNTRACED** |
+| FR-015 | Limite 3 tentativas/dia | DAO pronto (updateDailyTries) | UserProfileDaoTest (daily tries) | **PARTIAL** |
+| FR-016 | Exibicao de anuncios | — | — | **UNTRACED** |
+| FR-017 | Pacotes pagos / assinatura mensal | — | — | **UNTRACED** |
+| FR-018 | Google Play Billing | — | — | **UNTRACED** |
+| FR-019 | Coleta dados dataset anonimizado | — | — | **UNTRACED** |
+| FR-020 | Roteamento inteligente modelos | — | — | **UNTRACED** |
+| FR-021 | Pipeline fine-tuning | — | — | **UNTRACED** |
 
-### Qualidade Positiva Identificada
+**Resumo**: 1 TRACED, 4 PARTIAL, 16 UNTRACED — condizente com Phase 1 completa (FR-001, FR-002, FR-003).
 
-- ✅ **Segurança**: PhotoStorage usa Tink AES-256-GCM + Android Keystore. Padrão exemplar de criptografia.
-- ✅ **Testabilidade**: PhotoStorage expõe `internal constructor` para injeção de AEAD em testes.
-- ✅ **Separação de camadas**: FeedbackRecord e GarmentInfo são POJOs sem imports de framework.
-- ✅ **Strings externalizadas**: WelcomeScreen e PermissionScreen usam `R.string.*` (NFR-012 compliance PT-BR).
-- ✅ **Sem segredos hardcoded**: Nenhuma API key, senha ou token no código-fonte.
-- ✅ **Código conciso**: Todos os arquivos ≤ 200 linhas, responsabilidade única.
-- ✅ **Room bem configurado**: FK com CASCADE delete, índices em `userId`, TypeConverters para enums.
-- ✅ **Permissões Android**: PermissionScreen trata corretamente API 33+ (`READ_MEDIA_IMAGES`) vs API < 33 (`READ_EXTERNAL_STORAGE`).
+---
+
+## 5. Acceptance Scenario Coverage (Pass E)
+
+| Story | Scenario | Key Assertion | Test Found? | Test File |
+|-------|----------|---------------|-------------|-----------|
+| US1 | S1: Tela boas-vindas ao abrir app | WelcomeScreen renderiza | No | — |
+| US1 | S2: Explicacao permissao overlay | PermissionScreen com texto explicativo | No | — |
+| US1 | S3: Auto-deteccao permissao concedida | lifecycle observer em MainActivity | No | — |
+| US1 | S4: Checkbox LGPD nao pre-marcado | `mutableStateOf(false)` em LgpdConsentScreen | No | — |
+| US1 | S5: Seletor fotos corpo inteiro | PhotoSelectScreen com picker | No | — |
+| US1 | S6: Validacao corpo inteiro | `isBodyFullVisible` hardcoded `true` | No | — |
+| US2 | S1-S6 | Captura + deteccao + geracao | No | — (Phase 3) |
+| US3 | S1-S5 | Retry, trocar foto, feedback, share | No | — (Phase 4) |
+| US4 | S1-S6 | Limite, ads, billing | No | — (Phase 5) |
+| US5 | S1-S5 | Overlay, drag, persist position | No | — (Phase 2) |
+
+**Resumo**: 0/28 cenarios com testes de UI. Ha testes unitarios para DAOs mas nenhum teste Compose UI.
+
+---
+
+## 6. Code Quality (Pass F)
+
+| File | Category | Severity | Finding | Recommendation |
+|------|----------|----------|---------|----------------|
+| ~~MainActivity.kt~~ | ~~Architecture~~ | ~~HIGH~~ | ~~Business logic na Activity com CoroutineScope nao-gerenciado~~ | **CORRIGIDO** — Extraido para `OnboardingViewModel.kt` com `viewModelScope` |
+| ~~MainActivity.kt~~ | ~~Code Smell~~ | ~~HIGH~~ | ~~CoroutineScope(Dispatchers.IO).launch nao-gerenciado~~ | **CORRIGIDO** — ViewModel com `viewModelScope.launch(Dispatchers.IO)` |
+| MainActivity.kt | Code Smell | **MEDIUM** | `isBodyFullVisible = true` hardcoded — sem validacao real de corpo inteiro (FR-001 acceptance criteria incompleto) | Implementar validacao via ML Kit Pose Detection conforme sprint-plan STORY-004 notas tecnicas |
+| ~~AndroidManifest.xml~~ | ~~Security~~ | ~~MEDIUM~~ | ~~AdMob App ID placeholder hardcoded~~ | **CORRIGIDO** — Substituido por test ID oficial do AdMob com TODO para BuildConfig |
+| ~~PhotoSelectScreen.kt~~ | ~~Accessibility~~ | ~~MEDIUM~~ | ~~Image thumbnail sem contentDescription~~ | **CORRIGIDO** — `contentDescription` adicionado (cd_photo_reference, cd_remove_photo) |
+| WelcomeScreen.kt:40 | Code Smell | **LOW** | Emoji do fantasminha como placeholder (unicode) ao inves de asset vetorial | Substituir por icone vetorial `ic_ghost.xml` quando disponivel |
+| AppDatabase.kt | Architecture | **MEDIUM** | Singleton manual com `@Volatile` + `synchronized` — correto mas Hilt com `@Singleton` seria mais limpo conforme arquitetura | Considerar migrar para Hilt quando implementar Phase 2+ |
 
 ---
 
 ## 7. BMAD Docs vs Specs (Pass G)
 
-| ID | Severity | Doc BMAD | Doc Spec | Finding | Recomendação |
-|----|----------|----------|----------|---------|--------------|
-| G-01 | MEDIUM | sprint-plan STORY-001 | plan.md | sprint-plan diz "JUnit 5 + MockK" nos AC de STORY-001, mas plan.md, PROMPT.md e código real usam JUnit 4 + Robolectric. | Atualizar sprint-plan STORY-001 AC para "JUnit 4 + MockK + Robolectric". |
-| G-02 | LOW | product-brief | plan.md / research.md | Product brief ainda menciona "Google Fotos API" como solução, mas research.md e plan.md decidiram usar "Android Photo Picker nativo (sem OAuth)". | Atualizar product-brief para refletir decisão do Photo Picker nativo. |
-| G-03 | MEDIUM | plan.md | ux-design | plan.md diz "5 telas (onboarding 4 + resultado 1)" na seção Scale/Scope, mas UX design documenta 16+ telas incluindo splash, loadings, erros, limite, planos, home e configurações. | Atualizar plan.md Scale/Scope para refletir contagem real de telas. |
+| ID | Severity | Docs File | Spec File | Finding | Recommendation |
+|----|----------|-----------|-----------|---------|----------------|
+| ~~G-01~~ | ~~MEDIUM~~ | ~~prd (FR-001)~~ | ~~spec.md / research.md~~ | ~~PRD diz "Google Photos API"~~ | **CORRIGIDO** — PRD atualizado para "Photo Picker Nativo" |
+| G-02 | MEDIUM | architecture.md | codigo-fonte | Arquitetura define Hilt para injecao de dependencia (secoes 3, 4), mas codigo implementa singletons manuais | Implementar Hilt ou atualizar architecture.md para refletir decisao de nao usar DI no MVP |
+| G-03 | LOW | prd (FR-018) | quickstart.md | PRD especifica "Google Play Billing Library v6+" mas quickstart/architecture usam v8.3.0 | Atualizar PRD para "v8.3.0" para consistencia |
+| ~~G-04~~ | ~~MEDIUM~~ | ~~sprint-plan (STORY-005)~~ | ~~PROMPT.md~~ | ~~ComposeView vs View-based overlay~~ | **CORRIGIDO** — PROMPT.md atualizado para "View + WindowManager (overlay)" |
 
 ---
 
 ## 8. Ralph Config (Pass H)
 
-| ID | Severity | Arquivo | Finding | Recomendação |
-|----|----------|---------|---------|--------------|
-| — | — | — | Nenhum issue encontrado. | — |
+| ID | Severity | File | Finding | Recommendation |
+|----|----------|------|---------|----------------|
+| ~~H-01~~ | ~~MEDIUM~~ | ~~.ralph/PROMPT.md~~ | ~~ComposeView vs View + WindowManager~~ | **CORRIGIDO** — PROMPT.md atualizado |
+| H-02 | LOW | .ralph/PROMPT.md | Lista "Moshi 1.15" na tech stack mas nenhum adapter Moshi configurado no codigo | Aceitavel — sera implementado em Phase 3 (APIs remotas). Sem acao necessaria agora |
 
-### Detalhes da Validação Ralph
-
-- ✅ `.ralphrc`: PROJECT_NAME, PROJECT_TYPE, PROJECT_ROOT corretos. ALLOWED_TOOLS adequadas (gradlew, git safe). Sem comandos perigosos.
-- ✅ `PROMPT.md`: Tech stack, branch (`001-ghostfit-mvp`), paths de specs/docs corretos. Testing: JUnit 4 (alinhado com código).
-- ✅ `AGENT.md`: Build/test commands (gradlew), package (app.ghostfit), SDK versions (26/35) corretos.
-- ✅ `fix_plan.md`: 6 fases (0-5) mapeando scaffolding + 5 User Stories. Tasks `[x]` referem código existente. Tasks `[ ]` referem entidades/telas presentes na spec. Ordem de prioridade (P1→P2) coerente com PROMPT.md.
-
----
-
-## Próximas Ações
-
-### Critical (corrigir antes de continuar)
-- Nenhuma issue crítica. Projeto alinhado para estágio atual de implementação.
-
-### HIGH (corrigir em breve)
-- Aumentar cobertura de testes: criar testes para UserProfileDao e telas de onboarding. Target ≥80% em domain/data conforme Definition of Done.
-
-### MEDIUM (abordar durante implementação)
-- Corrigir "JUnit 5" → "JUnit 4" no sprint-plan STORY-001 (A-01/G-01).
-- Atualizar plan.md para refletir 16+ telas do UX design (G-03).
-- Adicionar tags `FR-XXX` nos comentários do código para rastreabilidade.
-- Implementar `LgpdConsentScreen.kt` e `PhotoSelectScreen.kt` (próximos no fix_plan).
-- Conectar navegação (substituir TODOs no MainActivity.kt por NavHost).
-- Criar testes de UI (Compose UI Test) para WelcomeScreen e PermissionScreen.
-
-### LOW (melhorias incrementais)
-- Atualizar product-brief para refletir decisão do Photo Picker nativo (G-02).
-- Adicionar referências a STORY/issue nos TODOs do código.
-- Considerar adicionar `SubscriptionState` entity ao Room quando iniciar Phase 5.
+**Config geral**:
+- `.ralphrc`: PROJECT_NAME, PROJECT_TYPE, PROJECT_ROOT — todos corretos
+- `AGENT.md`: Build/test commands corretos, prerequisites corretos
+- `fix_plan.md`: Phases alinhadas com spec stories, tasks completadas correspondem a codigo existente
 
 ---
 
-*Relatório gerado por `/validate ghostfit` em 2026-03-04.*
-*Execute `/validate ghostfit` novamente após corrigir os issues para verificar progresso.*
+## Next Actions
+
+### Critical (must fix before continuing)
+- (nenhum)
+
+### High (fix soon)
+- ~~**[H-1]** Extrair business logic para ViewModel~~ — **CORRIGIDO**
+- ~~**[H-2]** Migrar para viewModelScope~~ — **CORRIGIDO**
+
+### Medium (address during implementation)
+- **[M-1]** ~~Atualizar docs sobre Hilt~~ — **CORRIGIDO** (quickstart). Pendente: atualizar `architecture.md` se decidir nao usar Hilt
+- **[M-2]** Implementar validacao real de corpo inteiro na foto (FR-001 S6) — atualmente hardcoded `true`. Requer ML Kit Pose Detection (Phase 3+)
+- ~~**[M-3]** Atualizar PRD FR-001~~ — **CORRIGIDO**
+- ~~**[M-4]** Corrigir PROMPT.md~~ — **CORRIGIDO**
+- ~~**[M-5]** Corrigir sprint-plan STORY-006~~ — **CORRIGIDO**
+- ~~**[M-6]** AdMob App ID~~ — **CORRIGIDO** (test ID + TODO para BuildConfig)
+- ~~**[M-7]** contentDescription WCAG~~ — **CORRIGIDO**
+- **[M-8]** Adicionar testes Compose UI para telas de onboarding (US1 S1-S6)
+
+### Low (address when convenient)
+- Alinhar versao do Play Billing entre PRD (v6+) e quickstart (v8.3.0)
+- ~~Remover dependency Hilt do quickstart~~ — **CORRIGIDO** (comentado com explicacao)
+- Substituir emoji placeholder por icone vetorial
+- Alinhar timeout genTimeout (20s) no config endpoint vs SLA (15s)

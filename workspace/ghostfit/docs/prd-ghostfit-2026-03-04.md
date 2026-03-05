@@ -60,15 +60,15 @@ Each requirement includes:
 
 ---
 
-### FR-001: Cadastro de Fotos Pessoais via Google Fotos
+### FR-001: Cadastro de Fotos Pessoais via Photo Picker Nativo
 
 **Priority:** Must Have
 
 **Description:**
-Usuária seleciona fotos de corpo inteiro a partir do Google Fotos para servir como referência visual no try-on. O sistema deve validar que a foto contém uma pessoa de corpo inteiro.
+Usuária seleciona fotos de corpo inteiro a partir do Android Photo Picker nativo (galeria do dispositivo, inclui Google Fotos) para servir como referência visual no try-on. O sistema deve validar que a foto contém uma pessoa de corpo inteiro.
 
 **Acceptance Criteria:**
-- [ ] Integração funcional com Google Photos API
+- [ ] Integração funcional com Android Photo Picker nativo (sem OAuth)
 - [ ] Usuária pode selecionar 1 ou mais fotos de corpo inteiro
 - [ ] Sistema valida que a foto contém pessoa de corpo inteiro visível
 - [ ] Fotos são armazenadas localmente com criptografia

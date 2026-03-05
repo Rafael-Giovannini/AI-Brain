@@ -44,10 +44,13 @@
             android:foregroundServiceType="mediaProjection"
             android:exported="false" />
 
-        <!-- AdMob App ID (replace with real ID) -->
+        <!-- AdMob App ID — loaded from local.properties via BuildConfig.
+             TODO: Replace placeholder below with BuildConfig.ADMOB_APP_ID
+             once build.gradle.kts is configured to read ADMOB_APP_ID from
+             local.properties (same pattern as FASHN_API_KEY). -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" />
+            android:value="ca-app-pub-3940256099942544~3347511713" />
 
     </application>
 

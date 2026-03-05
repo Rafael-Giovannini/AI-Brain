@@ -39,4 +39,8 @@
     <string name="photo_select_continue">Finalizar setup</string>
     <string name="photo_select_invalid">Essa foto não pôde ser carregada. Tente outra.</string>
     <string name="photo_select_max_reached">Você já selecionou o máximo de 3 fotos.</string>
+
+    <!-- Accessibility -->
+    <string name="cd_photo_reference">Foto de referência de corpo inteiro</string>
+    <string name="cd_remove_photo">Remover foto</string>
 </resources>

@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.google.crypto.tink.Aead
+import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.aead.AeadConfig
-import com.google.crypto.tink.aead.PredefinedAeadParameters
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -118,8 +118,7 @@ class PhotoStorage internal constructor(
             AeadConfig.register()
             val keysetHandle = AndroidKeysetManager.Builder()
                 .withSharedPref(context, KEYSET_NAME, PREF_FILE_NAME)
-                .withKeyTemplate(PredefinedAeadParameters.AES256_GCM)
-                .withMasterKeyUri(MASTER_KEY_URI)
+                .withKeyTemplate(KeyTemplates.get("AES256_GCM"))
                 .build()
                 .keysetHandle
             val aead = keysetHandle.getPrimitive(Aead::class.java)

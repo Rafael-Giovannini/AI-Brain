@@ -4,7 +4,12 @@
       "Bash(pwsh -File .specify/scripts/powershell/create-new-feature.ps1 -Json -Number 1 -ShortName \"ghostfit-mvp\" \"GhostFit - Provador virtual com overlay flutuante sobre apps de e-commerce\")",
       "Bash(powershell -ExecutionPolicy Bypass -File .specify/scripts/powershell/check-prerequisites.ps1 -Json -PathsOnly)",
       "Bash(powershell -ExecutionPolicy Bypass -File \".specify/scripts/powershell/setup-plan.ps1\" -Json \"C:\\\\Users\\\\rafael.giovannini\\\\Documents\\\\GitHub\\\\AI-Brain\\\\workspace\\\\ghostfit\\\\specs\\\\001-ghostfit-mvp\\\\spec.md\")",
-      "Bash(powershell -ExecutionPolicy Bypass -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)"
+      "Bash(powershell -ExecutionPolicy Bypass -File \".specify/scripts/powershell/setup-plan.ps1\" -Json)",
+      "Bash(xargs cat)",
+      "Bash(./ralph-loop.sh ghostfit)",
+      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 20)",
+      "Bash(claude --version)",
+      "WebFetch(domain:mvnrepository.com)"
     ],
     "additionalDirectories": [
       "c:\\Users\\rafael.giovannini\\Documents\\GitHub\\AI-Brain\\workspace\\ghostfit",

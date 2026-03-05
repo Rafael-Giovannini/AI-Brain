@@ -1,12 +1,12 @@
 package app.ghostfit
 
 import android.app.Application
-import com.google.crypto.tink.TinkConfig
+import com.google.crypto.tink.aead.AeadConfig
 
 class GhostFitApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        TinkConfig.register()
+        AeadConfig.register()
     }
 }

@@ -17,7 +17,7 @@ GhostFit é um provador virtual com overlay flutuante sobre apps de e-commerce (
 
 ## Tech Stack
 - **Language:** Kotlin 1.9+ / JDK 17
-- **UI:** Jetpack Compose 1.7+ (telas) + ComposeView (overlay)
+- **UI:** Jetpack Compose 1.7+ (telas) + View + WindowManager (overlay)
 - **Storage:** Room 2.6 (perfil/assinatura) + Tink AES-256-GCM (fotos criptografadas)
 - **Networking:** Retrofit 2.11 + OkHttp 4.12 + Moshi 1.15
 - **AI/ML:** ML Kit Object Detection 17.x, GPT-4o Vision, FASHN.ai VTON, Vertex AI VTON

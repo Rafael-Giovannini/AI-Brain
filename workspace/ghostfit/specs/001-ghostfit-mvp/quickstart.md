@@ -48,10 +48,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation("androidx.navigation:navigation-compose:2.8.5")
 
-    // Hilt (DI — conforme architecture doc)
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    ksp("com.google.dagger:hilt-compiler:2.51.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    // Hilt (DI — conforme architecture doc, planejado para Phase 2+)
+    // MVP Phase 1 usa singletons manuais (AppDatabase.getInstance, PhotoStorage.getInstance)
+    // Descomentar quando migrar para Hilt:
+    // implementation("com.google.dagger:hilt-android:2.51.1")
+    // ksp("com.google.dagger:hilt-compiler:2.51.1")
+    // implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Room (UserProfile, SubscriptionState)
     implementation("androidx.room:room-runtime:2.6.1")

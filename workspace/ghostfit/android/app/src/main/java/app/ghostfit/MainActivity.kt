@@ -13,21 +13,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import app.ghostfit.data.local.AppDatabase
 import app.ghostfit.data.local.PhotoStorage
-import app.ghostfit.data.model.ReferencePhoto
-import app.ghostfit.data.model.UserProfile
 import app.ghostfit.ui.onboarding.LgpdConsentScreen
+import app.ghostfit.ui.onboarding.OnboardingViewModel
 import app.ghostfit.ui.onboarding.PermissionScreen
 import app.ghostfit.ui.onboarding.PhotoSelectScreen
 import app.ghostfit.ui.onboarding.WelcomeScreen
 import app.ghostfit.ui.theme.GhostFitTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -43,6 +40,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             GhostFitTheme {
                 val navController = rememberNavController()
+                val onboardingViewModel: OnboardingViewModel = viewModel(
+                    factory = OnboardingViewModel.Factory(
+                        userProfileDao, referencePhotoDao, photoStorage
+                    )
+                )
 
                 // Overlay permission state — re-checked on every ON_RESUME
                 var hasOverlayPermission by rememberSaveable {
@@ -90,26 +92,10 @@ class MainActivity : ComponentActivity() {
                     composable("lgpd") {
                         LgpdConsentScreen(
                             onConsentGranted = {
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    val existing = userProfileDao.getProfile()
-                                    if (existing != null) {
-                                        userProfileDao.updateProfile(
-                                            existing.copy(
-                                                lgpdConsentGranted = true,
-                                                lgpdConsentTimestamp = System.currentTimeMillis()
-                                            )
-                                        )
-                                    } else {
-                                        userProfileDao.insertProfile(
-                                            UserProfile(
-                                                lgpdConsentGranted = true,
-                                                lgpdConsentTimestamp = System.currentTimeMillis()
-                                            )
-                                        )
+                                onboardingViewModel.grantLgpdConsent {
+                                    navController.navigate("photoSelect") {
+                                        popUpTo("lgpd") { inclusive = true }
                                     }
-                                }
-                                navController.navigate("photoSelect") {
-                                    popUpTo("lgpd") { inclusive = true }
                                 }
                             }
                         )
@@ -118,26 +104,9 @@ class MainActivity : ComponentActivity() {
                     composable("photoSelect") {
                         PhotoSelectScreen(
                             onPhotosSelected = { bitmaps ->
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    val profile = userProfileDao.getProfile() ?: return@launch
-                                    bitmaps.forEach { bitmap ->
-                                        val fileName = "ref_${System.currentTimeMillis()}.enc"
-                                        val path = photoStorage.encrypt(bitmap, fileName)
-                                        if (path != null) {
-                                            referencePhotoDao.insert(
-                                                ReferencePhoto(
-                                                    userId = profile.id,
-                                                    encryptedFilePath = path,
-                                                    isBodyFullVisible = true
-                                                )
-                                            )
-                                        }
-                                    }
-                                    userProfileDao.updateProfile(
-                                        profile.copy(onboardingCompleted = true)
-                                    )
+                                onboardingViewModel.savePhotosAndCompleteOnboarding(bitmaps) {
+                                    // TODO(Phase-2): Navigate to main app / overlay setup
                                 }
-                                // TODO(Phase-2): Navigate to main app / overlay setup
                             }
                         )
                     }
