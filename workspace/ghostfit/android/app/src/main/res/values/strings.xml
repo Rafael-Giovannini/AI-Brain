@@ -30,4 +30,13 @@
     <string name="lgpd_point_4">🗑️ Você pode revogar seu consentimento a qualquer momento nas configurações. Todos os seus dados serão apagados.</string>
     <string name="lgpd_consent_label">Li e concordo com a política de privacidade e o tratamento dos meus dados conforme descrito acima.</string>
     <string name="lgpd_continue">Aceitar e continuar</string>
+
+    <!-- Photo Select Screen -->
+    <string name="photo_select_title">Suas fotos de referência</string>
+    <string name="photo_select_subtitle">Selecione até 3 fotos de corpo inteiro. Elas serão usadas como base para o provador virtual.</string>
+    <string name="photo_select_counter">%1$d de %2$d fotos selecionadas</string>
+    <string name="photo_select_add">Adicionar foto</string>
+    <string name="photo_select_continue">Finalizar setup</string>
+    <string name="photo_select_invalid">Essa foto não pôde ser carregada. Tente outra.</string>
+    <string name="photo_select_max_reached">Você já selecionou o máximo de 3 fotos.</string>
 </resources>
