@@ -1,6 +1,7 @@
 package app.ghostfit.domain
 
 import android.graphics.Bitmap
+import app.ghostfit.data.local.MlKitGarmentCropper
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.GarmentClassification

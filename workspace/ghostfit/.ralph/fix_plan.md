@@ -66,7 +66,6 @@
 - [ ] Implement "Tentar novamente" (regenerate with different seed)
 - [ ] Implement "Trocar foto" (switch reference photo, regenerate)
 - [ ] Implement thumbs up/down feedback
-- [ ] Create GhostFitApi.kt (backend API for feedback)
 - [ ] Implement share via Android share sheet (with GhostFit branding)
 - [ ] Unit tests for feedback submission
 
@@ -74,12 +73,12 @@
 
 ## Phase 5: Story 4 — Monetização e Limites (P2)
 
-- [ ] Create BillingManager.kt (Google Play Billing wrapper)
+- [x] Create BillingManager.kt (Google Play Billing wrapper)
 - [ ] Implement daily try-on counter (3 free/day, reset at midnight local)
-- [ ] Create UpgradeScreen.kt (plan options: pacote avulso, assinatura mensal)
+- [x] Create UpgradeScreen.kt (plan options: pacote avulso, assinatura mensal)
 - [ ] Integrate AdMob interstitial (between generations only)
-- [ ] Handle subscription state changes (purchase → unlock)
-- [ ] Unit tests for BillingManager
+- [x] Handle subscription state changes (purchase → unlock)
+- [x] Unit tests for BillingManager
 - [ ] Unit tests for daily limit logic
 
 ---

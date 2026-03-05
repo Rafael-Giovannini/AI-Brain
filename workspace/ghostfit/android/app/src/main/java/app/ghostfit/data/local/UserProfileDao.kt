@@ -32,6 +32,9 @@ interface UserProfileDao {
     @Query("UPDATE user_profile SET planType = :planType")
     suspend fun updatePlanType(planType: String)
 
+    @Query("UPDATE user_profile SET bonusTries = :bonusTries")
+    suspend fun updateBonusTries(bonusTries: Int)
+
     @Query("DELETE FROM user_profile")
     suspend fun deleteAll()
 }

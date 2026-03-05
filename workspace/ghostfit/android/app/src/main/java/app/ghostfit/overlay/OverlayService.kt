@@ -11,6 +11,7 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
+import android.widget.Toast
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.ui.platform.ComposeView
@@ -134,7 +135,13 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
                                 saveOverlayPosition(params.x.toFloat(), params.y.toFloat())
                             },
                             onTap = {
-                                // TODO(Phase-3): Trigger screen capture and try-on
+                                // Phase 3 remaining: Full pipeline requires MediaProjection
+                                // setup via Activity result before ScreenCapture can work.
+                                Toast.makeText(
+                                    this@OverlayService,
+                                    "Captura de tela — em breve!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         )
                     }

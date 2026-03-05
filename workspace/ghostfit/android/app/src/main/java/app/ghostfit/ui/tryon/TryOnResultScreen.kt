@@ -1,6 +1,5 @@
 package app.ghostfit.ui.tryon
 
-import android.content.Intent
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,15 +35,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
+import app.ghostfit.R
 import app.ghostfit.domain.TryOnSession
 import app.ghostfit.domain.TryOnStatus
-import java.io.File
-import java.io.FileOutputStream
 
 @Composable
 fun TryOnResultScreen(
@@ -65,12 +63,12 @@ fun TryOnResultScreen(
     ) {
         when (session.status) {
             TryOnStatus.IDLE -> { /* Nothing to show */ }
-            TryOnStatus.CAPTURING -> LoadingState("Capturando tela...")
-            TryOnStatus.DETECTING -> LoadingState("Detectando roupa...")
-            TryOnStatus.GENERATING -> LoadingState("Gerando imagem...")
+            TryOnStatus.CAPTURING -> LoadingState(stringResource(R.string.tryon_capturing))
+            TryOnStatus.DETECTING -> LoadingState(stringResource(R.string.tryon_detecting))
+            TryOnStatus.GENERATING -> LoadingState(stringResource(R.string.tryon_generating))
             TryOnStatus.NO_GARMENT -> NoGarmentDetected(onClose = onClose)
             TryOnStatus.ERROR -> ErrorState(
-                message = session.errorMessage ?: "Erro desconhecido",
+                message = session.errorMessage ?: stringResource(R.string.tryon_error_unknown),
                 isLimitError = session.errorMessage?.contains("Limite") == true,
                 onRetry = onRegenerate,
                 onUpgrade = onUpgrade,
@@ -124,28 +122,28 @@ private fun NoGarmentDetected(onClose: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Nenhuma roupa detectada",
+                text = stringResource(R.string.tryon_no_garment_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Tente em uma página de produto com uma imagem clara da roupa.",
+                text = stringResource(R.string.tryon_no_garment_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Nenhuma tentativa foi consumida.",
+                text = stringResource(R.string.tryon_no_garment_no_tries),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(24.dp))
             Button(onClick = onClose) {
-                Text("Entendi")
+                Text(stringResource(R.string.tryon_understood))
             }
         }
     }
@@ -170,7 +168,7 @@ private fun ErrorState(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = if (isLimitError) "Limite atingido" else "Ops! Algo deu errado",
+                text = if (isLimitError) stringResource(R.string.tryon_limit_title) else stringResource(R.string.tryon_error_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -187,28 +185,28 @@ private fun ErrorState(
                     onClick = onUpgrade,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Fazer upgrade")
+                    Text(stringResource(R.string.tryon_upgrade))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
                     onClick = onClose,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Voltar")
+                    Text(stringResource(R.string.tryon_back))
                 }
             } else {
                 Button(
                     onClick = onRetry,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Tentar novamente")
+                    Text(stringResource(R.string.tryon_retry))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedButton(
                     onClick = onClose,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Fechar")
+                    Text(stringResource(R.string.tryon_close))
                 }
             }
         }
@@ -237,7 +235,7 @@ private fun ResultView(
             horizontalArrangement = Arrangement.End
         ) {
             OutlinedButton(onClick = onClose) {
-                Text("Fechar")
+                Text(stringResource(R.string.tryon_close))
             }
         }
 
@@ -247,7 +245,7 @@ private fun ResultView(
         session.generatedImage?.let { bitmap ->
             Image(
                 bitmap = bitmap.asImageBitmap(),
-                contentDescription = "Resultado do provador virtual",
+                contentDescription = stringResource(R.string.cd_tryon_result),
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -260,7 +258,7 @@ private fun ResultView(
 
         // Duration info
         Text(
-            text = "Gerado em ${session.durationMs / 1000}s via ${session.modelUsed ?: "AI"}",
+            text = stringResource(R.string.tryon_duration, session.durationMs / 1000, session.modelUsed ?: "AI"),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
@@ -310,13 +308,13 @@ private fun ResultView(
                 onClick = onRegenerate,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Tentar novamente")
+                Text(stringResource(R.string.tryon_retry))
             }
             OutlinedButton(
                 onClick = onChangePhoto,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Trocar foto")
+                Text(stringResource(R.string.tryon_change_photo))
             }
         }
 
@@ -327,38 +325,7 @@ private fun ResultView(
             onClick = onShare,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Compartilhar")
+            Text(stringResource(R.string.tryon_share))
         }
-    }
-}
-
-/**
- * Share the generated try-on image via Android share sheet.
- */
-fun shareTryOnImage(context: android.content.Context, bitmap: Bitmap) {
-    try {
-        val cacheDir = File(context.cacheDir, "shared_images")
-        cacheDir.mkdirs()
-        val file = File(cacheDir, "ghostfit_tryon_${System.currentTimeMillis()}.jpg")
-        FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
-        }
-
-        val uri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            file
-        )
-
-        val shareIntent = Intent(Intent.ACTION_SEND).apply {
-            type = "image/jpeg"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_TEXT, "Experimentei com GhostFit! \uD83D\uDC7B")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        context.startActivity(Intent.createChooser(shareIntent, "Compartilhar via"))
-    } catch (_: Exception) {
-        // Sharing failed silently
     }
 }

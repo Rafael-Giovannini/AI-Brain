@@ -244,7 +244,7 @@ Para trocar entre modelos sem alterar o resto do código.
 - [ ] Log de qual modelo foi usado por geração
 
 **Notas Técnicas:**
-Seguir interfaces definidas na arquitetura (seção 4.3). Injeção via Hilt modules.
+Seguir interfaces definidas na arquitetura (seção 4.3). Injeção via singletons manuais (Hilt planejado pós-MVP).
 
 **Dependências:** STORY-001
 
@@ -536,7 +536,7 @@ Quero assinar um plano mensal ou comprar pacotes extras,
 Para usar o try-on sem restrições.
 
 **Acceptance Criteria:**
-- [ ] Google Play Billing Library v6+ integrada
+- [ ] Google Play Billing Library v8.3.0 integrada
 - [ ] Suporte a compras avulsas (10 tentativas por R$X)
 - [ ] Suporte a assinatura mensal (uso ilimitado, sem ads)
 - [ ] Verificação de compra (local ou server-side)
@@ -792,7 +792,7 @@ Implementar `ProviderRouter` com lógica de scoring. Buscar scores do Firestore 
 - **GPT-4o Vision** — Classificação remota de tipo/cor de roupa
 - **FASHN.ai v1.5** — Geração de imagem try-on (primário)
 - **Google Vertex AI VTON** — Fallback para geração
-- **Google Play Billing Library v6+** — Compras e assinaturas
+- **Google Play Billing Library v8.3.0** — Compras e assinaturas
 - **Google AdMob** — Anúncios
 - **Firebase** — Functions, Firestore, Remote Config, Analytics, Crashlytics, Cloud Storage
 

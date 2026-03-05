@@ -15,6 +15,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import app.ghostfit.domain.ScreenCaptureProvider
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -28,7 +29,7 @@ import kotlin.coroutines.resumeWithException
  * 3. Call capture() to take a screenshot as Bitmap
  * 4. Call release() when done
  */
-class ScreenCapture(private val context: Context) {
+class ScreenCapture(private val context: Context) : ScreenCaptureProvider {
 
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null

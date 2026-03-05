@@ -38,11 +38,19 @@
       "Bash(./gradlew testDebugUnitTest --tests \"app.ghostfit.domain.TryOnUseCaseTest.execute returns ERROR when generation fails\")",
       "Bash(python3 -c \" import html.parser, sys class P\\(html.parser.HTMLParser\\): def __init__\\(self\\): super\\(\\).__init__\\(\\) self.in_pre = False self.text = '''' def handle_starttag\\(self, tag, _\\): if tag == ''pre'': self.in_pre = True def handle_endtag\\(self, tag\\): if tag == ''pre'': self.in_pre = False def handle_data\\(self, data\\): if self.in_pre: self.text += data p = P\\(\\) with open\\(''app/build/reports/tests/testDebugUnitTest/classes/app.ghostfit.domain.TryOnUseCaseTest.html''\\) as f: p.feed\\(f.read\\(\\)\\) print\\(p.text[:2000]\\) \")",
       "Bash(xargs wc -l)",
-      "Bash(xargs head -20)"
+      "Bash(xargs head -20)",
+      "WebFetch(domain:youtu.be)",
+      "WebFetch(domain:www.youtube.com)",
+      "Bash(git -C \"c:/Users/rafael.giovannini/Documents/GitHub/AI-Brain\" remote -v)",
+      "Bash(git -C \"c:/Users/rafael.giovannini/Documents/GitHub/AI-Brain\" config user.name)",
+      "Bash(git -C \"c:/Users/rafael.giovannini/Documents/GitHub/AI-Brain\" config user.email)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 20 --prompt \"Continue fixing validation report issues. Check fix_plan.md for already completed tasks - DO NOT repeat them.:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\rafael.giovannini\\Documents\\GitHub\\AI-Brain\\workspace\\ghostfit",
-      "c:\\Users\\rafael.giovannini\\Documents\\GitHub\\AI-Brain\\workspace\\ghostfit\\specs\\001-ghostfit-mvp"
+      "c:\\Users\\rafael.giovannini\\Documents\\GitHub\\AI-Brain\\workspace\\ghostfit\\specs\\001-ghostfit-mvp",
+      "c:\\Users\\rafael.giovannini\\Documents\\GitHub\\AI-Brain"
     ]
   }
 }

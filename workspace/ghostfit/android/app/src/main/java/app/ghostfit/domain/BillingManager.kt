@@ -230,7 +230,20 @@ class BillingManager(
         )
 
         subscriptionStateDao.upsert(subscriptionState)
-        userProfileDao.updatePlanType(PlanType.PREMIUM.name)
+
+        // Monthly subscription → PREMIUM plan. Pack → add 10 bonus tries, stay FREE.
+        when (purchaseType) {
+            PurchaseType.MONTHLY -> {
+                userProfileDao.updatePlanType(PlanType.PREMIUM.name)
+            }
+            PurchaseType.PACK -> {
+                val currentProfile = userProfileDao.getProfile()
+                if (currentProfile != null) {
+                    userProfileDao.updateBonusTries(currentProfile.bonusTries + PACK_TRIES_COUNT)
+                }
+            }
+            else -> { /* NONE — ignore */ }
+        }
         _purchaseEvent.value = PurchaseEvent.Success(productId, purchaseType)
     }
 
@@ -289,5 +302,6 @@ class BillingManager(
     companion object {
         const val SKU_MONTHLY = "ghostfit_premium_monthly"
         const val SKU_PACK_10 = "ghostfit_pack_10"
+        const val PACK_TRIES_COUNT = 10
     }
 }

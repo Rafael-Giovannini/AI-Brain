@@ -9,7 +9,7 @@ import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.model.PlanType
 import app.ghostfit.data.remote.DatasetEntry
 import app.ghostfit.data.remote.GhostFitApi
-import app.ghostfit.overlay.ScreenCapture
+import app.ghostfit.domain.ScreenCaptureProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -33,7 +33,7 @@ data class TryOnSession(
 )
 
 class TryOnUseCase(
-    private val screenCapture: ScreenCapture,
+    private val screenCapture: ScreenCaptureProvider,
     private val garmentDetector: GarmentDetector,
     private val modelRouter: ModelRouter,
     private val userProfileDao: UserProfileDao,
@@ -223,6 +223,7 @@ class TryOnUseCase(
     private suspend fun checkDailyLimit() {
         val profile = userProfileDao.getProfile() ?: return
         if (profile.planType == PlanType.PREMIUM) return
+        if (profile.bonusTries > 0) return // Pack tries available
 
         val today = LocalDate.now().toString()
         if (profile.dailyTriesResetDate != today) {
@@ -240,6 +241,13 @@ class TryOnUseCase(
     private suspend fun incrementDailyTries() {
         val profile = userProfileDao.getProfile() ?: return
         if (profile.planType == PlanType.PREMIUM) return
+
+        // Consume bonus tries first, then daily tries
+        if (profile.bonusTries > 0) {
+            userProfileDao.updateBonusTries(profile.bonusTries - 1)
+            return
+        }
+
         val today = LocalDate.now().toString()
         userProfileDao.updateDailyTries(profile.dailyTriesUsed + 1, today)
     }

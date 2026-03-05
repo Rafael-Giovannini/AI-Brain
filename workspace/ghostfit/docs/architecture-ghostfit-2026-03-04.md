@@ -90,7 +90,7 @@ Os drivers arquiteturais foram priorizados com **Privacy-First** como princípio
 
 O app se comunica com o backend através de uma interface `BackendService`. No MVP, a implementação é `FirebaseBackendService`. Para migrar:
 1. Criar `KtorBackendService` ou `DotNetBackendService` implementando a mesma interface
-2. Trocar a injeção no módulo Hilt
+2. Trocar o singleton no Application class
 3. Zero mudanças no resto do app
 
 ---
@@ -101,9 +101,9 @@ O app se comunica com o backend através de uma interface `BackendService`. No M
 
 | Category | Technology | Rationale | Trade-offs |
 |----------|-----------|-----------|------------|
-| **Language** | Kotlin 1.9+ | Linguagem oficial Android, null safety, coroutines | — |
+| **Language** | Kotlin 2.2.0 | Linguagem oficial Android, null safety, coroutines | — |
 | **UI** | Jetpack Compose | Declarativo, moderno, menos boilerplate | Curva de aprendizado vs XML |
-| **DI** | Hilt (Dagger) | Compile-time safety, oficial Google | Mais setup inicial que Koin |
+| **DI** | Singletons manuais (Hilt planejado pós-MVP) | Simplicidade para MVP, sem overhead de DI framework | Migrar para Hilt quando escalar |
 | **Networking** | Retrofit + OkHttp | Padrão de mercado, interceptors, logging | — |
 | **Image Loading** | Coil | Kotlin-first, Compose-native, leve | Menos features que Glide |
 | **Local DB** | Room | ORM oficial Android, compile-time queries | — |
@@ -134,7 +134,7 @@ O app se comunica com o backend através de uma interface `BackendService`. No M
 
 | Service | Use Case | Rationale |
 |---------|----------|-----------|
-| **Google Play Billing v6+** | Assinaturas + compras avulsas | Único permitido na Play Store |
+| **Google Play Billing Library 8.3.0** | Assinaturas + compras avulsas | Único permitido na Play Store |
 | **Google AdMob** | Banners + interstitials | Maior rede de ads Android |
 
 ### 3.5 Development & Deployment
@@ -143,7 +143,7 @@ O app se comunica com o backend através de uma interface `BackendService`. No M
 |----------|-----------|-----------|
 | **Version Control** | Git (GitHub) | Padrão de mercado |
 | **CI/CD** | GitHub Actions | Integrado ao repo, free tier generoso |
-| **Testing** | JUnit 4 + MockK + Compose UI Test | Stack padrão Android testing |
+| **Testing** | JUnit 4 + mockito-kotlin + MockK + Robolectric + Compose UI Test | Stack validada no projeto |
 | **Code Quality** | Ktlint + Detekt | Linting + static analysis |
 | **Build** | Gradle (Kotlin DSL) | Padrão Android, version catalogs |
 | **Min SDK** | API 26 (Android 8.0) | Cobre 95%+ dispositivos Brasil |
@@ -491,7 +491,7 @@ class FirebaseBackendService @Inject constructor(
 | Fotos pessoais | Android Internal Storage | Tink AES-256-GCM (StreamingAead) | Nunca saem do device |
 | UserProfile + consent | Room (SQLite) | — (dados não sensíveis) | Auditoria LGPD via timestamps |
 | SubscriptionState | Room (SQLite) | — | Validação server-side via Play Billing |
-| Overlay position | SharedPreferences | Não (dado não sensível) | Persistência simples |
+| Overlay position | Room (UserProfile.overlayPositionX/Y) | Não (dado não sensível) | Consolidado no UserProfile entity |
 | Screenshots | Memória (Bitmap) | N/A — efêmero | Deletado após processamento |
 | Imagens geradas | Memória (Bitmap) | N/A — efêmero | Nunca persistido em disco |
 | Feedback | Firestore | TLS em trânsito | Anonimizado, sem PII |
@@ -688,7 +688,7 @@ Response: 200 OK
 **Requirement:** 95% das detecções completam em < 3s em conexão 4G
 
 **Solution:**
-- Gemini Flash: modelo otimizado para velocidade (~1-2s)
+- ML Kit Object Detection: detecção on-device (< 100ms) + GPT-4o Vision para classificação remota
 - Imagem comprimida antes do envio (JPEG quality 80, max 1024px)
 - OkHttp connection pooling + HTTP/2
 - Timeout de 5s antes de fallback para GPT-4o Vision
@@ -733,9 +733,8 @@ Response: 200 OK
 **Solution:**
 - OkHttp com TLS 1.2+ enforced (network security config)
 - Certificate pinning para APIs críticas (AI providers)
-- Fotos pessoais: `EncryptedFile` API com Android Keystore
-- Dados sensíveis locais: `EncryptedSharedPreferences`
-- Room database: SQLCipher encryption
+- Fotos pessoais: Tink StreamingAead (AES-256-GCM) com Android Keystore
+- Dados sensíveis locais: Room DB (sem dados PII sensíveis, não requer criptografia adicional)
 
 **Implementation Notes:**
 ```xml
@@ -859,7 +858,7 @@ tempFile.delete()
 - Verificar que todas as APIs usadas estão disponíveis em API 26
 - MediaProjection: disponível desde API 21 ✓
 - SYSTEM_ALERT_WINDOW: disponível desde API 1 ✓
-- EncryptedFile: disponível via AndroidX Security ✓
+- Tink: disponível como dependência Maven ✓
 
 **Validation:** Testar em emuladores API 26, 29, 33, 35
 
@@ -1121,7 +1120,7 @@ ghostfit/
 
 | Type | Framework | Coverage Target | Scope |
 |------|-----------|-----------------|-------|
-| Unit | JUnit 5 + MockK | 80%+ | Use cases, providers, router, pipeline |
+| Unit | JUnit 4 + mockito-kotlin + MockK | 80%+ | Use cases, providers, router, pipeline |
 | Integration | AndroidX Test | Key flows | AI pipeline end-to-end (mocked APIs) |
 | UI | Compose Testing | Critical screens | Onboarding, Result, Settings |
 | E2E | Manual + Firebase Test Lab | Core flow | Tap → Result sobre Shopee |
@@ -1135,7 +1134,7 @@ Push to branch
 [GitHub Actions]
     │
     ├── Lint (ktlint + detekt)
-    ├── Unit Tests (JUnit 5)
+    ├── Unit Tests (JUnit 4)
     ├── Build Debug APK
     │
     ▼ (on merge to main)

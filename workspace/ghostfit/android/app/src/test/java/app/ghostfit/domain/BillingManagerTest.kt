@@ -126,7 +126,7 @@ class BillingManagerTest {
     }
 
     @Test
-    fun `handlePurchase acknowledges unacknowledged pack purchase`() = runTest {
+    fun `handlePurchase acknowledges unacknowledged pack purchase and adds bonus tries`() = runTest {
         whenever(userProfileDao.getProfile()).thenReturn(testProfile)
 
         val purchase = createMockPurchase(
@@ -145,7 +145,9 @@ class BillingManagerTest {
             assertEquals("token-pack-456", state.purchaseToken)
             assertTrue(state.isActive)
         })
-        verify(userProfileDao).updatePlanType(PlanType.PREMIUM.name)
+        // Pack purchase adds bonus tries, does NOT set PREMIUM
+        verify(userProfileDao, never()).updatePlanType(any())
+        verify(userProfileDao).updateBonusTries(BillingManager.PACK_TRIES_COUNT)
     }
 
     @Test

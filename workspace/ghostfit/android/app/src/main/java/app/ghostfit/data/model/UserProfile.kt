@@ -16,6 +16,7 @@ data class UserProfile(
     val planType: PlanType = PlanType.FREE,
     val dailyTriesUsed: Int = 0,
     val dailyTriesResetDate: String? = null,
+    val bonusTries: Int = 0,
     val overlayPositionX: Float = 0f,
     val overlayPositionY: Float = 0f,
     val createdAt: Long = System.currentTimeMillis()

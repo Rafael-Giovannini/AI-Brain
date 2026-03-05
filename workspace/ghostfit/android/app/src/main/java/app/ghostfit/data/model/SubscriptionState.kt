@@ -2,6 +2,7 @@ package app.ghostfit.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 enum class PurchaseType { NONE, PACK, MONTHLY }
@@ -15,7 +16,8 @@ enum class PurchaseType { NONE, PACK, MONTHLY }
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index("userId")]
 )
 data class SubscriptionState(
     @PrimaryKey

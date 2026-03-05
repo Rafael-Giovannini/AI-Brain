@@ -41,7 +41,7 @@ Client-Heavy + Lightweight Serverless Backend:
 **Source root:** `workspace/ghostfit/android/app/src/main/java/app/ghostfit/`
 
 ## Current Objectives
-- Follow tasks in fix_plan.md (prioridade: Story 1 → Story 5 → Story 2 → Story 3 → Story 4)
+- Follow tasks in fix_plan.md (prioridade: Phase 4 Story 3 → Phase 5 restante)
 - Implement one task per loop
 - Write tests for new functionality (JUnit 4 + Compose UI Test)
 - Update documentation as needed

@@ -12,7 +12,7 @@
 ## Visão Geral do Design
 
 **Projeto:** GhostFit — Provador Virtual com Overlay Flutuante
-**Telas:** 16
+**Telas:** 17
 **Fluxos de Usuário:** 5
 **Componentes Reutilizáveis:** 12
 **Persona Principal:** Maria, 28 anos, compradora frequente de moda online
@@ -1180,7 +1180,7 @@ params.y = 100.dp // posição default
 // Diferenciar tap vs drag:
 // - Move < 10dp = TAP (captura tela)
 // - Move >= 10dp = DRAG (reposiciona)
-// Salvar posição em SharedPreferences
+// Salvar posição em Room (UserProfile.overlayPositionX/Y)
 ```
 
 **Bottom Sheet (Resultado):**

@@ -368,7 +368,7 @@ Planos de monetização: pacotes avulsos (ex: 10 tentativas por R$X) e assinatur
 Integração com Google Play Billing Library para processar compras dentro do app (pacotes e assinaturas).
 
 **Acceptance Criteria:**
-- [ ] Integração com Google Play Billing Library v6+
+- [ ] Integração com Google Play Billing Library v6+ (implementação atual: v8.3.0)
 - [ ] Suporte a compras avulsas (one-time) e assinaturas (recurring)
 - [ ] Verificação de compra server-side ou local
 - [ ] Restauração de compras em reinstalação
@@ -886,7 +886,7 @@ Google Play Billing checkout → Tentativas liberadas → Sem ads
 - **Android Photo Picker** — Seleção nativa de fotos da galeria (sem OAuth)
 - **APIs de IA (Detecção):** ML Kit Object Detection (on-device) + GPT-4o Vision (classificação remota)
 - **APIs de IA (Geração):** FASHN.ai v1.5 (primário), Google Vertex AI VTON (fallback)
-- **Google Play Billing Library v6+** — Para processar compras e assinaturas
+- **Google Play Billing Library v6+ (v8.3.0 em uso)** — Para processar compras e assinaturas
 - **AdMob** — Para exibição de anúncios no plano free
 - **Android SYSTEM_ALERT_WINDOW API** — Para overlay flutuante
 - **Firebase** (ou similar) — Analytics, crash reporting, remote config

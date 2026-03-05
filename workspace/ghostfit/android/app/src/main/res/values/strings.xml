@@ -51,4 +51,26 @@
     <string name="cd_photo_reference">Foto de referência de corpo inteiro</string>
     <string name="cd_remove_photo">Remover foto</string>
     <string name="cd_overlay_button">Botão do provador virtual GhostFit</string>
+
+    <!-- Try-On Result Screen -->
+    <string name="tryon_capturing">Capturando tela…</string>
+    <string name="tryon_detecting">Detectando roupa…</string>
+    <string name="tryon_generating">Gerando imagem…</string>
+    <string name="tryon_no_garment_title">Nenhuma roupa detectada</string>
+    <string name="tryon_no_garment_hint">Tente em uma página de produto com uma imagem clara da roupa.</string>
+    <string name="tryon_no_garment_no_tries">Nenhuma tentativa foi consumida.</string>
+    <string name="tryon_understood">Entendi</string>
+    <string name="tryon_limit_title">Limite atingido</string>
+    <string name="tryon_error_title">Ops! Algo deu errado</string>
+    <string name="tryon_error_unknown">Erro desconhecido</string>
+    <string name="tryon_upgrade">Fazer upgrade</string>
+    <string name="tryon_back">Voltar</string>
+    <string name="tryon_retry">Tentar novamente</string>
+    <string name="tryon_close">Fechar</string>
+    <string name="tryon_duration">Gerado em %1$ds via %2$s</string>
+    <string name="tryon_change_photo">Trocar foto</string>
+    <string name="tryon_share">Compartilhar</string>
+    <string name="tryon_share_text">Experimentei com GhostFit! 👻</string>
+    <string name="tryon_share_chooser">Compartilhar via</string>
+    <string name="cd_tryon_result">Resultado do provador virtual</string>
 </resources>

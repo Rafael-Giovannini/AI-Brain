@@ -33,6 +33,9 @@ interface GhostFitApi {
         @Body data: DatasetEntry
     ): FeedbackResponse
 
+    @GET("v1/health")
+    suspend fun healthCheck(): HealthResponse
+
     companion object {
         private const val BASE_URL = "https://api.ghostfit.app/"
 
@@ -84,4 +87,9 @@ data class DatasetEntry(
     val generationTimeMs: Long,
     val approved: Boolean,
     val timestamp: Long = System.currentTimeMillis()
+)
+
+data class HealthResponse(
+    val status: String?,
+    val timestamp: Long?
 )
