@@ -74,12 +74,12 @@
 
 ## Phase 5: Story 4 — Monetização e Limites (P2)
 
-- [ ] Create BillingManager.kt (Google Play Billing wrapper)
+- [x] Create BillingManager.kt (Google Play Billing wrapper)
 - [x] Implement daily try-on counter (3 free/day, reset at midnight local)
 - [ ] Create UpgradeScreen.kt (plan options: pacote avulso, assinatura mensal)
 - [ ] Integrate AdMob interstitial (between generations only)
 - [ ] Handle subscription state changes (purchase → unlock)
-- [ ] Unit tests for BillingManager
+- [x] Unit tests for BillingManager
 - [ ] Unit tests for daily limit logic
 
 ---
@@ -96,8 +96,9 @@
 - Phase 4 Tasks 1-6: Result interaction (regenerate, swap photo, feedback, GhostFitApi, FeedbackRecord, share — prior loops)
 - Phase 4 Task 7: Feedback submission unit tests (this loop)
 - Phase 5 Task 2: Daily try-on counter (implemented in TryOnUseCase — prior loops)
-- Fix: ModelRouter.kt missing Base64 import (this loop)
-- Fix: GarmentDetectorTest.kt bitmapToBase64 → toBase64Jpeg (this loop)
+- Phase 5 Task 1: BillingManager.kt + SubscriptionState entity + DAO + tests (this loop)
+- Fix: ModelRouter.kt missing Base64 import (prior loop)
+- Fix: GarmentDetectorTest.kt bitmapToBase64 → toBase64Jpeg (prior loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
