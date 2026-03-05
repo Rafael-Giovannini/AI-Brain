@@ -2,6 +2,7 @@ package app.ghostfit.domain
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Base64
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.FashnApi

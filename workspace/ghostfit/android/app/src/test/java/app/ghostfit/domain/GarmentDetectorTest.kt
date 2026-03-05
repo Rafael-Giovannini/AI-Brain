@@ -108,9 +108,9 @@ class GarmentDetectorTest {
     }
 
     @Test
-    fun `bitmapToBase64 produces non-empty string`() {
+    fun `toBase64Jpeg produces non-empty string`() {
         val bitmap = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888)
-        val base64 = detector.bitmapToBase64(bitmap)
+        val base64 = bitmap.toBase64Jpeg()
         assertTrue(base64.isNotEmpty())
     }
 }
