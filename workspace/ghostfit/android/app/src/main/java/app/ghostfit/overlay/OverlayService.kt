@@ -30,6 +30,7 @@ import app.ghostfit.data.local.UserProfileDao
 import app.ghostfit.data.remote.FashnApi
 import app.ghostfit.data.remote.GhostFitApi
 import app.ghostfit.data.remote.VertexAiApi
+import app.ghostfit.data.remote.GeminiVisionApi
 import app.ghostfit.data.remote.VisionLlmApi
 import app.ghostfit.domain.GarmentDetector
 import app.ghostfit.domain.ModelRouter
@@ -203,6 +204,7 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
                 val referencePhotoDao = db.referencePhotoDao()
                 val photoStorage = PhotoStorage.getInstance(this@OverlayService)
 
+                val geminiVisionApi = GeminiVisionApi.create()
                 val visionLlmApi = VisionLlmApi.create()
                 val fashnApi = FashnApi.create()
                 val vertexAiApi = VertexAiApi.create()
@@ -210,7 +212,7 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
 
                 val tryOnUseCase = TryOnUseCase(
                     screenCapture = screenCapture,
-                    garmentDetector = GarmentDetector(visionLlmApi),
+                    garmentDetector = GarmentDetector(geminiVisionApi, visionLlmApi),
                     modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
                     userProfileDao = profileDao,
                     referencePhotoDao = referencePhotoDao,

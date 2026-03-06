@@ -9,7 +9,7 @@
 
 O GhostFit MVP possui duas categorias de interfaces externas:
 
-1. **APIs de terceiros consumidas** pelo app (FASHN.ai, Vertex AI, ML Kit, Vision LLM)
+1. **APIs de terceiros consumidas** pelo app (FASHN.ai, Vertex AI, ML Kit, Gemini Vision, GPT-4o Vision)
 2. **API backend própria** para feedback, roteamento de modelos e analytics
 
 ---
@@ -77,7 +77,38 @@ Timeout: 15 segundos
 Retry: até 2x com backoff
 ```
 
-### 1.3 Vision LLM — Detecção de Metadados de Roupa
+### 1.3 Gemini Vision — Detecção de Metadados de Roupa (Primário)
+
+```
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}
+Content-Type: application/json
+
+Request:
+{
+  "contents": [{
+    "parts": [
+      { "text": "Analyze this clothing image. Return ONLY a JSON object with: category (top|bottom|dress|outerwear), color, description (1 phrase), confidence (0.0-1.0). If no clothing visible, confidence < 0.6." },
+      { "inline_data": { "mime_type": "image/jpeg", "data": "<base64_cropped_garment>" } }
+    ]
+  }]
+}
+
+Response 200:
+{
+  "candidates": [{
+    "content": {
+      "parts": [{
+        "text": "{\"category\": \"top\", \"color\": \"vermelho\", \"description\": \"Blusa de manga curta\", \"confidence\": 0.92}"
+      }]
+    }
+  }]
+}
+
+Timeout: 5 segundos
+Fallback: se falhar → tenta GPT-4o Vision → se falhar → categoria "top" como default
+```
+
+### 1.4 GPT-4o Vision — Detecção de Metadados de Roupa (Fallback)
 
 ```
 POST https://api.openai.com/v1/chat/completions
@@ -108,10 +139,10 @@ Response 200:
 }
 
 Timeout: 5 segundos
-Fallback: se falhar, usar apenas categoria "tops" como default
+Nota: usado como fallback quando Gemini falha. OPENAI_API_KEY é opcional.
 ```
 
-### 1.4 ML Kit Object Detection (On-Device)
+### 1.5 ML Kit Object Detection (On-Device)
 
 ```kotlin
 // Interface interna — sem chamada de rede
@@ -250,12 +281,12 @@ Response 201:
 
 O app precisa mapear entre diferentes formatos de categoria nos diversos serviços:
 
-| App Interno | FASHN.ai | Vertex AI | Vision LLM |
-|-------------|----------|-----------|------------|
-| `TOP` | `"tops"` | `"TOP"` | `"top"` |
-| `BOTTOM` | `"bottoms"` | `"BOTTOM"` | `"bottom"` |
-| `DRESS` | `"one-pieces"` | `"FULL"` | `"dress"` |
-| `OUTERWEAR` | `"tops"` | `"TOP"` | `"outerwear"` |
+| App Interno | FASHN.ai | Vertex AI | Gemini Vision | GPT-4o Vision |
+|-------------|----------|-----------|---------------|---------------|
+| `TOP` | `"tops"` | `"TOP"` | `"top"` | `"top"` |
+| `BOTTOM` | `"bottoms"` | `"BOTTOM"` | `"bottom"` | `"bottom"` |
+| `DRESS` | `"one-pieces"` | `"FULL"` | `"dress"` | `"dress"` |
+| `OUTERWEAR` | `"tops"` | `"TOP"` | `"outerwear"` | `"outerwear"` |
 
 ---
 

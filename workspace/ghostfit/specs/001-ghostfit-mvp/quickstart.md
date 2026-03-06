@@ -14,7 +14,8 @@
 - Contas de API:
   - FASHN.ai (chave API)
   - Google Cloud Platform (Vertex AI habilitado, service account)
-  - OpenAI (chave API para GPT-4o Vision)
+  - Google AI Studio / Gemini API (chave API para Gemini 2.0 Flash — primário para detecção de roupa)
+  - OpenAI (chave API para GPT-4o Vision — fallback opcional)
 
 ---
 
@@ -114,7 +115,8 @@ dependencies {
 Criar `local.properties` (NÃO commitar):
 ```properties
 FASHN_API_KEY=your_fashn_key
-OPENAI_API_KEY=your_openai_key
+GEMINI_API_KEY=your_gemini_key
+OPENAI_API_KEY=your_openai_key  # opcional (fallback para detecção de roupa)
 GCP_PROJECT_ID=your_gcp_project
 ```
 
@@ -148,7 +150,8 @@ android/app/src/main/
 │   │   ├── remote/
 │   │   │   ├── FashnApi.kt         # FASHN.ai Retrofit interface
 │   │   │   ├── VertexAiApi.kt      # Vertex AI Retrofit interface
-│   │   │   ├── VisionLlmApi.kt     # GPT-4o Vision Retrofit interface
+│   │   │   ├── GeminiVisionApi.kt  # Gemini 2.0 Flash Vision (primário)
+│   │   │   ├── VisionLlmApi.kt     # GPT-4o Vision (fallback)
 │   │   │   └── GhostFitApi.kt      # Backend próprio (feedback, routing)
 │   │   └── model/
 │   │       ├── UserProfile.kt      # Room Entity

@@ -150,6 +150,19 @@
 
 ---
 
+## Phase 8: Vision LLM Migration — Gemini 2.0 Flash Primary + GPT-4o Fallback
+
+- [x] Create GeminiVisionApi.kt (Retrofit interface for Gemini 2.0 Flash generateContent endpoint with DTOs)
+- [x] Add GEMINI_API_KEY to build.gradle.kts (BuildConfig field from local.properties)
+- [x] Add GEMINI_API_KEY to quickstart.md setup instructions (required, OPENAI_API_KEY now optional)
+- [x] Refactor GarmentDetector.kt — accept both GeminiVisionApi and VisionLlmApi, try Gemini first → GPT-4o fallback → default TOP
+- [x] Keep VisionLlmApi.kt as fallback (not deleted)
+- [x] Update GarmentDetectorTest.kt — 3 new tests: Gemini success, Gemini fail + GPT-4o success, both fail returns default
+- [x] Update api-contracts.md — add Gemini Vision API section (1.3), move GPT-4o to 1.4 as fallback
+- [x] Update all GarmentDetector call sites (TryOnActivity.kt × 2, OverlayService.kt × 1) to pass GeminiVisionApi
+
+---
+
 ## Completed
 - Phase 0: Project Scaffolding (all 7 tasks — Loop 1)
 - Phase 1 Task 1: UserProfile entity + DAO (done in Phase 0)
@@ -179,6 +192,7 @@
 - Phase 7G: getActiveReferenceBase64() already extracted — confirmed no duplicate decryption logic in TryOnUseCase (this loop)
 - Phase 7H: AdMob end-to-end — wired AdProvider (AdManagerImpl) into TryOnActivity: initialize, onGenerationCompleted after DONE, showAdIfNeeded before regenerate. Phase 5 remaining complete (this loop)
 - Phase 7I: Doc updates — TryOnSession ephemeral note already in data-model.md. Removed tasks.md from plan.md directory structure (this loop)
+- Phase 8: Vision LLM migration — Created GeminiVisionApi.kt (Gemini 2.0 Flash), added GEMINI_API_KEY BuildConfig, refactored GarmentDetector to Gemini primary + GPT-4o fallback chain, kept VisionLlmApi as fallback, updated all 3 call sites (TryOnActivity ×2, OverlayService ×1), 3 new tests in GarmentDetectorTest, updated quickstart.md and api-contracts.md (this loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
