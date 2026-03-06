@@ -69,6 +69,8 @@
 - [x] Create FeedbackRecord DTO
 - [x] Implement share via Android share sheet (with GhostFit branding)
 - [x] Unit tests for feedback submission
+- [x] Unit tests for regenerate/swap photo (FR-010, FR-011): 4 tests in TryOnUseCaseTest
+- [x] Unit tests for share (FR-013): ShareUtilsTest.kt with 4 tests
 
 ---
 
@@ -81,6 +83,7 @@
 - [x] Handle subscription state changes (purchase → unlock)
 - [x] Unit tests for BillingManager
 - [x] Unit tests for daily limit logic
+- [x] Wire AdMob interstitial end-to-end in TryOnActivity (onGenerationCompleted + showAdIfNeeded before regenerate)
 
 ---
 
@@ -114,6 +117,39 @@
 
 ---
 
+## Phase 7E: Missing Tests
+
+- [x] FR-011 swap photo tests in TryOnUseCaseTest: regenerate uses current active ref photo, regenerate without ref photo returns error, regenerate counts as additional attempt, regenerate without garment returns error (4 tests)
+- [x] ShareUtilsTest.kt: creates temp file, creates Intent with ACTION_SEND and image/jpeg, includes GhostFit branding, handles recycled bitmap gracefully (4 tests)
+
+---
+
+## Phase 7F: Document bonusTries
+
+- [x] Add bonusTries field to data-model.md UserProfile table (Int ≥ 0, default 0)
+- [x] Add business rule: bonusTries consumed before dailyTriesUsed, bypasses daily limit check
+
+---
+
+## Phase 7G: Eliminate Duplicate Code
+
+- [x] getActiveReferenceBase64() private method already extracted in TryOnUseCase.kt (line 219) — no duplicate logic remains
+
+---
+
+## Phase 7H: AdMob End-to-End
+
+- [x] Wire AdProvider (AdManagerImpl) into TryOnActivity: initialize on onCreate, onGenerationCompleted after DONE, showAdIfNeeded before regenerate
+
+---
+
+## Phase 7I: Doc Updates
+
+- [x] TryOnSession ephemeral note already present in data-model.md ("100% efêmera, nenhum dado persiste")
+- [x] Remove tasks.md reference from plan.md directory structure (file never generated)
+
+---
+
 ## Completed
 - Phase 0: Project Scaffolding (all 7 tasks — Loop 1)
 - Phase 1 Task 1: UserProfile entity + DAO (done in Phase 0)
@@ -138,6 +174,11 @@
 - Phase 7 Task 1: FR-020 smart model routing — ModelRouter now accepts optional GhostFitApi, queries `getModelRoute(category)` for backend-recommended model ordering based on approval scores. Falls back to FASHN→Vertex default if backend unavailable or returns null. 5 new tests in ModelRouterTest (this loop)
 - Phase 7 Task 2: FR-020/FR-021 DI integration — Wired GhostFitApi.create() into TryOnActivity, passed to both ModelRouter (smart routing) and TryOnUseCase (feedback/dataset). Fixed pre-existing compilation errors: BillingManager (onBillingSetupFinished, Billing 8.x queryProductDetails ktx, PendingPurchasesParams), ScreenCapture (override modifier), BillingManagerTest (stub dispatch fix). All 109 tests pass (this loop)
 - Phase 7A: End-to-end pipeline wiring — OverlayService.launchTryOn() now runs full pipeline (capture→detect→generate) in service coroutine while e-commerce app is visible, then launches TryOnActivity in display-only mode. Edge cases: generationInProgress guard, no garment toast, error toast. TryOnActivity supports EXTRA_DISPLAY_ONLY with no-op ScreenCaptureProvider for regenerate/feedback. 13 new tests in OverlayPipelineTest (this loop)
+- Phase 7E: Missing tests — 4 FR-011 regenerate/swap photo tests in TryOnUseCaseTest (swap active ref photo, no ref photo error, counts as attempt, no garment error). ShareUtilsTest.kt with 4 tests (temp file, ACTION_SEND intent, branding text, recycled bitmap). Phase 4 remaining tests complete (this loop)
+- Phase 7F: Document bonusTries — added bonusTries field + business rule to data-model.md (consumed before dailyTriesUsed, bypasses daily limit) (this loop)
+- Phase 7G: getActiveReferenceBase64() already extracted — confirmed no duplicate decryption logic in TryOnUseCase (this loop)
+- Phase 7H: AdMob end-to-end — wired AdProvider (AdManagerImpl) into TryOnActivity: initialize, onGenerationCompleted after DONE, showAdIfNeeded before regenerate. Phase 5 remaining complete (this loop)
+- Phase 7I: Doc updates — TryOnSession ephemeral note already in data-model.md. Removed tasks.md from plan.md directory structure (this loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)
