@@ -84,6 +84,18 @@
 
 ---
 
+## Phase 6: Integration — Wire Screen Capture to Overlay (FR-005)
+
+- [x] Create MediaProjectionHolder singleton (bridge Activity↔Service)
+- [x] Create TryOnActivity (fullscreen pipeline: capture → detect → generate → display)
+- [x] Create TryOnSessionHolder (share TryOnSession state between components)
+- [x] Update MainActivity — request MediaProjection after onboarding
+- [x] Update OverlayService — wire tap to launch TryOnActivity
+- [x] Register TryOnActivity in AndroidManifest.xml
+- [x] Unit tests for MediaProjectionHolder
+
+---
+
 ## Completed
 - Phase 0: Project Scaffolding (all 7 tasks — Loop 1)
 - Phase 1 Task 1: UserProfile entity + DAO (done in Phase 0)
@@ -104,6 +116,7 @@
 - Phase 5 Task 4: AdManager.kt — AdMob interstitial integration (FR-016). Shows ads between generations after 2nd try-on, never before result. Premium users exempt. AdManagerTest.kt with 9 tests. BuildConfig.ADMOB_INTERSTITIAL_ID added (this loop)
 - Phase 5 Task 5: Handle subscription state changes (purchase → unlock). Added PurchaseEvent sealed class (Success/Error/Cancelled) + purchaseEvent StateFlow to BillingManager. UpgradeScreen observes events and shows PurchaseSuccessScreen on successful purchase. MainActivity wired. 6 new tests in BillingManagerTest (this loop)
 - Fix: TryOnUseCaseTest + DailyLimitTest — changed ScreenCapture (final class) → ScreenCaptureProvider (fun interface) to fix Mockito mocking failure. Removed unused imports in FeedbackSubmissionTest and TryOnResultScreen (this loop)
+- Phase 6: Wire screen capture to overlay tap (FR-005). Created MediaProjectionHolder, TryOnActivity, TryOnSessionHolder. Updated MainActivity (MediaProjection request after onboarding), OverlayService (tap launches TryOnActivity). Registered TryOnActivity in AndroidManifest. 6 tests in MediaProjectionHolderTest (this loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)

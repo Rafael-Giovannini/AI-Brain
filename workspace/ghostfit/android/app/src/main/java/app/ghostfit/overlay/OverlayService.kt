@@ -26,6 +26,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import app.ghostfit.MainActivity
 import app.ghostfit.data.local.AppDatabase
 import app.ghostfit.data.local.UserProfileDao
+import app.ghostfit.ui.tryon.TryOnActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -135,13 +136,7 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
                                 saveOverlayPosition(params.x.toFloat(), params.y.toFloat())
                             },
                             onTap = {
-                                // Phase 3 remaining: Full pipeline requires MediaProjection
-                                // setup via Activity result before ScreenCapture can work.
-                                Toast.makeText(
-                                    this@OverlayService,
-                                    "Captura de tela — em breve!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                launchTryOn()
                             }
                         )
                     }
@@ -150,6 +145,21 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
                 windowManager.addView(composeView, params)
             }
         }
+    }
+
+    private fun launchTryOn() {
+        if (!MediaProjectionHolder.isAvailable) {
+            Toast.makeText(
+                this,
+                "Permissão de captura não disponível. Abra o app para configurar.",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        val intent = Intent(this, TryOnActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
     }
 
     private fun removeOverlay() {

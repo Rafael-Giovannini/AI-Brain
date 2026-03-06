@@ -1,10 +1,14 @@
 package app.ghostfit
 
+import android.app.Activity
+import android.content.Context
+import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +23,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import app.ghostfit.data.local.AppDatabase
 import app.ghostfit.data.local.PhotoStorage
+import app.ghostfit.domain.BillingManager
+import app.ghostfit.overlay.MediaProjectionHolder
+import app.ghostfit.overlay.OverlayService
 import app.ghostfit.ui.onboarding.LgpdConsentScreen
 import app.ghostfit.ui.onboarding.OnboardingViewModel
 import app.ghostfit.ui.onboarding.PermissionScreen
@@ -26,13 +33,26 @@ import app.ghostfit.ui.onboarding.PhotoSelectScreen
 import app.ghostfit.ui.onboarding.WelcomeScreen
 import app.ghostfit.ui.subscription.UpgradeScreen
 import app.ghostfit.ui.theme.GhostFitTheme
-import app.ghostfit.domain.BillingManager
-import app.ghostfit.overlay.OverlayService
 import com.android.billingclient.api.BillingClient
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var billingManager: BillingManager
+
+    private val mediaProjectionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+            MediaProjectionHolder.store(result.resultCode, result.data!!)
+        }
+        // Start overlay regardless — it works without projection, just can't capture
+        OverlayService.start(this)
+    }
+
+    private fun requestMediaProjectionAndStartOverlay() {
+        val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        mediaProjectionLauncher.launch(projectionManager.createScreenCaptureIntent())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,8 +139,8 @@ class MainActivity : ComponentActivity() {
                         PhotoSelectScreen(
                             onPhotosSelected = { bitmaps ->
                                 onboardingViewModel.savePhotosAndCompleteOnboarding(bitmaps) {
-                                    // Phase 2: Launch overlay service after onboarding
-                                    OverlayService.start(this@MainActivity)
+                                    // Request MediaProjection, then start overlay
+                                    requestMediaProjectionAndStartOverlay()
                                 }
                             }
                         )
