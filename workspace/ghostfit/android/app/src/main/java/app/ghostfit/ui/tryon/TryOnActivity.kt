@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import app.ghostfit.data.local.AppDatabase
 import app.ghostfit.data.local.PhotoStorage
 import app.ghostfit.data.remote.FashnApi
+import app.ghostfit.data.remote.GhostFitApi
 import app.ghostfit.data.remote.VertexAiApi
 import app.ghostfit.data.remote.VisionLlmApi
 import app.ghostfit.domain.GarmentDetector
@@ -59,14 +60,16 @@ class TryOnActivity : ComponentActivity() {
         val visionLlmApi = VisionLlmApi.create()
         val fashnApi = FashnApi.create()
         val vertexAiApi = VertexAiApi.create()
+        val ghostFitApi = GhostFitApi.create()
 
         tryOnUseCase = TryOnUseCase(
             screenCapture = screenCapture,
             garmentDetector = GarmentDetector(visionLlmApi),
-            modelRouter = ModelRouter(fashnApi, vertexAiApi),
+            modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
             userProfileDao = userProfileDao,
             referencePhotoDao = referencePhotoDao,
-            photoStorage = photoStorage
+            photoStorage = photoStorage,
+            ghostFitApi = ghostFitApi
         )
 
         setContent {

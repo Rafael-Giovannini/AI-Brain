@@ -12,6 +12,7 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.queryProductDetails
 import app.ghostfit.data.local.SubscriptionStateDao
 import app.ghostfit.data.local.UserProfileDao
 import app.ghostfit.data.model.PlanType
@@ -65,7 +66,7 @@ class BillingManager(
      */
     fun connect() {
         billingClient.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetup(result: BillingResult) {
+            override fun onBillingSetupFinished(result: BillingResult) {
                 if (result.responseCode == BillingResponseCode.OK) {
                     _connectionState.value = true
                     scope.launch {
@@ -123,13 +124,12 @@ class BillingManager(
 
     private suspend fun queryProductDetailsAsync(
         params: QueryProductDetailsParams
-    ): List<ProductDetails> = suspendCancellableCoroutine { cont ->
-        billingClient.queryProductDetailsAsync(params) { result, detailsList ->
-            if (result.responseCode == BillingResponseCode.OK) {
-                cont.resume(detailsList ?: emptyList())
-            } else {
-                cont.resume(emptyList())
-            }
+    ): List<ProductDetails> {
+        val result = billingClient.queryProductDetails(params)
+        return if (result.billingResult.responseCode == BillingResponseCode.OK) {
+            result.productDetailsList ?: emptyList()
+        } else {
+            emptyList()
         }
     }
 
@@ -290,11 +290,11 @@ class BillingManager(
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(productType)
             .build()
-        billingClient.queryPurchasesAsync(params) { result, purchases ->
+        billingClient.queryPurchasesAsync(params) { result: BillingResult, purchases: List<Purchase> ->
             if (result.responseCode == BillingResponseCode.OK) {
                 cont.resume(purchases)
             } else {
-                cont.resume(emptyList())
+                cont.resume(emptyList<Purchase>())
             }
         }
     }

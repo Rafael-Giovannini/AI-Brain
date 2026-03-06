@@ -52,9 +52,13 @@ class BillingManagerTest {
 
     private val testProfile = UserProfile(id = "user-1", lgpdConsentGranted = true)
     private val testDispatcher = UnconfinedTestDispatcher()
+    private val queryPurchasesStubs = mutableMapOf<String, List<Purchase>>()
+    private var queryPurchasesCallCount = 0
 
     @Before
     fun setup() {
+        queryPurchasesStubs.clear()
+        queryPurchasesCallCount = 0
         billingClient = mock()
         subscriptionStateDao = mock()
         userProfileDao = mock()
@@ -85,7 +89,7 @@ class BillingManagerTest {
         val okResult = BillingResult.newBuilder()
             .setResponseCode(BillingResponseCode.OK)
             .build()
-        listenerCaptor.firstValue.onBillingSetup(okResult)
+        listenerCaptor.firstValue.onBillingSetupFinished(okResult)
 
         assertTrue(billingManager.isConnected.value)
     }
@@ -289,7 +293,7 @@ class BillingManagerTest {
     }
 
     @Test
-    fun `onPurchasesUpdated ignores user-cancelled purchases`() {
+    fun `onPurchasesUpdated ignores user-cancelled purchases`() = runTest {
         val cancelledResult = BillingResult.newBuilder()
             .setResponseCode(BillingResponseCode.USER_CANCELED)
             .build()
@@ -418,28 +422,27 @@ class BillingManagerTest {
     }
 
     private fun stubQueryPurchasesEmpty() {
-        doAnswer { invocation ->
-            val listener = invocation.getArgument<PurchasesResponseListener>(1)
-            listener.onQueryPurchasesResponse(
-                BillingResult.newBuilder()
-                    .setResponseCode(BillingResponseCode.OK)
-                    .build(),
-                emptyList()
-            )
-        }.whenever(billingClient).queryPurchasesAsync(any<QueryPurchasesParams>(), any())
+        stubQueryPurchasesWithResult(BillingClient.ProductType.SUBS, emptyList())
+        stubQueryPurchasesWithResult(BillingClient.ProductType.INAPP, emptyList())
     }
 
     private fun stubQueryPurchasesWithResult(productType: String, purchases: List<Purchase>) {
+        queryPurchasesStubs[productType] = purchases
+        // Re-install the doAnswer with current map state; dispatches by call order
+        // (restorePurchases always calls SUBS first, then INAPP)
         doAnswer { invocation ->
-            val params = invocation.getArgument<QueryPurchasesParams>(0)
             val listener = invocation.getArgument<PurchasesResponseListener>(1)
-            // Note: QueryPurchasesParams doesn't expose productType easily,
-            // so we match all calls and return based on order
+            val returnPurchases = if (queryPurchasesCallCount % 2 == 0) {
+                queryPurchasesStubs[BillingClient.ProductType.SUBS] ?: emptyList()
+            } else {
+                queryPurchasesStubs[BillingClient.ProductType.INAPP] ?: emptyList()
+            }
+            queryPurchasesCallCount++
             listener.onQueryPurchasesResponse(
                 BillingResult.newBuilder()
                     .setResponseCode(BillingResponseCode.OK)
                     .build(),
-                purchases
+                returnPurchases
             )
         }.whenever(billingClient).queryPurchasesAsync(any<QueryPurchasesParams>(), any())
     }

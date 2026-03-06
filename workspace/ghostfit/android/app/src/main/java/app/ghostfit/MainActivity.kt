@@ -34,6 +34,7 @@ import app.ghostfit.ui.onboarding.WelcomeScreen
 import app.ghostfit.ui.subscription.UpgradeScreen
 import app.ghostfit.ui.theme.GhostFitTheme
 import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.PendingPurchasesParams
 
 class MainActivity : ComponentActivity() {
 
@@ -66,7 +67,12 @@ class MainActivity : ComponentActivity() {
 
         val billingClient = BillingClient.newBuilder(this)
             .setListener { result, purchases -> billingManager.onPurchasesUpdated(result, purchases) }
-            .enablePendingPurchases()
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder()
+                    .enableOneTimeProducts()
+                    .enablePrepaidPlans()
+                    .build()
+            )
             .build()
         billingManager = BillingManager(billingClient, subscriptionStateDao, userProfileDao)
         billingManager.connect()

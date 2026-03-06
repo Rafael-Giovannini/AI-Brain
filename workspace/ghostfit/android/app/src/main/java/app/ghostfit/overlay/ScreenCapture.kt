@@ -59,7 +59,7 @@ class ScreenCapture(private val context: Context) : ScreenCaptureProvider {
      * Capture a single screenshot as a Bitmap.
      * Suspends until the image is available.
      */
-    suspend fun capture(): Bitmap = suspendCancellableCoroutine { cont ->
+    override suspend fun capture(): Bitmap = suspendCancellableCoroutine { cont ->
         val projection = mediaProjection
         if (projection == null) {
             cont.resumeWithException(IllegalStateException("MediaProjection not initialized. Call init() first."))
