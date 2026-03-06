@@ -25,13 +25,24 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import app.ghostfit.MainActivity
 import app.ghostfit.data.local.AppDatabase
+import app.ghostfit.data.local.PhotoStorage
 import app.ghostfit.data.local.UserProfileDao
+import app.ghostfit.data.remote.FashnApi
+import app.ghostfit.data.remote.GhostFitApi
+import app.ghostfit.data.remote.VertexAiApi
+import app.ghostfit.data.remote.VisionLlmApi
+import app.ghostfit.domain.GarmentDetector
+import app.ghostfit.domain.ModelRouter
+import app.ghostfit.domain.TryOnStatus
+import app.ghostfit.domain.TryOnUseCase
 import app.ghostfit.ui.tryon.TryOnActivity
+import app.ghostfit.ui.tryon.TryOnSessionHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
 
@@ -59,6 +70,9 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
     private lateinit var windowManager: WindowManager
     private var overlayView: ComposeView? = null
     private lateinit var userProfileDao: UserProfileDao
+
+    @Volatile
+    internal var generationInProgress = false
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     override val lifecycle: Lifecycle get() = lifecycleRegistry
@@ -147,7 +161,18 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
         }
     }
 
-    private fun launchTryOn() {
+    /**
+     * Run the full try-on pipeline from the overlay service:
+     * ScreenCapture.capture → GarmentDetector.detect → ModelRouter.generate
+     * Then launch TryOnActivity to display the result.
+     *
+     * Edge cases:
+     * - No MediaProjection → toast asking user to open app
+     * - Generation already in progress → toast "Geração em andamento..."
+     * - No garment detected → toast without consuming daily attempt
+     * - Error → toast with error message
+     */
+    internal fun launchTryOn() {
         if (!MediaProjectionHolder.isAvailable) {
             Toast.makeText(
                 this,
@@ -156,10 +181,88 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
             ).show()
             return
         }
-        val intent = Intent(this, TryOnActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        if (generationInProgress) {
+            Toast.makeText(this, "Geração em andamento...", Toast.LENGTH_SHORT).show()
+            return
         }
-        startActivity(intent)
+
+        generationInProgress = true
+
+        serviceScope.launch(Dispatchers.IO) {
+            var screenCapture: ScreenCapture? = null
+            try {
+                val projectionData = MediaProjectionHolder.get()
+                    ?: throw IllegalStateException("Permissão de captura não disponível")
+
+                screenCapture = ScreenCapture(this@OverlayService)
+                screenCapture.init(projectionData.first, projectionData.second)
+
+                val db = AppDatabase.getInstance(this@OverlayService)
+                val profileDao = db.userProfileDao()
+                val referencePhotoDao = db.referencePhotoDao()
+                val photoStorage = PhotoStorage.getInstance(this@OverlayService)
+
+                val visionLlmApi = VisionLlmApi.create()
+                val fashnApi = FashnApi.create()
+                val vertexAiApi = VertexAiApi.create()
+                val ghostFitApi = GhostFitApi.create()
+
+                val tryOnUseCase = TryOnUseCase(
+                    screenCapture = screenCapture,
+                    garmentDetector = GarmentDetector(visionLlmApi),
+                    modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
+                    userProfileDao = profileDao,
+                    referencePhotoDao = referencePhotoDao,
+                    photoStorage = photoStorage,
+                    ghostFitApi = ghostFitApi
+                )
+
+                val session = tryOnUseCase.execute { updatedSession ->
+                    TryOnSessionHolder.update(updatedSession)
+                }
+                TryOnSessionHolder.update(session)
+
+                when (session.status) {
+                    TryOnStatus.DONE -> {
+                        val intent = Intent(this@OverlayService, TryOnActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            putExtra(TryOnActivity.EXTRA_DISPLAY_ONLY, true)
+                        }
+                        startActivity(intent)
+                    }
+                    TryOnStatus.NO_GARMENT -> {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@OverlayService,
+                                "Nenhuma roupa detectada. Tente em uma página de produto.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                    else -> {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@OverlayService,
+                                session.errorMessage ?: "Erro ao gerar prova virtual.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@OverlayService,
+                        e.message ?: "Erro ao gerar prova virtual.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } finally {
+                screenCapture?.release()
+                generationInProgress = false
+            }
+        }
     }
 
     private fun removeOverlay() {

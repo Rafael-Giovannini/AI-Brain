@@ -103,6 +103,17 @@
 
 ---
 
+## Phase 7A: End-to-End Pipeline Wiring (CRITICAL)
+
+- [x] Wire end-to-end pipeline in OverlayService onTap — replace activity-launch-only with full pipeline: ScreenCapture.capture → GarmentDetector.detect → ModelRouter.generate → launch TryOnActivity with result via TryOnSessionHolder
+- [x] Handle edge case: generation in progress → toast "Geracao em andamento..." (generationInProgress flag)
+- [x] Handle edge case: no garment detected → show toast without consuming daily attempt
+- [x] Handle edge case: pipeline error → show toast with error message
+- [x] Add TryOnActivity display-only mode (EXTRA_DISPLAY_ONLY) — reads pre-computed session from TryOnSessionHolder, regenerate/feedback still functional
+- [x] Unit tests for onTap pipeline trigger (OverlayPipelineTest — 13 tests covering guards, session state, status transitions)
+
+---
+
 ## Completed
 - Phase 0: Project Scaffolding (all 7 tasks — Loop 1)
 - Phase 1 Task 1: UserProfile entity + DAO (done in Phase 0)
@@ -126,6 +137,7 @@
 - Phase 6: Wire screen capture to overlay tap (FR-005). Created MediaProjectionHolder, TryOnActivity, TryOnSessionHolder. Updated MainActivity (MediaProjection request after onboarding), OverlayService (tap launches TryOnActivity). Registered TryOnActivity in AndroidManifest. 6 tests in MediaProjectionHolderTest (this loop)
 - Phase 7 Task 1: FR-020 smart model routing — ModelRouter now accepts optional GhostFitApi, queries `getModelRoute(category)` for backend-recommended model ordering based on approval scores. Falls back to FASHN→Vertex default if backend unavailable or returns null. 5 new tests in ModelRouterTest (this loop)
 - Phase 7 Task 2: FR-020/FR-021 DI integration — Wired GhostFitApi.create() into TryOnActivity, passed to both ModelRouter (smart routing) and TryOnUseCase (feedback/dataset). Fixed pre-existing compilation errors: BillingManager (onBillingSetupFinished, Billing 8.x queryProductDetails ktx, PendingPurchasesParams), ScreenCapture (override modifier), BillingManagerTest (stub dispatch fix). All 109 tests pass (this loop)
+- Phase 7A: End-to-end pipeline wiring — OverlayService.launchTryOn() now runs full pipeline (capture→detect→generate) in service coroutine while e-commerce app is visible, then launches TryOnActivity in display-only mode. Edge cases: generationInProgress guard, no garment toast, error toast. TryOnActivity supports EXTRA_DISPLAY_ONLY with no-op ScreenCaptureProvider for regenerate/feedback. 13 new tests in OverlayPipelineTest (this loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)

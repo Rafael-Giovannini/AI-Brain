@@ -16,6 +16,7 @@ import app.ghostfit.data.remote.VertexAiApi
 import app.ghostfit.data.remote.VisionLlmApi
 import app.ghostfit.domain.GarmentDetector
 import app.ghostfit.domain.ModelRouter
+import app.ghostfit.domain.ScreenCaptureProvider
 import app.ghostfit.domain.TryOnSession
 import app.ghostfit.domain.TryOnStatus
 import app.ghostfit.domain.TryOnUseCase
@@ -25,52 +26,87 @@ import app.ghostfit.ui.theme.GhostFitTheme
 import kotlinx.coroutines.launch
 
 /**
- * Fullscreen Activity that runs the try-on pipeline and displays results.
- * Launched by OverlayService when the user taps the ghost overlay.
+ * Fullscreen Activity that displays try-on results and handles user interactions.
  *
- * Flow:
- * 1. Initializes ScreenCapture from MediaProjectionHolder
- * 2. Runs TryOnUseCase.execute() (capture → detect → generate)
- * 3. Shows TryOnResultScreen with all status transitions
+ * Two modes of operation:
+ * - **Normal mode**: Initializes ScreenCapture, runs the full pipeline (capture -> detect -> generate)
+ * - **Display-only mode** (EXTRA_DISPLAY_ONLY=true): Reads pre-computed session from TryOnSessionHolder,
+ *   launched by OverlayService after the pipeline completes in the service.
+ *
+ * In both modes, regenerate and feedback remain functional.
  */
 class TryOnActivity : ComponentActivity() {
+
+    companion object {
+        /** When true, reads session from TryOnSessionHolder instead of running the pipeline. */
+        const val EXTRA_DISPLAY_ONLY = "extra_display_only"
+    }
 
     private var session by mutableStateOf(TryOnSession())
     private lateinit var tryOnUseCase: TryOnUseCase
     private lateinit var screenCapture: ScreenCapture
+    private var displayOnly = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val projectionData = MediaProjectionHolder.get()
-        if (projectionData == null) {
-            Toast.makeText(this, "Permissão de captura não disponível.", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
+        displayOnly = intent.getBooleanExtra(EXTRA_DISPLAY_ONLY, false)
 
         val db = AppDatabase.getInstance(this)
         val userProfileDao = db.userProfileDao()
         val referencePhotoDao = db.referencePhotoDao()
         val photoStorage = PhotoStorage.getInstance(this)
 
-        screenCapture = ScreenCapture(this)
-        screenCapture.init(projectionData.first, projectionData.second)
-
         val visionLlmApi = VisionLlmApi.create()
         val fashnApi = FashnApi.create()
         val vertexAiApi = VertexAiApi.create()
         val ghostFitApi = GhostFitApi.create()
 
-        tryOnUseCase = TryOnUseCase(
-            screenCapture = screenCapture,
-            garmentDetector = GarmentDetector(visionLlmApi),
-            modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
-            userProfileDao = userProfileDao,
-            referencePhotoDao = referencePhotoDao,
-            photoStorage = photoStorage,
-            ghostFitApi = ghostFitApi
-        )
+        if (displayOnly) {
+            // Display-only: pipeline already ran in OverlayService
+            val existingSession = TryOnSessionHolder.currentSession
+            if (existingSession == null) {
+                Toast.makeText(this, "Sessao nao disponivel.", Toast.LENGTH_SHORT).show()
+                finish()
+                return
+            }
+            session = existingSession
+
+            // No-op capture provider -- regenerate() doesn't use capture
+            val noOpCapture = ScreenCaptureProvider {
+                throw IllegalStateException("Screen capture not available in display-only mode")
+            }
+            tryOnUseCase = TryOnUseCase(
+                screenCapture = noOpCapture,
+                garmentDetector = GarmentDetector(visionLlmApi),
+                modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
+                userProfileDao = userProfileDao,
+                referencePhotoDao = referencePhotoDao,
+                photoStorage = photoStorage,
+                ghostFitApi = ghostFitApi
+            )
+        } else {
+            // Normal mode: initialize ScreenCapture and run full pipeline
+            val projectionData = MediaProjectionHolder.get()
+            if (projectionData == null) {
+                Toast.makeText(this, "Permissao de captura nao disponivel.", Toast.LENGTH_SHORT).show()
+                finish()
+                return
+            }
+
+            screenCapture = ScreenCapture(this)
+            screenCapture.init(projectionData.first, projectionData.second)
+
+            tryOnUseCase = TryOnUseCase(
+                screenCapture = screenCapture,
+                garmentDetector = GarmentDetector(visionLlmApi),
+                modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
+                userProfileDao = userProfileDao,
+                referencePhotoDao = referencePhotoDao,
+                photoStorage = photoStorage,
+                ghostFitApi = ghostFitApi
+            )
+        }
 
         setContent {
             GhostFitTheme {
@@ -91,8 +127,10 @@ class TryOnActivity : ComponentActivity() {
             }
         }
 
-        // Start the pipeline immediately
-        executeTryOn()
+        // Only run pipeline in normal mode; display-only already has the session
+        if (!displayOnly) {
+            executeTryOn()
+        }
     }
 
     private fun executeTryOn() {
@@ -123,7 +161,7 @@ class TryOnActivity : ComponentActivity() {
             tryOnUseCase.submitFeedback(session, thumbsUp)
             Toast.makeText(
                 this@TryOnActivity,
-                if (thumbsUp) "Obrigado pelo feedback! 👍" else "Feedback enviado 👎",
+                if (thumbsUp) "Obrigado pelo feedback!" else "Feedback enviado",
                 Toast.LENGTH_SHORT
             ).show()
         }
