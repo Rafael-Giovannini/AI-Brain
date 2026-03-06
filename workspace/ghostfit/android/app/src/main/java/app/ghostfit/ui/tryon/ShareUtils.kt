@@ -2,9 +2,12 @@ package app.ghostfit.ui.tryon
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
+
+private const val TAG = "ShareUtils"
 
 /**
  * Share the generated try-on image via Android share sheet.
@@ -32,7 +35,7 @@ fun shareTryOnImage(context: android.content.Context, bitmap: Bitmap) {
         }
 
         context.startActivity(Intent.createChooser(shareIntent, "Compartilhar via"))
-    } catch (_: Exception) {
-        // Sharing failed silently
+    } catch (e: Exception) {
+        Log.w(TAG, "Sharing failed", e)
     }
 }

@@ -3,6 +3,7 @@ package app.ghostfit.domain
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.FashnApi
@@ -24,7 +25,12 @@ class ModelRouter(
     private val gcpAccessToken: String = "",
     private val ghostFitApi: GhostFitApi? = null
 ) {
+    init {
+        require(gcpAccessToken.isNotBlank()) { "gcpAccessToken must not be blank" }
+    }
+
     companion object {
+        private const val TAG = "ModelRouter"
         private const val FASHN_MAX_RETRIES = 2
         private const val VERTEX_MAX_RETRIES = 2
         internal const val MODEL_FASHN = "fashn"
@@ -75,7 +81,8 @@ class ModelRouter(
             val recommended = route.recommendedModel ?: MODEL_FASHN
             val fallback = route.fallbackModel ?: if (recommended == MODEL_FASHN) MODEL_VERTEX else MODEL_FASHN
             recommended to fallback
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to resolve model order from backend, using default", e)
             MODEL_FASHN to MODEL_VERTEX
         }
     }
@@ -98,7 +105,7 @@ class ModelRouter(
         garmentBase64: String,
         category: GarmentCategory
     ): GenerationResult? {
-        repeat(FASHN_MAX_RETRIES) {
+        repeat(FASHN_MAX_RETRIES) { attempt ->
             try {
                 val response = fashnApi.generateTryOn(
                     request = FashnRequest(
@@ -115,8 +122,8 @@ class ModelRouter(
                 val bitmap = base64ToBitmap(imageData) ?: return@repeat
 
                 return GenerationResult(image = bitmap, modelUsed = "fashn")
-            } catch (_: Exception) {
-                // Retry
+            } catch (e: Exception) {
+                Log.w(TAG, "FASHN attempt ${attempt + 1}/$FASHN_MAX_RETRIES failed", e)
             }
         }
         return null
@@ -127,7 +134,7 @@ class ModelRouter(
         garmentBase64: String,
         category: GarmentCategory
     ): GenerationResult? {
-        repeat(VERTEX_MAX_RETRIES) {
+        repeat(VERTEX_MAX_RETRIES) { attempt ->
             try {
                 val response = vertexAiApi.generateTryOn(
                     auth = "Bearer $gcpAccessToken",
@@ -148,8 +155,8 @@ class ModelRouter(
                 val bitmap = base64ToBitmap(imageData) ?: return@repeat
 
                 return GenerationResult(image = bitmap, modelUsed = "vertex")
-            } catch (_: Exception) {
-                // Retry
+            } catch (e: Exception) {
+                Log.d(TAG, "Vertex attempt ${attempt + 1}/$VERTEX_MAX_RETRIES failed", e)
             }
         }
         return null
@@ -159,7 +166,8 @@ class ModelRouter(
         return try {
             val bytes = Base64.decode(base64, Base64.DEFAULT)
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to decode base64 to bitmap", e)
             null
         }
     }

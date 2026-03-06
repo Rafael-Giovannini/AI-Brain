@@ -51,7 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.android.billingclient.api.ProductDetails
-import app.ghostfit.domain.BillingManager
+import app.ghostfit.domain.BillingProvider
 import app.ghostfit.domain.PurchaseEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -75,11 +75,11 @@ fun UpgradeScreen(
 ) {
     val productDetails by productDetailsFlow.collectAsState()
     val purchaseEvent by purchaseEventFlow.collectAsState()
-    var selectedPlan by remember { mutableStateOf(BillingManager.SKU_MONTHLY) }
+    var selectedPlan by remember { mutableStateOf(BillingProvider.SKU_MONTHLY) }
     var purchaseSuccess by remember { mutableStateOf(false) }
 
-    val monthlyDetails = productDetails[BillingManager.SKU_MONTHLY]
-    val packDetails = productDetails[BillingManager.SKU_PACK_10]
+    val monthlyDetails = productDetails[BillingProvider.SKU_MONTHLY]
+    val packDetails = productDetails[BillingProvider.SKU_PACK_10]
 
     // React to purchase events
     LaunchedEffect(purchaseEvent) {
@@ -181,14 +181,14 @@ fun UpgradeScreen(
                 title = "Premium Mensal",
                 description = "Tentativas ilimitadas + sem anúncios",
                 price = monthlyDetails.formattedMonthlyPrice() ?: "R\$ 14,90/mês",
-                isSelected = selectedPlan == BillingManager.SKU_MONTHLY,
+                isSelected = selectedPlan == BillingProvider.SKU_MONTHLY,
                 isRecommended = true,
                 benefits = listOf(
                     "Tentativas ilimitadas por dia",
                     "Sem anúncios",
                     "Cancele quando quiser"
                 ),
-                onClick = { selectedPlan = BillingManager.SKU_MONTHLY }
+                onClick = { selectedPlan = BillingProvider.SKU_MONTHLY }
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -198,14 +198,14 @@ fun UpgradeScreen(
                 title = "Pacote Avulso",
                 description = "10 tentativas extras",
                 price = packDetails.formattedPrice() ?: "R\$ 4,90",
-                isSelected = selectedPlan == BillingManager.SKU_PACK_10,
+                isSelected = selectedPlan == BillingProvider.SKU_PACK_10,
                 isRecommended = false,
                 benefits = listOf(
                     "+10 tentativas extras",
                     "Sem validade",
                     "Com anúncios"
                 ),
-                onClick = { selectedPlan = BillingManager.SKU_PACK_10 }
+                onClick = { selectedPlan = BillingProvider.SKU_PACK_10 }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -219,7 +219,7 @@ fun UpgradeScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = if (selectedPlan == BillingManager.SKU_MONTHLY) {
+                    text = if (selectedPlan == BillingProvider.SKU_MONTHLY) {
                         "Assinar agora"
                     } else {
                         "Comprar pacote"

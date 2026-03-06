@@ -21,9 +21,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import app.ghostfit.data.ads.AdManagerImpl
+import app.ghostfit.data.billing.BillingManagerImpl
 import app.ghostfit.data.local.AppDatabase
 import app.ghostfit.data.local.PhotoStorage
-import app.ghostfit.domain.BillingManager
+import app.ghostfit.domain.AdProvider
 import app.ghostfit.overlay.MediaProjectionHolder
 import app.ghostfit.overlay.OverlayService
 import app.ghostfit.ui.onboarding.LgpdConsentScreen
@@ -38,7 +40,8 @@ import com.android.billingclient.api.PendingPurchasesParams
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var billingManager: BillingManager
+    private lateinit var billingManager: BillingManagerImpl
+    private lateinit var adProvider: AdProvider
 
     private val mediaProjectionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -74,8 +77,12 @@ class MainActivity : ComponentActivity() {
                     .build()
             )
             .build()
-        billingManager = BillingManager(billingClient, subscriptionStateDao, userProfileDao)
+        billingManager = BillingManagerImpl(billingClient, subscriptionStateDao, userProfileDao)
         billingManager.connect()
+
+        // Initialize AdMob (FR-016)
+        adProvider = AdManagerImpl(userProfileDao)
+        adProvider.initialize(this)
 
         setContent {
             GhostFitTheme {

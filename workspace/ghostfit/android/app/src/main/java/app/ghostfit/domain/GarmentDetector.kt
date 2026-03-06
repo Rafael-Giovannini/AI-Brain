@@ -1,6 +1,7 @@
 package app.ghostfit.domain
 
 import android.graphics.Bitmap
+import android.util.Log
 import app.ghostfit.data.local.MlKitGarmentCropper
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
@@ -21,6 +22,7 @@ class GarmentDetector(
     private val classificationAdapter = moshi.adapter(GarmentClassification::class.java)
 
     companion object {
+        private const val TAG = "GarmentDetector"
         private const val MIN_CONFIDENCE = 0.6f
         private const val VISION_PROMPT = """Analyze this clothing image. Return ONLY a JSON object with these fields:
 - "category": one of "top", "bottom", "dress", "outerwear"
@@ -79,7 +81,8 @@ Return ONLY the JSON, no markdown or extra text."""
                 confidence = classification.confidence,
                 croppedImage = croppedImage
             )
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w(TAG, "Vision LLM classification failed, using fallback", e)
             fallbackGarmentInfo(croppedImage)
         }
     }

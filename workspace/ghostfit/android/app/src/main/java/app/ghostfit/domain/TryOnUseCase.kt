@@ -1,6 +1,7 @@
 package app.ghostfit.domain
 
 import android.graphics.Bitmap
+import android.util.Log
 import app.ghostfit.data.local.PhotoStorage
 import app.ghostfit.data.local.ReferencePhotoDao
 import app.ghostfit.data.local.UserProfileDao
@@ -42,6 +43,12 @@ class TryOnUseCase(
     private val ghostFitApi: GhostFitApi? = null
 ) {
 
+    companion object {
+        private const val TAG = "TryOnUseCase"
+        /** Maximum free daily try-on attempts. Mirrors RemoteConfig.maxFreeTrials default. */
+        const val MAX_FREE_DAILY_TRIES = 3
+    }
+
     /**
      * Execute the full try-on pipeline: capture → detect → generate.
      *
@@ -82,19 +89,10 @@ class TryOnUseCase(
             session = session.copy(detectedGarment = garment)
 
             // Step 3: Get reference photo
-            val refPhoto = referencePhotoDao.getByUser(
+            val referenceBase64 = getActiveReferenceBase64()
+            session = session.copy(referencePhotoId = referencePhotoDao.getByUser(
                 userProfileDao.getProfile()?.id ?: ""
-            ).firstOrNull()
-
-            val referenceBase64 = if (refPhoto != null) {
-                val bitmap = photoStorage.decrypt(refPhoto.encryptedFilePath)
-                    ?: throw IllegalStateException("Falha ao decifrar foto de referência")
-                bitmap.toBase64Jpeg()
-            } else {
-                throw IllegalStateException("Nenhuma foto de referência encontrada")
-            }
-
-            session = session.copy(referencePhotoId = refPhoto.id)
+            ).firstOrNull()?.id)
 
             // Step 4: Generate try-on image
             session = session.copy(status = TryOnStatus.GENERATING)
@@ -154,13 +152,7 @@ class TryOnUseCase(
         try {
             checkDailyLimit()
 
-            val refPhoto = referencePhotoDao.getByUser(
-                userProfileDao.getProfile()?.id ?: ""
-            ).firstOrNull() ?: throw IllegalStateException("Nenhuma foto de referência")
-
-            val bitmap = photoStorage.decrypt(refPhoto.encryptedFilePath)
-                ?: throw IllegalStateException("Falha ao decifrar foto de referência")
-            val referenceBase64 = bitmap.toBase64Jpeg()
+            val referenceBase64 = getActiveReferenceBase64()
 
             session = session.copy(status = TryOnStatus.GENERATING)
             onStatusChange(session)
@@ -215,9 +207,23 @@ class TryOnUseCase(
                     )
                 )
             }
-        } catch (_: Exception) {
-            // Fire-and-forget: don't fail if feedback submission fails
+        } catch (e: Exception) {
+            Log.w(TAG, "Feedback submission failed (fire-and-forget)", e)
         }
+    }
+
+    /**
+     * Decrypt and encode the user's active reference photo as base64 JPEG.
+     * Eliminates duplicate decryption logic across execute() and regenerate().
+     */
+    private suspend fun getActiveReferenceBase64(): String {
+        val refPhoto = referencePhotoDao.getByUser(
+            userProfileDao.getProfile()?.id ?: ""
+        ).firstOrNull() ?: throw IllegalStateException("Nenhuma foto de referência encontrada")
+
+        val bitmap = photoStorage.decrypt(refPhoto.encryptedFilePath)
+            ?: throw IllegalStateException("Falha ao decifrar foto de referência")
+        return bitmap.toBase64Jpeg()
     }
 
     private suspend fun checkDailyLimit() {
@@ -250,11 +256,6 @@ class TryOnUseCase(
 
         val today = LocalDate.now().toString()
         userProfileDao.updateDailyTries(profile.dailyTriesUsed + 1, today)
-    }
-
-    companion object {
-        /** Maximum free daily try-on attempts. Mirrors RemoteConfig.maxFreeTrials default. */
-        const val MAX_FREE_DAILY_TRIES = 3
     }
 }
 
