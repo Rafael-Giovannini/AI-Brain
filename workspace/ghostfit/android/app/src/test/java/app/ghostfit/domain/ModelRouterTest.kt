@@ -158,6 +158,42 @@ class ModelRouterTest {
         assertNull(result)
     }
 
+    // --- Empty GCP token: FASHN-only mode (Vertex unavailable) ---
+
+    @Test
+    fun `generate succeeds with FASHN when gcpAccessToken is blank`() = runTest {
+        val fashnOnlyRouter = ModelRouter(fashnApi, vertexAiApi, gcpAccessToken = "")
+        val imageBase64 = createTestBitmapBase64()
+
+        whenever(fashnApi.generateTryOn(any(), any())).thenReturn(
+            FashnResponse(id = "run_1", status = "completed", output = FashnOutput(imageBase64 = imageBase64))
+        )
+
+        val result = fashnOnlyRouter.generate("ref_base64", createTestGarment())
+
+        assertEquals("fashn", result.modelUsed)
+        verify(vertexAiApi, never()).generateTryOn(any(), any(), any(), any())
+    }
+
+    @Test(expected = TryOnGenerationException::class)
+    fun `generate throws when FASHN fails and gcpAccessToken is blank`() = runTest {
+        val fashnOnlyRouter = ModelRouter(fashnApi, vertexAiApi, gcpAccessToken = "")
+
+        whenever(fashnApi.generateTryOn(any(), any())).thenThrow(RuntimeException("FASHN down"))
+
+        fashnOnlyRouter.generate("ref_base64", createTestGarment())
+    }
+
+    @Test
+    fun `tryVertex returns null when gcpAccessToken is blank`() = runTest {
+        val fashnOnlyRouter = ModelRouter(fashnApi, vertexAiApi, gcpAccessToken = "")
+
+        val result = fashnOnlyRouter.tryVertex("ref", "garment", GarmentCategory.TOP)
+
+        assertNull(result)
+        verify(vertexAiApi, never()).generateTryOn(any(), any(), any(), any())
+    }
+
     // --- FR-020: Smart model routing via backend approval scores ---
 
     @Test

@@ -25,9 +25,8 @@ class ModelRouter(
     private val gcpAccessToken: String = "",
     private val ghostFitApi: GhostFitApi? = null
 ) {
-    init {
-        require(gcpAccessToken.isNotBlank()) { "gcpAccessToken must not be blank" }
-    }
+    /** True when Vertex AI is available (GCP token configured). */
+    private val vertexAvailable = gcpAccessToken.isNotBlank()
 
     companion object {
         private const val TAG = "ModelRouter"
@@ -134,6 +133,10 @@ class ModelRouter(
         garmentBase64: String,
         category: GarmentCategory
     ): GenerationResult? {
+        if (!vertexAvailable) {
+            Log.d(TAG, "Vertex AI unavailable (no GCP token), skipping")
+            return null
+        }
         repeat(VERTEX_MAX_RETRIES) { attempt ->
             try {
                 val response = vertexAiApi.generateTryOn(
