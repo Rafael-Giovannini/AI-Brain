@@ -158,6 +158,75 @@ class TryOnUseCaseTest {
         assertEquals(TryOnStatus.ERROR, result.status)
     }
 
+    // --- FR-011: Swap photo / regenerate tests ---
+
+    @Test
+    fun `regenerate with different referencePhotoId uses correct photo`() = runTest {
+        val garment = GarmentInfo(
+            category = GarmentCategory.DRESS,
+            confidence = 0.85f,
+            croppedImage = testBitmap
+        )
+        val previousSession = TryOnSession(
+            detectedGarment = garment,
+            referencePhotoId = "photo-old"
+        )
+        // New active reference photo (simulates user swapping photo)
+        val newRefPhoto = ReferencePhoto(
+            id = "photo-new",
+            userId = "user-1",
+            encryptedFilePath = "/enc/photo_new.enc"
+        )
+
+        whenever(userProfileDao.getProfile()).thenReturn(testProfile)
+        whenever(referencePhotoDao.getByUser("user-1")).thenReturn(listOf(newRefPhoto))
+        whenever(photoStorage.decrypt("/enc/photo_new.enc")).thenReturn(testBitmap)
+        whenever(modelRouter.generate(any(), any())).thenReturn(
+            ModelRouter.GenerationResult(image = testBitmap, modelUsed = "fashn")
+        )
+
+        val result = useCase.regenerate(previousSession)
+
+        assertEquals(TryOnStatus.DONE, result.status)
+    }
+
+    @Test
+    fun `regenerate without reference photo returns ERROR`() = runTest {
+        val garment = GarmentInfo(
+            category = GarmentCategory.TOP,
+            confidence = 0.8f,
+            croppedImage = testBitmap
+        )
+        val previousSession = TryOnSession(detectedGarment = garment)
+
+        whenever(userProfileDao.getProfile()).thenReturn(testProfile)
+        whenever(referencePhotoDao.getByUser("user-1")).thenReturn(emptyList())
+
+        val result = useCase.regenerate(previousSession)
+
+        assertEquals(TryOnStatus.ERROR, result.status)
+        assertTrue(result.errorMessage?.contains("referência") == true)
+    }
+
+    @Test
+    fun `regenerate counts as additional attempt for free user`() = runTest {
+        val garment = GarmentInfo(
+            category = GarmentCategory.TOP,
+            confidence = 0.8f,
+            croppedImage = testBitmap
+        )
+        val previousSession = TryOnSession(detectedGarment = garment)
+        // User already at limit
+        val limitedProfile = testProfile.copy(dailyTriesUsed = 3)
+
+        whenever(userProfileDao.getProfile()).thenReturn(limitedProfile)
+
+        val result = useCase.regenerate(previousSession)
+
+        assertEquals(TryOnStatus.ERROR, result.status)
+        assertTrue(result.errorMessage?.contains("Limite") == true)
+    }
+
     @Test
     fun `execute tracks status changes through callback`() = runTest {
         whenever(userProfileDao.getProfile()).thenReturn(testProfile)

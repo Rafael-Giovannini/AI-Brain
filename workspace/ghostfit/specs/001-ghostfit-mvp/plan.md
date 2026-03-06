@@ -46,9 +46,8 @@ workspace/ghostfit/specs/001-ghostfit-mvp/
 ├── research.md          # Fase 0 — pesquisa e decisões técnicas
 ├── data-model.md        # Fase 1 — modelo de dados
 ├── quickstart.md        # Fase 1 — setup do projeto
-├── contracts/
-│   └── api-contracts.md # Fase 1 — contratos de API
-└── tasks.md             # Fase 2 — gerado por /speckit.tasks
+└── contracts/
+    └── api-contracts.md # Fase 1 — contratos de API
 ```
 
 ### Source Code (repository root)
