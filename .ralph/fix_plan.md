@@ -96,6 +96,13 @@
 
 ---
 
+## Phase 7: Uncovered FRs — Smart Routing & Data Pipeline
+
+- [x] FR-020: Implement smart model routing in ModelRouter — query backend `GET /v1/models/route` for recommended model order based on approval scores, fallback to default FASHN→Vertex if backend unavailable
+- [ ] FR-020/FR-021: Wire GhostFitApi into ModelRouter construction in TryOnActivity/MainActivity (DI integration)
+
+---
+
 ## Completed
 - Phase 0: Project Scaffolding (all 7 tasks — Loop 1)
 - Phase 1 Task 1: UserProfile entity + DAO (done in Phase 0)
@@ -117,6 +124,7 @@
 - Phase 5 Task 5: Handle subscription state changes (purchase → unlock). Added PurchaseEvent sealed class (Success/Error/Cancelled) + purchaseEvent StateFlow to BillingManager. UpgradeScreen observes events and shows PurchaseSuccessScreen on successful purchase. MainActivity wired. 6 new tests in BillingManagerTest (this loop)
 - Fix: TryOnUseCaseTest + DailyLimitTest — changed ScreenCapture (final class) → ScreenCaptureProvider (fun interface) to fix Mockito mocking failure. Removed unused imports in FeedbackSubmissionTest and TryOnResultScreen (this loop)
 - Phase 6: Wire screen capture to overlay tap (FR-005). Created MediaProjectionHolder, TryOnActivity, TryOnSessionHolder. Updated MainActivity (MediaProjection request after onboarding), OverlayService (tap launches TryOnActivity). Registered TryOnActivity in AndroidManifest. 6 tests in MediaProjectionHolderTest (this loop)
+- Phase 7 Task 1: FR-020 smart model routing — ModelRouter now accepts optional GhostFitApi, queries `getModelRoute(category)` for backend-recommended model ordering based on approval scores. Falls back to FASHN→Vertex default if backend unavailable or returns null. 5 new tests in ModelRouterTest (this loop)
 
 ## Notes
 - Implementar na ordem das Phases (0 → 5)

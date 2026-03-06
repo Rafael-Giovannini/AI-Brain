@@ -9,6 +9,8 @@ import app.ghostfit.data.remote.FashnApi
 import app.ghostfit.data.remote.FashnOutput
 import app.ghostfit.data.remote.FashnRequest
 import app.ghostfit.data.remote.FashnResponse
+import app.ghostfit.data.remote.GhostFitApi
+import app.ghostfit.data.remote.ModelRouteResponse
 import app.ghostfit.data.remote.VertexAiApi
 import app.ghostfit.data.remote.VertexPrediction
 import app.ghostfit.data.remote.VertexRequest
@@ -34,7 +36,9 @@ class ModelRouterTest {
 
     private lateinit var fashnApi: FashnApi
     private lateinit var vertexAiApi: VertexAiApi
+    private lateinit var ghostFitApi: GhostFitApi
     private lateinit var router: ModelRouter
+    private lateinit var routerWithBackend: ModelRouter
 
     private fun createTestBitmapBase64(): String {
         val bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
@@ -58,7 +62,9 @@ class ModelRouterTest {
     fun setup() {
         fashnApi = mock()
         vertexAiApi = mock()
+        ghostFitApi = mock()
         router = ModelRouter(fashnApi, vertexAiApi, gcpAccessToken = "test-token")
+        routerWithBackend = ModelRouter(fashnApi, vertexAiApi, gcpAccessToken = "test-token", ghostFitApi = ghostFitApi)
     }
 
     @Test
@@ -150,5 +156,66 @@ class ModelRouterTest {
 
         val result = router.tryVertex("ref", "garment", GarmentCategory.TOP)
         assertNull(result)
+    }
+
+    // --- FR-020: Smart model routing via backend approval scores ---
+
+    @Test
+    fun `resolveModelOrder returns default when no backend configured`() = runTest {
+        val order = router.resolveModelOrder(GarmentCategory.DRESS)
+        assertEquals(ModelRouter.MODEL_FASHN, order.first)
+        assertEquals(ModelRouter.MODEL_VERTEX, order.second)
+    }
+
+    @Test
+    fun `resolveModelOrder uses backend recommendation when available`() = runTest {
+        whenever(ghostFitApi.getModelRoute("dress")).thenReturn(
+            ModelRouteResponse(
+                recommendedModel = "vertex",
+                fallbackModel = "fashn",
+                reason = "approval_rate"
+            )
+        )
+
+        val order = routerWithBackend.resolveModelOrder(GarmentCategory.DRESS)
+        assertEquals(ModelRouter.MODEL_VERTEX, order.first)
+        assertEquals(ModelRouter.MODEL_FASHN, order.second)
+    }
+
+    @Test
+    fun `resolveModelOrder falls back to default when backend fails`() = runTest {
+        whenever(ghostFitApi.getModelRoute(any())).thenThrow(RuntimeException("Network error"))
+
+        val order = routerWithBackend.resolveModelOrder(GarmentCategory.TOP)
+        assertEquals(ModelRouter.MODEL_FASHN, order.first)
+        assertEquals(ModelRouter.MODEL_VERTEX, order.second)
+    }
+
+    @Test
+    fun `resolveModelOrder handles null fields in response`() = runTest {
+        whenever(ghostFitApi.getModelRoute("bottom")).thenReturn(
+            ModelRouteResponse(recommendedModel = null, fallbackModel = null, reason = "default")
+        )
+
+        val order = routerWithBackend.resolveModelOrder(GarmentCategory.BOTTOM)
+        assertEquals(ModelRouter.MODEL_FASHN, order.first)
+        assertEquals(ModelRouter.MODEL_VERTEX, order.second)
+    }
+
+    @Test
+    fun `generate with backend tries Vertex first when recommended`() = runTest {
+        val imageBase64 = createTestBitmapBase64()
+
+        whenever(ghostFitApi.getModelRoute("dress")).thenReturn(
+            ModelRouteResponse(recommendedModel = "vertex", fallbackModel = "fashn", reason = "approval_rate")
+        )
+        whenever(vertexAiApi.generateTryOn(any(), any(), any(), any())).thenReturn(
+            VertexResponse(predictions = listOf(VertexPrediction(bytesBase64Encoded = imageBase64)))
+        )
+
+        val result = routerWithBackend.generate("ref_base64", createTestGarment())
+
+        assertEquals("vertex", result.modelUsed)
+        verify(fashnApi, never()).generateTryOn(any(), any())
     }
 }

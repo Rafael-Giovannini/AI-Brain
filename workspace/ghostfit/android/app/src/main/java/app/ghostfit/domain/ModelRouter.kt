@@ -7,22 +7,28 @@ import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.FashnApi
 import app.ghostfit.data.remote.FashnRequest
+import app.ghostfit.data.remote.GhostFitApi
 import app.ghostfit.data.remote.VertexAiApi
 import app.ghostfit.data.remote.VertexImage
 import app.ghostfit.data.remote.VertexInstance
 import app.ghostfit.data.remote.VertexRequest
 /**
- * Chain-of-responsibility router: FASHN.ai (primary) → Vertex AI (fallback).
+ * Chain-of-responsibility router: queries backend for optimal model ordering
+ * based on accumulated approval scores (FR-020), then falls back to default
+ * FASHN.ai (primary) → Vertex AI (fallback) if backend is unavailable.
  * Each provider gets 2 retries before falling through.
  */
 class ModelRouter(
     private val fashnApi: FashnApi,
     private val vertexAiApi: VertexAiApi,
-    private val gcpAccessToken: String = ""
+    private val gcpAccessToken: String = "",
+    private val ghostFitApi: GhostFitApi? = null
 ) {
     companion object {
         private const val FASHN_MAX_RETRIES = 2
         private const val VERTEX_MAX_RETRIES = 2
+        internal const val MODEL_FASHN = "fashn"
+        internal const val MODEL_VERTEX = "vertex"
     }
 
     data class GenerationResult(
@@ -32,6 +38,9 @@ class ModelRouter(
 
     /**
      * Generate a virtual try-on image.
+     * Queries the backend for the recommended model order based on approval
+     * scores per (model × garment category). Falls back to default order
+     * (FASHN → Vertex) if backend is unavailable or has insufficient data.
      *
      * @param referencePhotoBase64 Base64 encoded reference photo of the user
      * @param garment Detected garment info with cropped image
@@ -45,15 +54,43 @@ class ModelRouter(
         val garmentBase64 = garment.croppedImage?.let { it.toBase64Jpeg() }
             ?: throw TryOnGenerationException("No cropped garment image available")
 
-        // Try FASHN.ai first
-        val fashnResult = tryFashn(referencePhotoBase64, garmentBase64, garment.category)
-        if (fashnResult != null) return fashnResult
+        val (primary, fallback) = resolveModelOrder(garment.category)
 
-        // Fallback to Vertex AI
-        val vertexResult = tryVertex(referencePhotoBase64, garmentBase64, garment.category)
-        if (vertexResult != null) return vertexResult
+        val primaryResult = tryModel(primary, referencePhotoBase64, garmentBase64, garment.category)
+        if (primaryResult != null) return primaryResult
+
+        val fallbackResult = tryModel(fallback, referencePhotoBase64, garmentBase64, garment.category)
+        if (fallbackResult != null) return fallbackResult
 
         throw TryOnGenerationException("Both FASHN.ai and Vertex AI failed to generate image")
+    }
+
+    /**
+     * Query backend for recommended model order. Returns default if unavailable.
+     */
+    internal suspend fun resolveModelOrder(category: GarmentCategory): Pair<String, String> {
+        if (ghostFitApi == null) return MODEL_FASHN to MODEL_VERTEX
+        return try {
+            val route = ghostFitApi.getModelRoute(category.name.lowercase())
+            val recommended = route.recommendedModel ?: MODEL_FASHN
+            val fallback = route.fallbackModel ?: if (recommended == MODEL_FASHN) MODEL_VERTEX else MODEL_FASHN
+            recommended to fallback
+        } catch (_: Exception) {
+            MODEL_FASHN to MODEL_VERTEX
+        }
+    }
+
+    private suspend fun tryModel(
+        model: String,
+        referenceBase64: String,
+        garmentBase64: String,
+        category: GarmentCategory
+    ): GenerationResult? {
+        return when (model) {
+            MODEL_FASHN -> tryFashn(referenceBase64, garmentBase64, category)
+            MODEL_VERTEX -> tryVertex(referenceBase64, garmentBase64, category)
+            else -> null
+        }
     }
 
     internal suspend fun tryFashn(
