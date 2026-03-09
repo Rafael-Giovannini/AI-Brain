@@ -8,13 +8,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.lifecycleScope
+import app.ghostfit.data.ads.AdManagerImpl
 import app.ghostfit.data.local.AppDatabase
+import app.ghostfit.data.local.MlKitGarmentCropper
 import app.ghostfit.data.local.PhotoStorage
 import app.ghostfit.data.remote.FashnApi
 import app.ghostfit.data.remote.GhostFitApi
 import app.ghostfit.data.remote.VertexAiApi
 import app.ghostfit.data.remote.GeminiVisionApi
 import app.ghostfit.data.remote.VisionLlmApi
+import app.ghostfit.domain.AdProvider
 import app.ghostfit.domain.GarmentDetector
 import app.ghostfit.domain.ModelRouter
 import app.ghostfit.domain.ScreenCaptureProvider
@@ -45,14 +48,11 @@ class TryOnActivity : ComponentActivity() {
 
     private var session by mutableStateOf(TryOnSession())
     private lateinit var tryOnUseCase: TryOnUseCase
+    private lateinit var adProvider: AdProvider
     private lateinit var screenCapture: ScreenCapture
     private var displayOnly = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        displayOnly = intent.getBooleanExtra(EXTRA_DISPLAY_ONLY, false)
-
+    private fun initDependencies(): Boolean {
         val db = AppDatabase.getInstance(this)
         val userProfileDao = db.userProfileDao()
         val referencePhotoDao = db.referencePhotoDao()
@@ -64,23 +64,24 @@ class TryOnActivity : ComponentActivity() {
         val vertexAiApi = VertexAiApi.create()
         val ghostFitApi = GhostFitApi.create()
 
+        adProvider = AdManagerImpl(userProfileDao)
+        adProvider.initialize(this, AdProvider.TEST_INTERSTITIAL_ID)
+
         if (displayOnly) {
-            // Display-only: pipeline already ran in OverlayService
             val existingSession = TryOnSessionHolder.currentSession
             if (existingSession == null) {
                 Toast.makeText(this, "Sessao nao disponivel.", Toast.LENGTH_SHORT).show()
                 finish()
-                return
+                return false
             }
             session = existingSession
 
-            // No-op capture provider -- regenerate() doesn't use capture
             val noOpCapture = ScreenCaptureProvider {
                 throw IllegalStateException("Screen capture not available in display-only mode")
             }
             tryOnUseCase = TryOnUseCase(
                 screenCapture = noOpCapture,
-                garmentDetector = GarmentDetector(geminiVisionApi, visionLlmApi),
+                garmentDetector = GarmentDetector(geminiVisionApi, visionLlmApi, MlKitGarmentCropper()),
                 modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
                 userProfileDao = userProfileDao,
                 referencePhotoDao = referencePhotoDao,
@@ -88,12 +89,11 @@ class TryOnActivity : ComponentActivity() {
                 ghostFitApi = ghostFitApi
             )
         } else {
-            // Normal mode: initialize ScreenCapture and run full pipeline
             val projectionData = MediaProjectionHolder.get()
             if (projectionData == null) {
                 Toast.makeText(this, "Permissao de captura nao disponivel.", Toast.LENGTH_SHORT).show()
                 finish()
-                return
+                return false
             }
 
             screenCapture = ScreenCapture(this)
@@ -101,7 +101,7 @@ class TryOnActivity : ComponentActivity() {
 
             tryOnUseCase = TryOnUseCase(
                 screenCapture = screenCapture,
-                garmentDetector = GarmentDetector(geminiVisionApi, visionLlmApi),
+                garmentDetector = GarmentDetector(geminiVisionApi, visionLlmApi, MlKitGarmentCropper()),
                 modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
                 userProfileDao = userProfileDao,
                 referencePhotoDao = referencePhotoDao,
@@ -109,6 +109,15 @@ class TryOnActivity : ComponentActivity() {
                 ghostFitApi = ghostFitApi
             )
         }
+        return true
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        displayOnly = intent.getBooleanExtra(EXTRA_DISPLAY_ONLY, false)
+
+        if (!initDependencies()) return
 
         setContent {
             GhostFitTheme {
@@ -142,6 +151,9 @@ class TryOnActivity : ComponentActivity() {
                 TryOnSessionHolder.update(updatedSession)
             }
             TryOnSessionHolder.update(session)
+            if (session.status == TryOnStatus.DONE) {
+                adProvider.onGenerationCompleted()
+            }
         }
     }
 
@@ -149,11 +161,19 @@ class TryOnActivity : ComponentActivity() {
         val currentSession = session
         if (currentSession.status == TryOnStatus.DONE || currentSession.status == TryOnStatus.ERROR) {
             lifecycleScope.launch {
-                session = tryOnUseCase.regenerate(currentSession) { updatedSession ->
-                    session = updatedSession
-                    TryOnSessionHolder.update(updatedSession)
+                // FR-016: Show interstitial ad between generations for free users
+                adProvider.showAdIfNeeded(this@TryOnActivity) {
+                    lifecycleScope.launch {
+                        session = tryOnUseCase.regenerate(currentSession) { updatedSession ->
+                            session = updatedSession
+                            TryOnSessionHolder.update(updatedSession)
+                        }
+                        TryOnSessionHolder.update(session)
+                        if (session.status == TryOnStatus.DONE) {
+                            adProvider.onGenerationCompleted()
+                        }
+                    }
                 }
-                TryOnSessionHolder.update(session)
             }
         }
     }

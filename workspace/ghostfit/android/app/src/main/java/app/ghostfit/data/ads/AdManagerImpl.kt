@@ -33,12 +33,13 @@ class AdManagerImpl(
     private var generationCount = 0
     private var adUnitId = AdProvider.TEST_INTERSTITIAL_ID
 
-    override fun initialize(context: Context, interstitialAdUnitId: String?) {
+    override fun initialize(context: Any, interstitialAdUnitId: String?) {
+        val ctx = context as Context
         if (interstitialAdUnitId != null) {
             adUnitId = interstitialAdUnitId
         }
-        MobileAds.initialize(context) {}
-        loadInterstitial(context)
+        MobileAds.initialize(ctx) {}
+        loadInterstitial(ctx)
     }
 
     private fun loadInterstitial(context: Context) {
@@ -74,7 +75,8 @@ class AdManagerImpl(
         return generationCount >= AdProvider.SHOW_AD_AFTER_GENERATIONS
     }
 
-    override suspend fun showAdIfNeeded(activity: Activity, onComplete: () -> Unit) {
+    override suspend fun showAdIfNeeded(activity: Any, onComplete: () -> Unit) {
+        val act = activity as Activity
         if (!shouldShowAd()) {
             onComplete()
             return
@@ -82,7 +84,7 @@ class AdManagerImpl(
 
         val ad = interstitialAd
         if (ad == null) {
-            loadInterstitial(activity)
+            loadInterstitial(act)
             onComplete()
             return
         }
@@ -91,17 +93,17 @@ class AdManagerImpl(
             override fun onAdDismissedFullScreenContent() {
                 interstitialAd = null
                 generationCount = 0
-                loadInterstitial(activity)
+                loadInterstitial(act)
                 onComplete()
             }
 
             override fun onAdFailedToShowFullScreenContent(error: AdError) {
                 interstitialAd = null
-                loadInterstitial(activity)
+                loadInterstitial(act)
                 onComplete()
             }
         }
-        ad.show(activity)
+        ad.show(act)
     }
 
     override fun resetSessionCount() {

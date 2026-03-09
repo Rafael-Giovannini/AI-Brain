@@ -45,7 +45,21 @@
       "Bash(git -C \"c:/Users/rafael.giovannini/Documents/GitHub/AI-Brain\" config user.name)",
       "Bash(git -C \"c:/Users/rafael.giovannini/Documents/GitHub/AI-Brain\" config user.email)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 20 --prompt \"Continue fixing validation report issues. Check fix_plan.md for already completed tasks - DO NOT repeat them.:*)"
+      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 20 --prompt \"Continue fixing validation report issues. Check fix_plan.md for already completed tasks - DO NOT repeat them.:*)",
+      "Bash(wc -l \"C:\\\\Users\\\\rafael.giovannini\\\\Documents\\\\GitHub\\\\AI-Brain\\\\workspace\\\\ghostfit\\\\android\\\\app\\\\src\\\\main\\\\java\\\\app\\\\ghostfit\\\\domain\"*.kt)",
+      "Bash(find \"C:\\\\Users\\\\rafael.giovannini\\\\Documents\\\\GitHub\\\\AI-Brain\\\\workspace\\\\ghostfit\\\\android\\\\app\\\\src\\\\main\\\\java\\\\app\\\\ghostfit\" -name \"*.kt\" -type f -exec wc -l {} +)",
+      "Bash(grep -r \"fun \\\\`.*\\\\`\" /c/Users/rafael.giovannini/Documents/GitHub/AI-Brain/workspace/ghostfit/android/app/src/test/java --include=\"*.kt\")",
+      "Bash(grep -h \"fun \\\\`\" /c/Users/rafael.giovannini/Documents/GitHub/AI-Brain/workspace/ghostfit/android/app/src/test/java/app/ghostfit/domain/AdManagerTest.kt)",
+      "Bash(sed 's/^[[:space:]]*//')",
+      "Bash(sed 's/\\(.*//')",
+      "Bash(bash ./ralph-loop.sh ghostfit)",
+      "Read(//c/Users/rafael.giovannini/Documents/GitHub/AI-Brain/**)",
+      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 30)",
+      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 8 --prompt \"Execute ALL Phase 7B through 7I tasks from fix_plan.md. Do them ALL in this loop::*)",
+      "Read(//c/Users/RAFAEL~1.GIO/AppData/Local/Temp/claude/c--Users-rafael-giovannini-Documents-GitHub-AI-Brain/tasks//**)",
+      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 5 --prompt \"Execute these tasks from fix_plan.md::*)",
+      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 5 --prompt \"IMPORTANT: You MUST create/edit actual source files, not just update fix_plan.md. Read the existing code first, then write the changes.:*)",
+      "Bash(bash ./ralph-loop.sh ghostfit --max-loops 5 --prompt \"Execute ALL Phase 6 tasks from fix_plan.md - Migrate Vision LLM to Gemini 2.0 Flash primary + GPT-4o fallback. You MUST create/edit actual source files using Write/Edit tools.:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\rafael.giovannini\\Documents\\GitHub\\AI-Brain\\workspace\\ghostfit",

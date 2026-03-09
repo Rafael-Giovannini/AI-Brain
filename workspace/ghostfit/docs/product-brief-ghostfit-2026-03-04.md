@@ -69,7 +69,7 @@ Aplicativo Android com overlay flutuante (ícone de fantasma) que funciona sobre
 1. **Setup (uma vez):** Usuária instala o GhostFit e seleciona fotos de corpo inteiro via Photo Picker nativo
 2. **Uso diário:** Abre Shopee/Shein normalmente, navega pelos produtos
 3. **Try-on (um toque):** Encontra roupa → toca no fantasminha → app captura tela automaticamente
-4. **IA em ação:** ML Kit detecta a roupa on-device (< 100ms), GPT-4o Vision classifica tipo/cor. Se não encontrar roupa, exibe aviso "Nenhuma roupa detectada"
+4. **IA em ação:** ML Kit detecta a roupa on-device (< 100ms), Gemini 2.0 Flash classifica tipo/cor (GPT-4o Vision como fallback). Se não encontrar roupa, exibe aviso "Nenhuma roupa detectada"
 5. **Geração:** FASHN.ai (primário) ou Vertex AI (fallback) gera imagem da usuária vestindo a roupa
 6. **Resultado:** Exibe a imagem. Opções: "Tentar novamente", "Trocar foto", "Compartilhar"
 

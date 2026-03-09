@@ -11,6 +11,7 @@ import android.media.Image
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.DisplayMetrics
@@ -32,6 +33,7 @@ import kotlin.coroutines.resumeWithException
 class ScreenCapture(private val context: Context) : ScreenCaptureProvider {
 
     private var mediaProjection: MediaProjection? = null
+    private var projectionCallback: MediaProjection.Callback? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
 
@@ -80,6 +82,20 @@ class ScreenCapture(private val context: Context) : ScreenCaptureProvider {
 
         val handler = Handler(Looper.getMainLooper())
 
+        // Android 14+ (API 34) requires a registered callback before createVirtualDisplay
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val callback = object : MediaProjection.Callback() {
+                override fun onStop() {
+                    teardownVirtualDisplay()
+                    if (cont.isActive) {
+                        cont.resumeWithException(IllegalStateException("MediaProjection stopped by system"))
+                    }
+                }
+            }
+            projectionCallback = callback
+            projection.registerCallback(callback, handler)
+        }
+
         virtualDisplay = projection.createVirtualDisplay(
             "GhostFitCapture",
             width, height, density,
@@ -108,6 +124,12 @@ class ScreenCapture(private val context: Context) : ScreenCaptureProvider {
      */
     fun release() {
         teardownVirtualDisplay()
+        projectionCallback?.let { cb ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                mediaProjection?.unregisterCallback(cb)
+            }
+        }
+        projectionCallback = null
         mediaProjection?.stop()
         mediaProjection = null
     }

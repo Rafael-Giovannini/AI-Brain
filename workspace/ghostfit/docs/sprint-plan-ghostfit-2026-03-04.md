@@ -269,10 +269,11 @@ Para não precisar recortar nada manualmente.
 - [ ] Processamento em < 3 segundos (95% dos casos em 4G)
 - [ ] Funciona com layouts típicos de Shopee e Shein
 - [ ] Implementação ML Kit Object Detection como detecção on-device (bounding box + crop)
-- [ ] Implementação GPT-4o Vision como classificação remota (categoria, cor, descrição, confiança)
+- [ ] Implementação Gemini 2.0 Flash como classificação remota primária (categoria, cor, descrição, confiança)
+- [ ] Implementação GPT-4o Vision como classificação remota fallback
 
 **Notas Técnicas:**
-Pipeline de 2 camadas conforme research.md: ML Kit (on-device, < 100ms) para localizar roupa na screenshot via bounding box, seguido de GPT-4o Vision para extrair metadados estruturados (tipo, cor, descrição, confiança) da imagem recortada. Implementar `MlKitObjectDetector` e `GptVisionClassifier`.
+Pipeline de 2 camadas conforme research.md: ML Kit (on-device, < 100ms) para localizar roupa na screenshot via bounding box, seguido de Gemini 2.0 Flash (primário, 5s timeout) ou GPT-4o Vision (fallback) para extrair metadados estruturados (tipo, cor, descrição, confiança) da imagem recortada. Implementar `GeminiVisionApi` (primário) e `VisionLlmApi` (fallback).
 
 **Dependências:** STORY-008 (PAL)
 
@@ -789,7 +790,8 @@ Implementar `ProviderRouter` com lógica de scoring. Buscar scores do Firestore 
 
 - **Android Photo Picker** — Seleção nativa de fotos (sem OAuth)
 - **ML Kit Object Detection** — Detecção de roupa on-device (< 100ms)
-- **GPT-4o Vision** — Classificação remota de tipo/cor de roupa
+- **Gemini 2.0 Flash** — Classificação remota de tipo/cor de roupa (primário, ~100x mais barato)
+- **GPT-4o Vision** — Classificação remota (fallback automático caso Gemini falhe)
 - **FASHN.ai v1.5** — Geração de imagem try-on (primário)
 - **Google Vertex AI VTON** — Fallback para geração
 - **Google Play Billing Library v8.3.0** — Compras e assinaturas

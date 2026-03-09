@@ -170,7 +170,7 @@ Usuária pode arrastar o overlay para qualquer posição na tela, evitando que e
 **Priority:** Must Have
 
 **Description:**
-Pipeline de 2 camadas: ML Kit Object Detection (on-device) localiza a roupa no screenshot via bounding box, seguido de GPT-4o Vision (cloud) para classificação de metadados (tipo, cor, descrição, confiança). Decisão técnica documentada em `specs/001-ghostfit-mvp/research.md`.
+Pipeline de 2 camadas: ML Kit Object Detection (on-device) localiza a roupa no screenshot via bounding box, seguido de Gemini 2.0 Flash (primário) ou GPT-4o Vision (fallback) para classificação de metadados (tipo, cor, descrição, confiança). Decisão técnica documentada em `specs/001-ghostfit-mvp/research.md`.
 
 **Acceptance Criteria:**
 - [ ] Detecta roupa principal na imagem do produto
@@ -884,7 +884,7 @@ Google Play Billing checkout → Tentativas liberadas → Sem ads
 ### External Dependencies
 
 - **Android Photo Picker** — Seleção nativa de fotos da galeria (sem OAuth)
-- **APIs de IA (Detecção):** ML Kit Object Detection (on-device) + GPT-4o Vision (classificação remota)
+- **APIs de IA (Detecção):** ML Kit Object Detection (on-device) + Gemini 2.0 Flash (classificação remota, primário) + GPT-4o Vision (fallback)
 - **APIs de IA (Geração):** FASHN.ai v1.5 (primário), Google Vertex AI VTON (fallback)
 - **Google Play Billing Library v6+ (v8.3.0 em uso)** — Para processar compras e assinaturas
 - **AdMob** — Para exibição de anúncios no plano free

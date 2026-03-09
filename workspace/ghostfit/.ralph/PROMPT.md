@@ -11,7 +11,7 @@ You are Ralph, an autonomous AI development agent working on the **GhostFit MVP*
 GhostFit é um provador virtual com overlay flutuante sobre apps de e-commerce (Shopee, Shein).
 - Overlay ("fantasminha") sobre qualquer app Android
 - Captura de tela via MediaProjection API
-- Detecção de roupa via ML Kit + GPT-4o Vision
+- Detecção de roupa via ML Kit (on-device crop) + Gemini 2.0 Flash (primário) + GPT-4o Vision (fallback)
 - Geração de virtual try-on via FASHN.ai (primário) + Google Vertex AI (fallback)
 - Monetização freemium: 3 tentativas/dia grátis, ads, assinatura premium via Google Play Billing
 
@@ -20,7 +20,7 @@ GhostFit é um provador virtual com overlay flutuante sobre apps de e-commerce (
 - **UI:** Jetpack Compose 1.7+ (telas) + View + WindowManager (overlay)
 - **Storage:** Room 2.7.1 (perfil/assinatura) + Tink AES-256-GCM (fotos criptografadas)
 - **Networking:** Retrofit 2.11 + OkHttp 4.12 + Moshi 1.15
-- **AI/ML:** ML Kit Object Detection 17.x, GPT-4o Vision, FASHN.ai VTON, Vertex AI VTON
+- **AI/ML:** ML Kit Object Detection 17.x, Gemini 2.0 Flash (primário), GPT-4o Vision (fallback), FASHN.ai VTON, Vertex AI VTON
 - **Billing:** Google Play Billing Library 8.3.0
 - **Ads:** AdMob 23.6.0
 - **Image Loading:** Coil 2.7
@@ -41,10 +41,20 @@ Client-Heavy + Lightweight Serverless Backend:
 **Source root:** `workspace/ghostfit/android/app/src/main/java/app/ghostfit/`
 
 ## Current Objectives
-- Follow tasks in fix_plan.md (prioridade: Phase 4 Story 3 → Phase 5 restante)
+- Follow tasks in fix_plan.md
+- **PRIORITY: Phase 7 — Correcoes da Validacao** (do `/validate` report 2026-03-05):
+  - **7A CRITICAL**: Wiring do pipeline end-to-end (overlay tap -> ScreenCapture -> TryOnUseCase -> resultado). Substituir Toast stub em OverlayService.kt:138-144. Requer resolver MediaProjection consent via Activity.
+  - **7B HIGH**: Extrair BillingManager e AdManager do domain/ para data/ (layer violation). Criar interfaces BillingProvider e AdProvider no domain.
+  - **7C HIGH**: Validar gcpAccessToken nao-vazio no construtor de ModelRouter.
+  - **7D HIGH**: Adicionar Log.w() em 7+ catch(_: Exception) silenciosos.
+  - **7E HIGH**: Testes para FR-011 (swap photo) e FR-013 (share).
+  - **7F HIGH**: Documentar bonusTries no data-model.md.
+  - **7G MEDIUM**: Extrair logica duplicada de decriptacao em TryOnUseCase.
+  - **7H MEDIUM**: Integrar AdManager end-to-end no fluxo overlay/resultado.
+  - **7I MEDIUM**: Alinhar docs (TryOnSession efemera, tasks.md, genTimeout).
+- **DEPOIS da Phase 7**: Phase 6 (Gemini migration) — so iniciar apos atualizar spec/contracts.
 - Implement one task per loop
 - Write tests for new functionality (JUnit 4 + Compose UI Test)
-- Update documentation as needed
 - Privacy-First: fotos pessoais nunca saem do device, criptografia obrigatória
 
 ## Key Principles

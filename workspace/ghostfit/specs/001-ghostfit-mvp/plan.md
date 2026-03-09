@@ -89,7 +89,7 @@ Nenhuma violação de constitution identificada. Sem complexidade excessiva just
 | Captura de tela | MediaProjection API | Share sheet (considerar como fallback) |
 | VTON primário | FASHN.ai API ($0.075/img) | NanoBanana (não é API standalone), Grok (não é VTON) |
 | VTON fallback | Google Vertex AI virtual-try-on-001 | IDM-VTON self-hosted (requer GPU A100) |
-| Detecção roupa | ML Kit (on-device crop) + GPT-4o Vision | Custom TFLite, Vision LLM sem crop |
+| Detecção roupa | ML Kit (on-device crop) + Gemini 2.0 Flash (primário) + GPT-4o Vision (fallback) | Custom TFLite, Vision LLM sem crop |
 | UI | Jetpack Compose + ComposeView no overlay | XML Views, Flutter |
 | Billing | GPBL 8.3.0 (ou RevenueCat) | Manual sem backend |
 | Criptografia fotos | Tink StreamingAead + Android Keystore | EncryptedFile (deprecado Abr/2025) |

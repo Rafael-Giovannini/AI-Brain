@@ -4,6 +4,8 @@ import app.ghostfit.BuildConfig
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import com.squareup.moshi.Json
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -32,7 +34,9 @@ interface VisionLlmApi {
             return Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(httpClient)
-                .addConverterFactory(MoshiConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(
+                    Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+                ))
                 .build()
                 .create(VisionLlmApi::class.java)
         }

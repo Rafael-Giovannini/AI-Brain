@@ -1,17 +1,15 @@
 package app.ghostfit.domain
 
-import android.app.Activity
-import android.content.Context
-
 /**
  * Domain interface for ad management (FR-016).
  * Abstracts AdMob for testability and clean architecture.
+ * Uses Any for framework types to keep domain layer framework-agnostic.
  */
 interface AdProvider {
-    fun initialize(context: Context, interstitialAdUnitId: String? = null)
+    fun initialize(context: Any, interstitialAdUnitId: String? = null)
     fun onGenerationCompleted()
     suspend fun shouldShowAd(): Boolean
-    suspend fun showAdIfNeeded(activity: Activity, onComplete: () -> Unit)
+    suspend fun showAdIfNeeded(activity: Any, onComplete: () -> Unit)
     fun resetSessionCount()
 
     companion object {

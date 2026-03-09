@@ -3,6 +3,8 @@ package app.ghostfit.data.remote
 import app.ghostfit.BuildConfig
 import app.ghostfit.data.model.GarmentCategory
 import com.squareup.moshi.Json
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -19,19 +21,28 @@ interface FashnApi {
         @Body request: FashnRequest
     ): FashnResponse
 
+    @retrofit2.http.GET("v1/status/{id}")
+    suspend fun getStatus(
+        @Header("Authorization") auth: String = "Bearer ${BuildConfig.FASHN_API_KEY}",
+        @retrofit2.http.Path("id") id: String
+    ): FashnResponse
+
     companion object {
         private const val BASE_URL = "https://api.fashn.ai/"
 
         fun create(client: OkHttpClient? = null): FashnApi {
             val httpClient = client ?: OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .build()
 
             return Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(httpClient)
-                .addConverterFactory(MoshiConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create(
+                    Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+                ))
                 .build()
                 .create(FashnApi::class.java)
         }
@@ -53,8 +64,18 @@ data class FashnRequest(
 data class FashnResponse(
     val id: String? = null,
     val status: String? = null,
-    val output: FashnOutput? = null
-)
+    val output: Any? = null,
+    val error: String? = null
+) {
+    /** FASHN returns output as a list of image URLs, e.g. ["https://cdn.fashn.ai/.../output_0.png"] */
+    fun getOutputUrl(): String? {
+        return when (output) {
+            is String -> output
+            is List<*> -> (output as List<*>).firstOrNull()?.toString()
+            else -> null
+        }
+    }
+}
 
 data class FashnOutput(
     @Json(name = "image_url") val imageUrl: String? = null,

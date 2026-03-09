@@ -116,7 +116,7 @@ O app se comunica com o backend através de uma interface `BackendService`. No M
 
 | Category | Primary | Fallback | Rationale |
 |----------|---------|----------|-----------|
-| **Vision (detecção)** | ML Kit Object Detection (on-device) | GPT-4o Vision (classificação remota) | ML Kit < 100ms local. GPT-4o para metadados (tipo, cor, descrição) |
+| **Vision (detecção)** | ML Kit Object Detection (on-device) + Gemini 2.0 Flash (classificação) | GPT-4o Vision (fallback classificação) | ML Kit < 100ms local. Gemini 2.0 Flash primário (~100x mais barato que GPT-4o). GPT-4o como fallback. |
 | **Generation (try-on)** | FASHN.ai v1.5 | Google Vertex AI VTON | FASHN.ai $0.075/img, maskless pixel-space. Vertex AI como fallback GCP |
 
 ### 3.3 Backend (Firebase)

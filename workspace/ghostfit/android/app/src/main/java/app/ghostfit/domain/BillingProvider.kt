@@ -1,9 +1,5 @@
 package app.ghostfit.domain
 
-import android.app.Activity
-import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.Purchase
 import app.ghostfit.data.model.PurchaseType
 import kotlinx.coroutines.flow.StateFlow
 
@@ -20,18 +16,20 @@ sealed class PurchaseEvent {
 /**
  * Domain interface for billing operations (FR-018).
  * Abstracts Google Play Billing for testability and clean architecture.
+ * Uses Any for Activity to keep domain layer framework-agnostic.
+ * Billing-specific types (ProductDetails, BillingResult, Purchase) remain
+ * as they represent the billing domain vocabulary for this app.
  */
 interface BillingProvider {
-    val productDetails: StateFlow<Map<String, ProductDetails>>
+    val productDetails: StateFlow<Map<String, Any>>
     val isConnected: StateFlow<Boolean>
     val purchaseEvent: StateFlow<PurchaseEvent?>
 
     fun connect()
     fun disconnect()
-    fun launchPurchaseFlow(activity: Activity, productId: String): BillingResult
+    fun launchPurchaseFlow(activity: Any, productId: String): Any
     fun consumePurchaseEvent()
     suspend fun restorePurchases()
-    fun onPurchasesUpdated(result: BillingResult, purchases: List<Purchase>?)
 
     companion object {
         const val SKU_MONTHLY = "ghostfit_premium_monthly"

@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,8 +25,12 @@ import androidx.compose.material3.MaterialTheme
 fun OverlayComposable(
     onDrag: (dx: Float, dy: Float) -> Unit,
     onDragEnd: () -> Unit,
-    onTap: () -> Unit
+    onTap: () -> Unit,
+    onLongPress: () -> Unit = {}
 ) {
+    // Track whether a drag happened so we can distinguish tap vs drag
+    var isDragging by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .size(56.dp)
@@ -31,22 +39,32 @@ fun OverlayComposable(
             .background(MaterialTheme.colorScheme.primary)
             .pointerInput(Unit) {
                 detectDragGestures(
+                    onDragStart = { isDragging = true },
                     onDrag = { change, dragAmount ->
                         change.consume()
                         onDrag(dragAmount.x, dragAmount.y)
                     },
-                    onDragEnd = onDragEnd
+                    onDragEnd = {
+                        isDragging = false
+                        onDragEnd()
+                    },
+                    onDragCancel = { isDragging = false }
                 )
             }
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onTap = { onTap() }
+                    onTap = {
+                        if (!isDragging) onTap()
+                    },
+                    onLongPress = {
+                        if (!isDragging) onLongPress()
+                    }
                 )
             },
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "👻",
+            text = "\uD83D\uDC7B",
             fontSize = 28.sp
         )
     }

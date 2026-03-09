@@ -10,6 +10,8 @@ import app.ghostfit.data.local.UserProfileDao
 import app.ghostfit.data.model.ReferencePhoto
 import app.ghostfit.data.model.UserProfile
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 class OnboardingViewModel(
@@ -43,20 +45,23 @@ class OnboardingViewModel(
     fun savePhotosAndCompleteOnboarding(bitmaps: List<Bitmap>, onDone: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val profile = userProfileDao.getProfile() ?: return@launch
-            bitmaps.forEach { bitmap ->
-                val fileName = "ref_${System.currentTimeMillis()}.enc"
-                val path = photoStorage.encrypt(bitmap, fileName)
-                if (path != null) {
-                    // TODO: FR-001/US1-6 — substituir por validação real de corpo inteiro
-                    // (ML Kit Pose Detection ou similar) na Phase 3
-                    referencePhotoDao.insert(
-                        ReferencePhoto(
-                            userId = profile.id,
-                            encryptedFilePath = path,
-                            isBodyFullVisible = true // placeholder até validação real
-                        )
-                    )
+            // Encrypt all photos in parallel for speed
+            val results = bitmaps.mapIndexed { index, bitmap ->
+                async {
+                    val fileName = "ref_${System.currentTimeMillis()}_$index.enc"
+                    photoStorage.encrypt(bitmap, fileName)
                 }
+            }.awaitAll()
+
+            results.filterNotNull().forEach { path ->
+                // TODO: FR-001/US1-6 — substituir por validação real de corpo inteiro
+                referencePhotoDao.insert(
+                    ReferencePhoto(
+                        userId = profile.id,
+                        encryptedFilePath = path,
+                        isBodyFullVisible = true // placeholder até validação real
+                    )
+                )
             }
             userProfileDao.updateProfile(
                 profile.copy(onboardingCompleted = true)

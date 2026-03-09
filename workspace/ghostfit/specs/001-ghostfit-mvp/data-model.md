@@ -18,7 +18,7 @@
 | `planType` | Enum: FREE, PREMIUM | default FREE | Plano ativo da usuária |
 | `dailyTriesUsed` | Int | 0..3 para FREE | Tentativas usadas no dia |
 | `dailyTriesResetDate` | String (yyyy-MM-dd) | — | Data do último reset de tentativas |
-| `bonusTries` | Int | ≥ 0, default 0 | Tentativas bônus (pacote avulso) |
+| `bonusTries` | Int | ≥ 0, default 0 | Tentativas bônus (compra de pacote avulso) |
 | `overlayPositionX` | Float | — | Posição X salva do overlay |
 | `overlayPositionY` | Float | — | Posição Y salva do overlay |
 | `createdAt` | Long (epoch ms) | auto | Data de criação |
@@ -35,10 +35,10 @@ PREMIUM → FREE  (assinatura expirada/cancelada)
 - Usuárias PREMIUM: campo ignorado (sem limite)
 
 **Regra de negócio — bonusTries**:
-- Consumidas ANTES de dailyTriesUsed (prioridade sobre tentativas diárias)
-- Quando `bonusTries > 0`, bypassa verificação de limite diário
-- Decrementadas em geração bem-sucedida (mesma regra de dailyTriesUsed)
-- Adquiridas via compra de pacote avulso (SubscriptionState.purchaseType = PACK)
+- Adquirido via compra de pacote avulso (SKU_PACK_10 = 10 tentativas)
+- Consumido ANTES de `dailyTriesUsed` — enquanto `bonusTries > 0`, `dailyTriesUsed` não é incrementado
+- Bypass do limite diário: se `bonusTries > 0`, `checkDailyLimit()` não lança exceção
+- Decrementado em 1 por geração bem-sucedida (via `incrementDailyTries()`)
 
 ---
 

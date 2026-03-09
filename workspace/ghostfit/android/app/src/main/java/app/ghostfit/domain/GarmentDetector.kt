@@ -2,7 +2,6 @@ package app.ghostfit.domain
 
 import android.graphics.Bitmap
 import android.util.Log
-import app.ghostfit.data.local.MlKitGarmentCropper
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.GarmentClassification
@@ -22,7 +21,7 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 class GarmentDetector(
     private val geminiVisionApi: GeminiVisionApi,
     private val visionLlmApi: VisionLlmApi,
-    private val cropper: GarmentCropper = MlKitGarmentCropper()
+    private val cropper: GarmentCropper
 ) {
     private val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
     private val classificationAdapter = moshi.adapter(GarmentClassification::class.java)

@@ -7,6 +7,7 @@ import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
+import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -40,6 +41,7 @@ class PhotoStorage internal constructor(
             outFile.writeBytes(ciphertext)
             outFile.absolutePath
         } catch (e: Exception) {
+            Log.w(TAG, "Failed to encrypt photo: $fileName", e)
             null
         }
     }
@@ -59,6 +61,7 @@ class PhotoStorage internal constructor(
             val plaintext = aead.decrypt(ciphertext, fileName.toByteArray())
             BitmapFactory.decodeByteArray(plaintext, 0, plaintext.size)
         } catch (e: Exception) {
+            Log.w(TAG, "Failed to decrypt photo: $filePath", e)
             null
         }
     }
@@ -74,6 +77,7 @@ class PhotoStorage internal constructor(
             val file = File(filePath)
             file.exists() && file.delete()
         } catch (e: Exception) {
+            Log.w(TAG, "Failed to delete file: $filePath", e)
             false
         }
     }
@@ -100,6 +104,7 @@ class PhotoStorage internal constructor(
     }
 
     companion object {
+        private const val TAG = "PhotoStorage"
         private const val ENC_DIR = ".enc"
         private const val KEYSET_NAME = "ghostfit_photo_keyset"
         private const val PREF_FILE_NAME = "ghostfit_photo_keyset_prefs"

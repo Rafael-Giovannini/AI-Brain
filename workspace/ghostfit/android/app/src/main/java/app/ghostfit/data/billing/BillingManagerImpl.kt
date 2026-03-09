@@ -43,8 +43,8 @@ class BillingManagerImpl(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) : BillingProvider, PurchasesUpdatedListener {
 
-    private val _productDetails = MutableStateFlow<Map<String, ProductDetails>>(emptyMap())
-    override val productDetails: StateFlow<Map<String, ProductDetails>> = _productDetails.asStateFlow()
+    private val _productDetails = MutableStateFlow<Map<String, Any>>(emptyMap())
+    override val productDetails: StateFlow<Map<String, Any>> = _productDetails.asStateFlow()
 
     private val _connectionState = MutableStateFlow(false)
     override val isConnected: StateFlow<Boolean> = _connectionState.asStateFlow()
@@ -101,7 +101,7 @@ class BillingManagerImpl(
         val subsResult = queryProductDetailsAsync(subParams)
         val inAppResult = queryProductDetailsAsync(inAppParams)
 
-        val details = mutableMapOf<String, ProductDetails>()
+        val details = mutableMapOf<String, Any>()
         subsResult.forEach { details[it.productId] = it }
         inAppResult.forEach { details[it.productId] = it }
         _productDetails.value = details
@@ -118,8 +118,9 @@ class BillingManagerImpl(
         }
     }
 
-    override fun launchPurchaseFlow(activity: Activity, productId: String): BillingResult {
-        val details = _productDetails.value[productId]
+    override fun launchPurchaseFlow(activity: Any, productId: String): Any {
+        val act = activity as Activity
+        val details = _productDetails.value[productId] as? ProductDetails
             ?: return BillingResult.newBuilder()
                 .setResponseCode(BillingResponseCode.ITEM_UNAVAILABLE)
                 .setDebugMessage("Product $productId not found")
@@ -138,7 +139,7 @@ class BillingManagerImpl(
             .setProductDetailsParamsList(listOf(productDetailsParams.build()))
             .build()
 
-        return billingClient.launchBillingFlow(activity, flowParams)
+        return billingClient.launchBillingFlow(act, flowParams)
     }
 
     override fun onPurchasesUpdated(result: BillingResult, purchases: List<Purchase>?) {

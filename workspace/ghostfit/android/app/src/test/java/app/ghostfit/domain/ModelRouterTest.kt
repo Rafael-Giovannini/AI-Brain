@@ -6,7 +6,6 @@ import android.util.Base64
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.FashnApi
-import app.ghostfit.data.remote.FashnOutput
 import app.ghostfit.data.remote.FashnRequest
 import app.ghostfit.data.remote.FashnResponse
 import app.ghostfit.data.remote.GhostFitApi
@@ -71,12 +70,13 @@ class ModelRouterTest {
     fun `generate uses FASHN as primary model`() = runTest {
         val imageBase64 = createTestBitmapBase64()
 
+        // Submit returns job ID
         whenever(fashnApi.generateTryOn(any(), any())).thenReturn(
-            FashnResponse(
-                id = "run_123",
-                status = "completed",
-                output = FashnOutput(imageBase64 = imageBase64)
-            )
+            FashnResponse(id = "run_123", status = "queued")
+        )
+        // Poll returns completed with base64 output
+        whenever(fashnApi.getStatus(any(), any())).thenReturn(
+            FashnResponse(id = "run_123", status = "completed", output = imageBase64)
         )
 
         val result = router.generate("ref_base64", createTestGarment())
@@ -141,6 +141,9 @@ class ModelRouterTest {
     @Test
     fun `tryFashn returns null on empty output`() = runTest {
         whenever(fashnApi.generateTryOn(any(), any())).thenReturn(
+            FashnResponse(id = "run_123", status = "queued")
+        )
+        whenever(fashnApi.getStatus(any(), any())).thenReturn(
             FashnResponse(id = "run_123", status = "completed", output = null)
         )
 
@@ -166,7 +169,10 @@ class ModelRouterTest {
         val imageBase64 = createTestBitmapBase64()
 
         whenever(fashnApi.generateTryOn(any(), any())).thenReturn(
-            FashnResponse(id = "run_1", status = "completed", output = FashnOutput(imageBase64 = imageBase64))
+            FashnResponse(id = "run_1", status = "queued")
+        )
+        whenever(fashnApi.getStatus(any(), any())).thenReturn(
+            FashnResponse(id = "run_1", status = "completed", output = imageBase64)
         )
 
         val result = fashnOnlyRouter.generate("ref_base64", createTestGarment())

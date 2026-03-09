@@ -4,6 +4,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import app.ghostfit.data.model.GarmentCategory
 import app.ghostfit.data.model.GarmentInfo
 import app.ghostfit.data.remote.FashnApi
@@ -13,6 +16,7 @@ import app.ghostfit.data.remote.VertexAiApi
 import app.ghostfit.data.remote.VertexImage
 import app.ghostfit.data.remote.VertexInstance
 import app.ghostfit.data.remote.VertexRequest
+import java.net.URL
 /**
  * Chain-of-responsibility router: queries backend for optimal model ordering
  * based on accumulated approval scores (FR-020), then falls back to default
@@ -30,7 +34,9 @@ class ModelRouter(
 
     companion object {
         private const val TAG = "ModelRouter"
-        private const val FASHN_MAX_RETRIES = 2
+        private const val FASHN_MAX_RETRIES = 1
+        private const val FASHN_POLL_INTERVAL_MS = 3000L
+        private const val FASHN_POLL_MAX_ATTEMPTS = 20 // 20 * 3s = 60s max
         private const val VERTEX_MAX_RETRIES = 2
         internal const val MODEL_FASHN = "fashn"
         internal const val MODEL_VERTEX = "vertex"
@@ -104,28 +110,82 @@ class ModelRouter(
         garmentBase64: String,
         category: GarmentCategory
     ): GenerationResult? {
-        repeat(FASHN_MAX_RETRIES) { attempt ->
+        // Ensure images have data URI prefix for FASHN API
+        val modelImageUri = ensureDataUri(referenceBase64)
+        val garmentImageUri = ensureDataUri(garmentBase64)
+
+        for (attempt in 1..FASHN_MAX_RETRIES) {
             try {
-                val response = fashnApi.generateTryOn(
+                Log.d(TAG, "FASHN attempt $attempt/$FASHN_MAX_RETRIES starting...")
+                val submitResponse = fashnApi.generateTryOn(
                     request = FashnRequest(
-                        modelImage = referenceBase64,
-                        garmentImage = garmentBase64,
+                        modelImage = modelImageUri,
+                        garmentImage = garmentImageUri,
                         category = FashnApi.mapCategory(category)
                     )
                 )
 
-                val imageData = response.output?.imageBase64
-                    ?: response.output?.imageUrl?.let { return@repeat } // URL not directly decodable, retry
-                    ?: return@repeat
+                val jobId = submitResponse.id
+                if (jobId == null) {
+                    Log.w(TAG, "FASHN returned no job ID")
+                    continue
+                }
+                Log.d(TAG, "FASHN job submitted: id=$jobId")
 
-                val bitmap = base64ToBitmap(imageData) ?: return@repeat
-
-                return GenerationResult(image = bitmap, modelUsed = "fashn")
+                // Poll for result
+                val result = pollFashnResult(jobId)
+                if (result != null) return result
             } catch (e: Exception) {
-                Log.w(TAG, "FASHN attempt ${attempt + 1}/$FASHN_MAX_RETRIES failed", e)
+                Log.w(TAG, "FASHN attempt $attempt/$FASHN_MAX_RETRIES failed", e)
             }
         }
         return null
+    }
+
+    private suspend fun pollFashnResult(jobId: String): GenerationResult? {
+        for (pollAttempt in 1..FASHN_POLL_MAX_ATTEMPTS) {
+            delay(FASHN_POLL_INTERVAL_MS)
+            val response = fashnApi.getStatus(id = jobId)
+            val outputUrl = response.getOutputUrl()
+            Log.d(TAG, "FASHN poll $pollAttempt: status=${response.status}, output=${response.output?.toString()?.take(120)}, error=${response.error}")
+
+            when (response.status) {
+                "completed" -> {
+                    val bitmap = when {
+                        outputUrl != null && outputUrl.startsWith("http") -> {
+                            Log.d(TAG, "FASHN completed with image URL: ${outputUrl.take(100)}")
+                            downloadImageAsBitmap(outputUrl)
+                        }
+                        outputUrl != null -> {
+                            Log.d(TAG, "FASHN completed with base64 output")
+                            base64ToBitmap(outputUrl)
+                        }
+                        else -> {
+                            Log.w(TAG, "FASHN completed but output is not a string: ${response.output?.javaClass?.simpleName}")
+                            null
+                        }
+                    }
+                    if (bitmap != null) {
+                        Log.d(TAG, "FASHN generation successful!")
+                        return GenerationResult(image = bitmap, modelUsed = "fashn")
+                    }
+                    Log.w(TAG, "FASHN completed but no valid image data")
+                    return null
+                }
+                "failed", "error" -> {
+                    Log.w(TAG, "FASHN job failed: status=${response.status}, error=${response.error}, output=${response.output}")
+                    return null
+                }
+                // "processing", "queued", null → keep polling
+            }
+        }
+        Log.w(TAG, "FASHN polling timed out after ${FASHN_POLL_MAX_ATTEMPTS * FASHN_POLL_INTERVAL_MS / 1000}s")
+        return null
+    }
+
+    private fun ensureDataUri(base64: String): String {
+        return if (base64.startsWith("data:")) base64
+        else "data:image/jpeg;base64,$base64"
     }
 
     internal suspend fun tryVertex(
@@ -167,11 +227,28 @@ class ModelRouter(
 
     private fun base64ToBitmap(base64: String): Bitmap? {
         return try {
-            val bytes = Base64.decode(base64, Base64.DEFAULT)
+            // Strip data URI prefix if present
+            val raw = if (base64.contains(",")) base64.substringAfter(",") else base64
+            val bytes = Base64.decode(raw, Base64.DEFAULT)
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         } catch (e: Exception) {
             Log.w(TAG, "Failed to decode base64 to bitmap", e)
             null
+        }
+    }
+
+    private suspend fun downloadImageAsBitmap(url: String): Bitmap? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val connection = URL(url).openConnection()
+                connection.connectTimeout = 10_000
+                connection.readTimeout = 15_000
+                val inputStream = connection.getInputStream()
+                BitmapFactory.decodeStream(inputStream)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to download image from URL", e)
+                null
+            }
         }
     }
 }

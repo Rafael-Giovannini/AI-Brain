@@ -1,6 +1,5 @@
 package app.ghostfit.ui.subscription
 
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -66,7 +65,7 @@ import kotlinx.coroutines.flow.StateFlow
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpgradeScreen(
-    productDetailsFlow: StateFlow<Map<String, ProductDetails>>,
+    productDetailsFlow: StateFlow<Map<String, Any>>,
     purchaseEventFlow: StateFlow<PurchaseEvent?> = MutableStateFlow(null),
     onPurchase: (productId: String) -> Unit = {},
     onPurchaseEventConsumed: () -> Unit = {},
@@ -78,8 +77,8 @@ fun UpgradeScreen(
     var selectedPlan by remember { mutableStateOf(BillingProvider.SKU_MONTHLY) }
     var purchaseSuccess by remember { mutableStateOf(false) }
 
-    val monthlyDetails = productDetails[BillingProvider.SKU_MONTHLY]
-    val packDetails = productDetails[BillingProvider.SKU_PACK_10]
+    val monthlyDetails = productDetails[BillingProvider.SKU_MONTHLY] as? ProductDetails
+    val packDetails = productDetails[BillingProvider.SKU_PACK_10] as? ProductDetails
 
     // React to purchase events
     LaunchedEffect(purchaseEvent) {

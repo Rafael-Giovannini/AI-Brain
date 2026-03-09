@@ -15,6 +15,7 @@ import app.ghostfit.data.model.PlanType
 import app.ghostfit.data.model.PurchaseType
 import app.ghostfit.data.model.SubscriptionState
 import app.ghostfit.data.model.UserProfile
+import app.ghostfit.data.billing.BillingManagerImpl
 import app.ghostfit.domain.PurchaseEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -48,7 +49,7 @@ class BillingManagerTest {
     private lateinit var billingClient: BillingClient
     private lateinit var subscriptionStateDao: SubscriptionStateDao
     private lateinit var userProfileDao: UserProfileDao
-    private lateinit var billingManager: BillingManager
+    private lateinit var billingManager: BillingManagerImpl
 
     private val testProfile = UserProfile(id = "user-1", lgpdConsentGranted = true)
     private val testDispatcher = UnconfinedTestDispatcher()
@@ -63,7 +64,7 @@ class BillingManagerTest {
         subscriptionStateDao = mock()
         userProfileDao = mock()
 
-        billingManager = BillingManager(
+        billingManager = BillingManagerImpl(
             billingClient = billingClient,
             subscriptionStateDao = subscriptionStateDao,
             userProfileDao = userProfileDao,
@@ -106,7 +107,7 @@ class BillingManagerTest {
         whenever(userProfileDao.getProfile()).thenReturn(testProfile)
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_MONTHLY,
+            productId = BillingProvider.SKU_MONTHLY,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = false,
             purchaseToken = "token-monthly-123"
@@ -121,7 +122,7 @@ class BillingManagerTest {
         verify(subscriptionStateDao).upsert(check { state ->
             assertEquals("user-1", state.userId)
             assertEquals("token-monthly-123", state.purchaseToken)
-            assertEquals(BillingManager.SKU_MONTHLY, state.productId)
+            assertEquals(BillingProvider.SKU_MONTHLY, state.productId)
             assertEquals(PurchaseType.MONTHLY, state.purchaseType)
             assertTrue(state.isActive)
             assertNotNull(state.acknowledgedAt)
@@ -134,7 +135,7 @@ class BillingManagerTest {
         whenever(userProfileDao.getProfile()).thenReturn(testProfile)
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_PACK_10,
+            productId = BillingProvider.SKU_PACK_10,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = false,
             purchaseToken = "token-pack-456"
@@ -151,7 +152,7 @@ class BillingManagerTest {
         })
         // Pack purchase adds bonus tries, does NOT set PREMIUM
         verify(userProfileDao, never()).updatePlanType(any())
-        verify(userProfileDao).updateBonusTries(BillingManager.PACK_TRIES_COUNT)
+        verify(userProfileDao).updateBonusTries(BillingProvider.PACK_TRIES_COUNT)
     }
 
     @Test
@@ -159,7 +160,7 @@ class BillingManagerTest {
         whenever(userProfileDao.getProfile()).thenReturn(testProfile)
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_MONTHLY,
+            productId = BillingProvider.SKU_MONTHLY,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = true,
             purchaseToken = "token-ack"
@@ -177,7 +178,7 @@ class BillingManagerTest {
     @Test
     fun `handlePurchase ignores pending purchases`() = runTest {
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_MONTHLY,
+            productId = BillingProvider.SKU_MONTHLY,
             purchaseState = Purchase.PurchaseState.PENDING,
             isAcknowledged = false,
             purchaseToken = "token-pending"
@@ -194,7 +195,7 @@ class BillingManagerTest {
         whenever(userProfileDao.getProfile()).thenReturn(testProfile)
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_MONTHLY,
+            productId = BillingProvider.SKU_MONTHLY,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = false,
             purchaseToken = "token-fail"
@@ -222,7 +223,7 @@ class BillingManagerTest {
         whenever(userProfileDao.getProfile()).thenReturn(testProfile)
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_MONTHLY,
+            productId = BillingProvider.SKU_MONTHLY,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = true,
             purchaseToken = "token-restore"
@@ -276,7 +277,7 @@ class BillingManagerTest {
         whenever(userProfileDao.getProfile()).thenReturn(testProfile)
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_PACK_10,
+            productId = BillingProvider.SKU_PACK_10,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = true,
             purchaseToken = "token-callback"
@@ -311,7 +312,7 @@ class BillingManagerTest {
         stubAcknowledgeSuccess()
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_MONTHLY,
+            productId = BillingProvider.SKU_MONTHLY,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = false,
             purchaseToken = "token-event-1"
@@ -321,7 +322,7 @@ class BillingManagerTest {
 
         val event = billingManager.purchaseEvent.value
         assertTrue(event is PurchaseEvent.Success)
-        assertEquals(BillingManager.SKU_MONTHLY, (event as PurchaseEvent.Success).productId)
+        assertEquals(BillingProvider.SKU_MONTHLY, (event as PurchaseEvent.Success).productId)
         assertEquals(PurchaseType.MONTHLY, event.purchaseType)
     }
 
@@ -331,7 +332,7 @@ class BillingManagerTest {
         stubAcknowledgeSuccess()
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_PACK_10,
+            productId = BillingProvider.SKU_PACK_10,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = false,
             purchaseToken = "token-event-2"
@@ -341,7 +342,7 @@ class BillingManagerTest {
 
         val event = billingManager.purchaseEvent.value
         assertTrue(event is PurchaseEvent.Success)
-        assertEquals(BillingManager.SKU_PACK_10, (event as PurchaseEvent.Success).productId)
+        assertEquals(BillingProvider.SKU_PACK_10, (event as PurchaseEvent.Success).productId)
         assertEquals(PurchaseType.PACK, event.purchaseType)
     }
 
@@ -376,7 +377,7 @@ class BillingManagerTest {
         stubAcknowledgeSuccess()
 
         val purchase = createMockPurchase(
-            productId = BillingManager.SKU_MONTHLY,
+            productId = BillingProvider.SKU_MONTHLY,
             purchaseState = Purchase.PurchaseState.PURCHASED,
             isAcknowledged = true,
             purchaseToken = "token-consume"

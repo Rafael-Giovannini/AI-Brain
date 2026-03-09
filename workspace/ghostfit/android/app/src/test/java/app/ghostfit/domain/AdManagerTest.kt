@@ -1,5 +1,6 @@
 package app.ghostfit.domain
 
+import app.ghostfit.data.ads.AdManagerImpl
 import app.ghostfit.data.local.UserProfileDao
 import app.ghostfit.data.model.PlanType
 import app.ghostfit.data.model.UserProfile
@@ -13,7 +14,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
 /**
- * Tests for AdManager logic (FR-016).
+ * Tests for AdManagerImpl logic (FR-016).
  * Verifies:
  * - Ads only shown to free users
  * - Ads triggered after SHOW_AD_AFTER_GENERATIONS completions
@@ -23,7 +24,7 @@ import org.mockito.kotlin.whenever
 class AdManagerTest {
 
     private lateinit var userProfileDao: UserProfileDao
-    private lateinit var adManager: AdManager
+    private lateinit var adManager: AdManagerImpl
 
     private val freeProfile = UserProfile(
         id = "user-1",
@@ -40,7 +41,7 @@ class AdManagerTest {
     @Before
     fun setup() {
         userProfileDao = mock()
-        adManager = AdManager(userProfileDao)
+        adManager = AdManagerImpl(userProfileDao)
     }
 
     @Test
@@ -70,7 +71,7 @@ class AdManagerTest {
     @Test
     fun `shouldShowAd returns true for free user at threshold`() = runTest {
         whenever(userProfileDao.getProfile()).thenReturn(freeProfile)
-        repeat(AdManager.SHOW_AD_AFTER_GENERATIONS) {
+        repeat(AdProvider.SHOW_AD_AFTER_GENERATIONS) {
             adManager.onGenerationCompleted()
         }
         assertTrue(adManager.shouldShowAd())
@@ -79,7 +80,7 @@ class AdManagerTest {
     @Test
     fun `shouldShowAd returns true for free user above threshold`() = runTest {
         whenever(userProfileDao.getProfile()).thenReturn(freeProfile)
-        repeat(AdManager.SHOW_AD_AFTER_GENERATIONS + 3) {
+        repeat(AdProvider.SHOW_AD_AFTER_GENERATIONS + 3) {
             adManager.onGenerationCompleted()
         }
         assertTrue(adManager.shouldShowAd())
@@ -105,13 +106,13 @@ class AdManagerTest {
 
     @Test
     fun `SHOW_AD_AFTER_GENERATIONS is 2`() {
-        assertEquals(2, AdManager.SHOW_AD_AFTER_GENERATIONS)
+        assertEquals(2, AdProvider.SHOW_AD_AFTER_GENERATIONS)
     }
 
     @Test
     fun `shouldShowAd after reset returns false for free user`() = runTest {
         whenever(userProfileDao.getProfile()).thenReturn(freeProfile)
-        repeat(AdManager.SHOW_AD_AFTER_GENERATIONS) {
+        repeat(AdProvider.SHOW_AD_AFTER_GENERATIONS) {
             adManager.onGenerationCompleted()
         }
         assertTrue(adManager.shouldShowAd())

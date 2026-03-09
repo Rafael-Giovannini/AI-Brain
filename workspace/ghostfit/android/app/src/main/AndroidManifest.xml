@@ -49,23 +49,10 @@
             android:foregroundServiceType="mediaProjection"
             android:exported="false" />
 
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_provider_paths" />
-        </provider>
-
-        <!-- AdMob App ID — loaded from local.properties via BuildConfig.
-             TODO: Replace placeholder below with BuildConfig.ADMOB_APP_ID
-             once build.gradle.kts is configured to read ADMOB_APP_ID from
-             local.properties (same pattern as FASHN_API_KEY). -->
+        <!-- AdMob App ID — injected from local.properties via manifestPlaceholders -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="${admobAppId}" />
 
     </application>
 

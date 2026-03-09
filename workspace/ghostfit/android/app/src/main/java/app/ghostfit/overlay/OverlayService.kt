@@ -25,6 +25,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import app.ghostfit.MainActivity
 import app.ghostfit.data.local.AppDatabase
+import app.ghostfit.data.local.MlKitGarmentCropper
 import app.ghostfit.data.local.PhotoStorage
 import app.ghostfit.data.local.UserProfileDao
 import app.ghostfit.data.remote.FashnApi
@@ -122,7 +123,9 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.START
@@ -152,6 +155,10 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
                             },
                             onTap = {
                                 launchTryOn()
+                            },
+                            onLongPress = {
+                                Toast.makeText(this@OverlayService, "GhostFit overlay encerrado", Toast.LENGTH_SHORT).show()
+                                stopSelf()
                             }
                         )
                     }
@@ -212,7 +219,7 @@ class OverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
 
                 val tryOnUseCase = TryOnUseCase(
                     screenCapture = screenCapture,
-                    garmentDetector = GarmentDetector(geminiVisionApi, visionLlmApi),
+                    garmentDetector = GarmentDetector(geminiVisionApi, visionLlmApi, MlKitGarmentCropper()),
                     modelRouter = ModelRouter(fashnApi, vertexAiApi, ghostFitApi = ghostFitApi),
                     userProfileDao = profileDao,
                     referencePhotoDao = referencePhotoDao,

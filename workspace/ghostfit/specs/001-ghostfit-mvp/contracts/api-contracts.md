@@ -236,7 +236,7 @@ Response 200:
   "fallbackGenModel": "vertex",
   "maxFreeTrials": 3,
   "visionTimeout": 5000,
-  "genTimeout": 20000,
+  "genTimeout": 20000,  // Timeout maximo da geracao (ms). Target UX e < 15s (FR-009); 20s e o hard limit de rede.
   "minConfidence": 0.6,
   "subscriptionPrices": {
     "monthly": 9.90,

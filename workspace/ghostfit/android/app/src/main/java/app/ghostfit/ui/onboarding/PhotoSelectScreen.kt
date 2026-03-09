@@ -237,20 +237,32 @@ private fun PhotoThumbnail(
 }
 
 /**
- * Decode a content URI into a Bitmap.
+ * Decode a content URI into a Bitmap, downscaled to [maxDimension] to avoid OOM.
  * Uses ImageDecoder on API 28+ and MediaStore on older APIs.
  */
 @Suppress("DEPRECATION")
-private fun uriToBitmap(context: android.content.Context, uri: Uri): Bitmap? {
+private fun uriToBitmap(context: android.content.Context, uri: Uri, maxDimension: Int = 1024): Bitmap? {
     return try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        val raw = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val source = ImageDecoder.createSource(context.contentResolver, uri)
-            ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+            ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
                 decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                val (w, h) = info.size.width to info.size.height
+                if (w > maxDimension || h > maxDimension) {
+                    val scale = maxDimension.toFloat() / maxOf(w, h)
+                    decoder.setTargetSize((w * scale).toInt(), (h * scale).toInt())
+                }
             }
         } else {
             MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
         }
+        // Fallback downscale for older APIs
+        if (raw != null && (raw.width > maxDimension || raw.height > maxDimension)) {
+            val scale = maxDimension.toFloat() / maxOf(raw.width, raw.height)
+            val scaled = Bitmap.createScaledBitmap(raw, (raw.width * scale).toInt(), (raw.height * scale).toInt(), true)
+            if (scaled !== raw) raw.recycle()
+            scaled
+        } else raw
     } catch (e: Exception) {
         null
     }
